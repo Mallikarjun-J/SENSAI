@@ -1,0 +1,202 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  engineType = "client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id            String    @id @default(uuid())
+  clerkUserId   String    @unique // clerk user id
+  email         String    @unique
+  name          String?
+  imageUrl      String?
+  industry      String?    // Combined industry-subindustry (e.g., "tech-software-development")
+  industryInsight IndustryInsight? @relation(fields: [industry], references: [industry])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Profile fields
+  bio           String?
+  experience    Int?      // Years of experience
+  
+  // Relations
+  skills        String[]  // Array of skills
+  assessments   Assessment[]
+  resumes       Resume[]
+  coverLetter   CoverLetter[]
+  interviews    Interview[]
+  voiceFeedback   VoiceFeedback[]
+  roadmaps        Roadmap[]
+  resumeAnalyses  ResumeAnalysis[]
+}
+
+model Assessment {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  quizScore     Float     // Overall quiz score
+  questions     Json[]    // Array of {question, answer, userAnswer, isCorrect}
+  category      String    // "Technical", "Behavioral", etc.
+  improvementTip String?  // AI-generated improvement tip
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Resume {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title               String   @default("Untitled Resume")
+  template            String   @default("classic")
+  ascentColor         String   @default("#a78bfa")
+  professionalSummary String   @default("")
+
+  skills          Json     @default("[]")
+  personalInfo    Json     @default("{}")
+  experience      Json     @default("[]")
+  projects        Json     @default("[]")
+  education       Json     @default("[]")
+  sectionOrder    Json     @default("[]")
+  customSections  Json     @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model CoverLetter {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  content         String    // Markdown content
+  jobDescription  String?
+  companyName     String    // Name of the company applying to
+  jobTitle        String    // Position applying for
+  status          String    @default("draft") // draft, completed
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model Interview {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  role      String
+  level     String
+  type      String
+  techstack String[]
+  questions String[]
+  finalized Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedback VoiceFeedback[]
+
+  @@index([userId])
+  @@map("interviews")
+}
+
+model VoiceFeedback {
+  id                  String   @id @default(uuid())
+  interviewId         String   @map("interview_id")
+  userId              String   @map("user_id")
+  totalScore          Int      @map("total_score")
+  categoryScores      Json     @map("category_scores")
+  strengths           String
+  areasForImprovement String   @map("areas_for_improvement")
+  finalAssessment     String   @map("final_assessment")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  interview Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([interviewId])
+  @@map("voice_feedback")
+}
+
+model Roadmap {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  title          String
+  phases         Json     @default("[]")
+  roadmapNodes   Json     @default("[]") @map("roadmap_nodes")
+  completedSteps Json     @default("[]") @map("completed_steps")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("roadmaps")
+}
+
+enum ResumeAnalysisStatus {
+  PENDING
+  PROCESSING
+  DONE
+  ERROR
+}
+
+model ResumeAnalysis {
+  id             String               @id @default(cuid())
+  userId         String               @map("user_id")
+  companyName    String               @map("company_name")
+  jobTitle       String               @map("job_title")
+  jobDescription String               @map("job_description") @db.Text
+  resumeUrl      String               @map("resume_url")
+  resumeKey      String               @map("resume_key")
+  status         ResumeAnalysisStatus @default(PENDING)
+  overallScore   Int?                 @map("overall_score")
+  feedback       Json?
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("resume_analyses")
+}
+
+// Combined Industry Trends and Salary Insights
+model IndustryInsight {
+  id            String    @id @default(cuid())
+  industry      String    @unique  // The industry this data belongs to (e.g., "tech-software-development")
+  
+  // Users in this industry
+  users         User[]
+  
+  // Salary data
+  salaryRanges  Json[]    // Array of { role: string, min: float, max: float, median: float, location: string? }
+  
+  // Industry trends
+  growthRate    Float     // Industry growth rate
+  demandLevel   String    // "High", "Medium", "Low"
+  topSkills     String[]  // Most in-demand skills
+  
+  // Market conditions
+  marketOutlook String    // "Positive", "Neutral", "Negative"
+  keyTrends     String[]  // Array of current industry trends
+  
+  // Learning suggestions
+  recommendedSkills String[]  // Skills recommended for the industry
+  
+  lastUpdated   DateTime  @default(now())
+  nextUpdate    DateTime  // Scheduled update time
+
+  @@index([industry])
+}
