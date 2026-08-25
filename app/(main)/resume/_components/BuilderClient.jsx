@@ -12,6 +12,7 @@ import {
   LayoutTemplate,
   Palette,
   Loader2,
+  ALargeSmall,
 } from "lucide-react";
 import { updateResume } from "@/actions/resume";
 import { downloadMarkdown } from "@/lib/generateMarkdown";
@@ -42,13 +43,29 @@ const MIN_WIDTH = 320;
 const DEFAULT_LEFT_PCT = 44;
 
 function printResume() {
+  const A4_H_PX = 1123;
+  const PADDING_PX = 36;
+  const BOTTOM_BUFFER = 36;
+
   const root = document.getElementById("resume-print-root");
   if (!root) return;
 
   const contentEl = root.querySelector("[data-content]");
-  const computedFontSize = contentEl
-    ? window.getComputedStyle(contentEl).fontSize
-    : "10.5pt";
+  if (!contentEl) return;
+
+  // Read the user's chosen font size from the DOM
+  const chosenFontPx = parseFloat(window.getComputedStyle(contentEl).fontSize);
+
+  // Auto-shrink: if content overflows A4, scale font down proportionally
+  const naturalH = contentEl.scrollHeight;
+  const targetH = A4_H_PX - PADDING_PX - BOTTOM_BUFFER;
+  let printFontPx = chosenFontPx;
+  if (naturalH > targetH) {
+    printFontPx = Math.max(
+      (7 / 10.5) * chosenFontPx,
+      parseFloat(((chosenFontPx * targetH) / naturalH).toFixed(2))
+    );
+  }
 
   const styleNodes = Array.from(
     document.querySelectorAll('style, link[rel="stylesheet"]')
@@ -69,7 +86,7 @@ function printResume() {
 
   const cloneContent = clone.querySelector("[data-content]");
   if (cloneContent) {
-    cloneContent.style.fontSize = computedFontSize;
+    cloneContent.style.fontSize = `${printFontPx}px`;
     cloneContent.style.width = "100%";
     cloneContent.style.boxSizing = "border-box";
   }
@@ -113,6 +130,11 @@ export function BuilderClient({ resumeId, initial }) {
   const colorRef = useRef(null);
   const backLinkRef = useRef(null);
   const [formLeft, setFormLeft] = useState('1rem');
+
+  // Local input state so typing doesn't fire preview updates on every keystroke
+  const [fontSizeInput, setFontSizeInput] = useState(
+    String((initial.fontScale && initial.fontScale > 2 ? initial.fontScale : 10.5).toFixed(1))
+  );
 
   // Sync form left edge with the ← Back link's rendered position
   useEffect(() => {
@@ -179,6 +201,7 @@ export function BuilderClient({ resumeId, initial }) {
         data: {
           template: data.template,
           ascentColor: data.ascentColor,
+          fontScale: data.fontScale ?? 1.0,
           professionalSummary: data.professionalSummary,
           skills: data.skills ?? [],
           personalInfo: data.personalInfo ?? {},
@@ -311,6 +334,52 @@ export function BuilderClient({ resumeId, initial }) {
                     />
                   </div>
                 )}
+              </div>
+
+              {/* Font size controls */}
+              <div className="flex items-center gap-1 rounded-full border border-white/20 bg-white/5 px-1 py-0.5">
+                <button
+                  type="button"
+                  title="Decrease font size"
+                  disabled={(data.fontScale ?? 10.5) <= 7}
+                  onClick={() => {
+                    const next = Math.max(7, parseFloat(((data.fontScale ?? 10.5) - 0.5).toFixed(1)));
+                    update("fontScale", next);
+                    setFontSizeInput(next.toFixed(1));
+                  }}
+                  className="flex h-6 w-6 items-center justify-center rounded-full text-sm font-bold text-muted-foreground hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  A<span className="text-[10px] leading-none">−</span>
+                </button>
+                <input
+                  type="number"
+                  min={7}
+                  max={14}
+                  step={0.5}
+                  value={fontSizeInput}
+                  onChange={(e) => setFontSizeInput(e.target.value)}
+                  onBlur={(e) => {
+                    const val = parseFloat(e.target.value);
+                    const clamped = isNaN(val) ? 10.5 : parseFloat(Math.min(14, Math.max(7, val)).toFixed(1));
+                    update("fontScale", clamped);
+                    setFontSizeInput(clamped.toFixed(1));
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+                  className="w-[46px] bg-transparent text-center text-xs text-muted-foreground outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+                <button
+                  type="button"
+                  title="Increase font size"
+                  disabled={(data.fontScale ?? 10.5) >= 14}
+                  onClick={() => {
+                    const next = Math.min(14, parseFloat(((data.fontScale ?? 10.5) + 0.5).toFixed(1)));
+                    update("fontScale", next);
+                    setFontSizeInput(next.toFixed(1));
+                  }}
+                  className="flex h-6 w-6 items-center justify-center rounded-full text-sm font-bold text-muted-foreground hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  A<span className="text-[10px] leading-none">+</span>
+                </button>
               </div>
             </div>
 

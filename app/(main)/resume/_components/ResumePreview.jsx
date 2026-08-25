@@ -6,9 +6,7 @@ import { MinimalTemplate } from "../_templates/MinimalTemplate";
 
 const A4_W = 794;
 const A4_H = 1123;
-const BASE_FONT = 10.5;
 const PADDING = 36;
-const BOTTOM_BUFFER = 36;
 
 export function ResumePreview({ data }) {
   const Template =
@@ -19,11 +17,11 @@ export function ResumePreview({ data }) {
         : ClassicTemplate;
 
   const wrapperRef = useRef(null);
-  const contentRef = useRef(null);
-  const needsMeasure = useRef(true);
-
   const [panelScale, setPanelScale] = useState(1);
-  const [fontSize, setFontSize] = useState(BASE_FONT);
+
+  // Apply the user's chosen font size directly — no auto-shrink in preview.
+  // Guard: legacy scale values (≤ 2) are treated as default 10.5pt.
+  const fontSize = (data.fontScale && data.fontScale > 2) ? data.fontScale : 10.5;
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -37,24 +35,6 @@ export function ResumePreview({ data }) {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-
-  useEffect(() => {
-    needsMeasure.current = true;
-    setFontSize(BASE_FONT);
-  }, [data]);
-
-  useEffect(() => {
-    if (!needsMeasure.current) return;
-    needsMeasure.current = false;
-    const el = contentRef.current;
-    if (!el) return;
-    const naturalH = el.scrollHeight;
-    const targetH = A4_H - PADDING - BOTTOM_BUFFER;
-    if (naturalH > targetH) {
-      const ratio = targetH / naturalH;
-      setFontSize(Math.max(7, parseFloat((BASE_FONT * ratio).toFixed(2))));
-    }
-  }, [fontSize]);
 
   return (
     <div ref={wrapperRef} className="w-full" style={{ height: A4_H * panelScale }}>
@@ -73,7 +53,6 @@ export function ResumePreview({ data }) {
         }}
       >
         <div
-          ref={contentRef}
           data-content
           style={{
             width: "100%",

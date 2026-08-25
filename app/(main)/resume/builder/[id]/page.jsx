@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getResumeById } from "@/actions/resume";
 import { BuilderClient } from "@/app/(main)/resume/_components/BuilderClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function BuilderPage({ params }) {
   const { id } = await params;
 
@@ -15,6 +17,7 @@ export default async function BuilderPage({ params }) {
   const initial = {
     template: resume.template ?? "classic",
     ascentColor: resume.ascentColor ?? "#a78bfa",
+    fontScale: (!resume.fontScale || resume.fontScale <= 2) ? 10.5 : resume.fontScale,
     professionalSummary: resume.professionalSummary ?? "",
     skills: Array.isArray(resume.skills) ? resume.skills : [],
     personalInfo: typeof resume.personalInfo === "object" && resume.personalInfo ? resume.personalInfo : {},

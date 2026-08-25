@@ -62,6 +62,7 @@ model Resume {
   title               String   @default("Untitled Resume")
   template            String   @default("classic")
   ascentColor         String   @default("#a78bfa")
+  fontScale           Float    @default(10.5)
   professionalSummary String   @default("")
 
   skills          Json     @default("[]")

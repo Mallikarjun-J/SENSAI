@@ -95,6 +95,7 @@ export async function updateResume({ resumeId, data }) {
       title: data.title,
       template: data.template,
       ascentColor: data.ascentColor,
+      fontScale: data.fontScale ?? 1.0,
       professionalSummary: data.professionalSummary,
       skills: data.skills ?? [],
       personalInfo: data.personalInfo ?? {},
@@ -106,6 +107,7 @@ export async function updateResume({ resumeId, data }) {
     },
   });
   revalidatePath("/resume");
+  revalidatePath(`/resume/builder/${resumeId}`);
   return { ok: true };
 }
 

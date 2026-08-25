@@ -5,7 +5,7 @@ import { DEFAULT_SECTION_ORDER } from "../_components/SectionOrderForm";
 function GpaLabel({ gpa }) {
   if (!gpa?.trim()) return null;
   const label = gpa.includes("%") ? gpa.trim() : `GPA ${gpa.trim()}`;
-  return <div className="font-mono text-[8.5pt] text-gray-500">{label}</div>;
+  return <div className="font-mono text-[0.81em] text-gray-500">{label}</div>;
 }
 
 export function ClassicTemplate({ data }) {
@@ -27,13 +27,13 @@ export function ClassicTemplate({ data }) {
                   {entry.title}{entry.subtitle ? ` — ${entry.subtitle}` : ""}
                 </div>
                 {entry.date && (
-                  <div className="font-mono text-[8.5pt] text-gray-500 whitespace-nowrap ml-4">
+                  <div className="font-mono text-[0.81em] text-gray-500 whitespace-nowrap ml-4">
                     {entry.date}
                   </div>
                 )}
               </div>
               {hasText(entry.description) && (
-                <p className="text-[9.5pt] text-gray-700 mt-0.5">{entry.description}</p>
+                <p className="text-[0.905em] text-gray-700 mt-0.5">{entry.description}</p>
               )}
             </div>
           ))}
@@ -60,7 +60,7 @@ export function ClassicTemplate({ data }) {
                 <div className="font-semibold text-left">
                   {e.position}{e.company ? ` — ${e.company}` : ""}
                 </div>
-                <div className="font-mono text-[8.5pt] text-gray-500 whitespace-nowrap ml-4">
+                <div className="font-mono text-[0.81em] text-gray-500 whitespace-nowrap ml-4">
                   {e.startDate}{(e.endDate || e.isCurrent) ? ` – ${e.isCurrent ? "Present" : e.endDate}` : ""}
                 </div>
               </div>
@@ -79,12 +79,12 @@ export function ClassicTemplate({ data }) {
             <div key={i} className="break-inside-avoid flex justify-between gap-4">
               <div className="text-left min-w-0">
                 <div className="font-semibold">{e.institution}</div>
-                <div className="text-[10pt] text-gray-500">
+                <div className="text-[0.952em] text-gray-500">
                   {[e.degree, e.field].filter(Boolean).join(", ")}
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <div className="font-mono text-[8.5pt] text-gray-500">{e.graduationDate}</div>
+                <div className="font-mono text-[0.81em] text-gray-500">{e.graduationDate}</div>
                 <GpaLabel gpa={e.gpa} />
               </div>
             </div>
@@ -123,11 +123,11 @@ export function ClassicTemplate({ data }) {
     <div className="space-y-3 text-gray-900">
       {(hasText(pi.fullName) || hasText(pi.profession)) && (
         <header className="break-inside-avoid border-b pb-2 text-left" style={{ borderColor: "var(--accent)" }}>
-          <h1 className="text-2xl font-bold">{pi.fullName}</h1>
+          <h1 className="text-[1.71em] font-bold">{pi.fullName}</h1>
           {hasText(pi.profession) && (
-            <div className="text-sm text-gray-500">{pi.profession}</div>
+            <div className="text-[0.857em] text-gray-500">{pi.profession}</div>
           )}
-          <div className="mt-1 text-[9pt] text-gray-500"><ContactLine pi={pi} /></div>
+          <div className="mt-1 text-[0.857em] text-gray-500"><ContactLine pi={pi} /></div>
         </header>
       )}
       {order.map((key) => sections[key] ?? null)}

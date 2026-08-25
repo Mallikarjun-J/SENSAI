@@ -3,7 +3,7 @@
 export function SectionLabel({ children, className = "" }) {
   return (
     <div
-      className={`font-mono text-[9.5pt] font-semibold text-left uppercase tracking-wide ${className}`}
+      className={`font-mono text-[0.905em] font-semibold text-left uppercase tracking-wide ${className}`}
       style={{ color: "var(--accent)" }}
     >
       {children}
@@ -32,7 +32,6 @@ export function ContactLine({ pi }) {
       href: `https://maps.google.com/?q=${encodeURIComponent(pi.location.trim())}`,
     });
 
-  // Support new links[] array format
   if (Array.isArray(pi.links) && pi.links.length > 0) {
     pi.links.forEach(({ label, url }) => {
       if (label?.trim() && url?.trim()) {
@@ -43,7 +42,6 @@ export function ContactLine({ pi }) {
       }
     });
   } else {
-    // Fallback: old link1Label / link1Url / link2Label / link2Url format
     if (pi.link1Label?.trim() && pi.link1Url?.trim())
       items.push({
         label: pi.link1Label.trim(),
@@ -104,7 +102,7 @@ export function BulletLines({ text, className = "" }) {
 
 export function SkillLines({ skills }) {
   return (
-    <div className="mt-1 space-y-1 text-[9.5pt] text-left">
+    <div className="mt-1 space-y-1 text-[0.905em] text-left">
       {skills.map((skill, i) => {
         const [category, ...rest] = skill.split(":");
         const details = rest.join(":").trim();
