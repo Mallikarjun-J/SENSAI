@@ -55,7 +55,7 @@ export default async function NewRoadmapPage() {
         </p>
       </div>
 
-      <CreateRoadmapForm
+      <CreateRoadmapForm asChild
         suggestedCareer={suggestedCareer}
         userSkills={userSkills}
         userExperience={userExperience}

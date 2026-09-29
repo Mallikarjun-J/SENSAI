@@ -15,6 +15,14 @@ import {
   ALargeSmall,
 } from "lucide-react";
 import { updateResume } from "@/actions/resume";
+import {
+  personalInfoSchema,
+  experienceArraySchema,
+  educationArraySchema,
+  projectArraySchema,
+  customSectionsSchema,
+  validateSection,
+} from "@/lib/resume-schema";
 import { downloadMarkdown } from "@/lib/generateMarkdown";
 import { PersonalInfoForm } from "./PersonalInfoForm";
 import { ProfessionalSummaryForm } from "./ProfessionalSummaryForm";
@@ -27,6 +35,7 @@ import { CustomSectionForm } from "./CustomSectionForm";
 import { ResumePreview } from "./ResumePreview";
 import { TemplateSelector } from "./TemplateSelector";
 import { ColorPicker } from "./ColorPicker";
+import { FontSelector, getFontConfig } from "./FontSelector";
 
 const STEPS = [
   "Personal Info",
@@ -42,53 +51,45 @@ const STEPS = [
 const MIN_WIDTH = 320;
 const DEFAULT_LEFT_PCT = 44;
 
-function printResume() {
-  const A4_H_PX = 1123;
-  const PADDING_PX = 36;
-  const BOTTOM_BUFFER = 36;
-
+function printResume(data) {
   const root = document.getElementById("resume-print-root");
   if (!root) return;
 
   const contentEl = root.querySelector("[data-content]");
   if (!contentEl) return;
 
-  // Read the user's chosen font size from the DOM
-  const chosenFontPx = parseFloat(window.getComputedStyle(contentEl).fontSize);
-
-  // Auto-shrink: if content overflows A4, scale font down proportionally
-  const naturalH = contentEl.scrollHeight;
-  const targetH = A4_H_PX - PADDING_PX - BOTTOM_BUFFER;
-  let printFontPx = chosenFontPx;
-  if (naturalH > targetH) {
-    printFontPx = Math.max(
-      (7 / 10.5) * chosenFontPx,
-      parseFloat(((chosenFontPx * targetH) / naturalH).toFixed(2))
-    );
-  }
-
+  // Inject all app stylesheets (Tailwind, fonts, etc.) into the print window
   const styleNodes = Array.from(
     document.querySelectorAll('style, link[rel="stylesheet"]')
   )
     .map((el) => el.outerHTML)
     .join("\n");
 
+  // Google Fonts link for selected font (null for system fonts)
+  const fontConfig   = getFontConfig(data?.font);
+  const fontLinkTag  = fontConfig.url
+    ? `<link rel="stylesheet" href="${fontConfig.url}" />`
+    : "";
+
   const win = window.open("", "_blank", "width=900,height=1200");
   if (!win) return;
 
+  // Clone root and strip the preview's CSS scale transform
   const clone = root.cloneNode(true);
-  clone.style.transform = "none";
+  clone.style.transform      = "none";
   clone.style.transformOrigin = "unset";
-  clone.style.boxShadow = "none";
-  clone.style.overflow = "hidden";
-  clone.style.width = "210mm";
-  clone.style.height = "297mm";
+  clone.style.boxShadow      = "none";
+  clone.style.overflow       = "hidden";
+  clone.style.width          = "210mm";
+  clone.style.height         = "297mm";
 
+  // Copy the EXACT inline pt font-size set by ResumePreview — no auto-shrink
   const cloneContent = clone.querySelector("[data-content]");
   if (cloneContent) {
-    cloneContent.style.fontSize = `${printFontPx}px`;
-    cloneContent.style.width = "100%";
-    cloneContent.style.boxSizing = "border-box";
+    cloneContent.style.fontSize   = contentEl.style.fontSize; // e.g. "10.5pt"
+    cloneContent.style.fontFamily = fontConfig.family;
+    cloneContent.style.width      = "100%";
+    cloneContent.style.boxSizing  = "border-box";
   }
 
   win.document.write(`
@@ -96,11 +97,24 @@ function printResume() {
     <html lang="en">
     <head>
       <meta charset="UTF-8" />
+      ${fontLinkTag}
       ${styleNodes}
       <style>
         @page { size: A4; margin: 0; }
-        html, body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        #resume-print-root { width: 210mm; height: 297mm; overflow: hidden; box-shadow: none !important; box-sizing: border-box; }
+        html, body {
+          margin: 0; padding: 0;
+          background: white;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        #resume-print-root {
+          width: 210mm !important;
+          height: 297mm !important;
+          overflow: hidden;
+          box-shadow: none !important;
+          box-sizing: border-box;
+          transform: none !important;
+        }
         [data-content] { width: 100% !important; box-sizing: border-box !important; }
       </style>
     </head>
@@ -113,21 +127,52 @@ function printResume() {
       win.focus();
       win.print();
       win.close();
-    }, 400);
+    }, 600); // slightly longer timeout so Google Fonts finishes loading
   };
 }
 
+
 export function BuilderClient({ resumeId, initial }) {
-  const [data, setData] = useState(initial);
+  // Hydrate font from personalInfo._font (stored there since no DB column exists)
+  const [data, setData] = useState({
+    ...initial,
+    font: initial.personalInfo?._font ?? initial.font ?? "inter",
+  });
   const [step, setStep] = useState(0);
   const [leftPct, setLeftPct] = useState(DEFAULT_LEFT_PCT);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showColors, setShowColors] = useState(false);
+  const [showFonts, setShowFonts] = useState(false);
+  const [validateTrigger, setValidateTrigger] = useState(0);
+
+  // ── Step validation map ───────────────────────────────────────────────────
+  const STEP_SCHEMAS = {
+    0: [personalInfoSchema,    () => data.personalInfo   ?? {}],
+    2: [experienceArraySchema, () => data.experience     ?? []],
+    3: [educationArraySchema,  () => data.education      ?? []],
+    4: [projectArraySchema,    () => data.projects       ?? []],
+    6: [customSectionsSchema,  () => data.customSections ?? []],
+  };
+
+  const handleNext = () => {
+    const entry = STEP_SCHEMAS[step];
+    if (entry) {
+      const [schema, getData] = entry;
+      const errs = validateSection(schema, getData());
+      if (Object.keys(errs).length > 0) {
+        setValidateTrigger((v) => v + 1); // tell current form to surface all errors
+        toast.error("Please fix the highlighted errors before continuing.");
+        return;
+      }
+    }
+    setStep((s) => Math.min(STEPS.length - 1, s + 1));
+  };
 
   const containerRef = useRef(null);
   const isDragging = useRef(false);
   const templateRef = useRef(null);
   const colorRef = useRef(null);
+  const fontRef = useRef(null);
   const backLinkRef = useRef(null);
   const [formLeft, setFormLeft] = useState('1rem');
 
@@ -189,6 +234,8 @@ export function BuilderClient({ resumeId, initial }) {
         setShowTemplates(false);
       if (colorRef.current && !colorRef.current.contains(e.target))
         setShowColors(false);
+      if (fontRef.current && !fontRef.current.contains(e.target))
+        setShowFonts(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -201,6 +248,7 @@ export function BuilderClient({ resumeId, initial }) {
         data: {
           template: data.template,
           ascentColor: data.ascentColor,
+          font: data.font ?? "inter",
           fontScale: data.fontScale ?? 1.0,
           professionalSummary: data.professionalSummary,
           skills: data.skills ?? [],
@@ -246,7 +294,7 @@ export function BuilderClient({ resumeId, initial }) {
             </button>
             <button
               type="button"
-              onClick={printResume}
+              onClick={() => printResume(data)}
               className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 px-3 py-1.5 text-sm hover:bg-white/10 transition-all"
             >
               <Download className="h-3.5 w-3.5" />
@@ -294,6 +342,7 @@ export function BuilderClient({ resumeId, initial }) {
                   onClick={() => {
                     setShowTemplates((v) => !v);
                     setShowColors(false);
+                    setShowFonts(false);
                   }}
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
                 >
@@ -301,7 +350,7 @@ export function BuilderClient({ resumeId, initial }) {
                   Template
                 </button>
                 {showTemplates && (
-                  <div className="absolute left-0 top-full mt-1 z-50 w-64 rounded-xl border border-white/15 bg-background/95 backdrop-blur p-3 shadow-xl shadow-black/40">
+                  <div className="absolute left-0 top-full mt-1 z-50 w-64 rounded-xl border border-white/15 bg-zinc-900 p-3 shadow-xl shadow-black/40">
                     <TemplateSelector
                       value={data.template}
                       onChange={(v) => {
@@ -320,6 +369,7 @@ export function BuilderClient({ resumeId, initial }) {
                   onClick={() => {
                     setShowColors((v) => !v);
                     setShowTemplates(false);
+                    setShowFonts(false);
                   }}
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
                 >
@@ -327,10 +377,37 @@ export function BuilderClient({ resumeId, initial }) {
                   Accent
                 </button>
                 {showColors && (
-                  <div className="absolute left-0 top-full mt-1 z-50 w-64 rounded-xl border border-white/15 bg-background/95 backdrop-blur p-4 shadow-xl shadow-black/40">
+                  <div className="absolute left-0 top-full mt-1 z-50 w-64 rounded-xl border border-white/15 bg-zinc-900 p-4 shadow-xl shadow-black/40">
                     <ColorPicker
                       value={data.ascentColor}
                       onChange={(v) => update("ascentColor", v)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Font picker */}
+              <div className="relative" ref={fontRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFonts((v) => !v);
+                    setShowTemplates(false);
+                    setShowColors(false);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
+                >
+                  <ALargeSmall className="h-4 w-4" />
+                  Font
+                </button>
+                {showFonts && (
+                  <div className="absolute left-0 top-full mt-1 z-50 w-52 max-h-80 overflow-y-auto rounded-xl border border-white/15 bg-zinc-900 backdrop-blur shadow-xl shadow-black/40">
+                    <FontSelector
+                      value={data.font}
+                      onChange={(v) => {
+                        update("font", v);
+                        setShowFonts(false);
+                      }}
                     />
                   </div>
                 )}
@@ -397,7 +474,7 @@ export function BuilderClient({ resumeId, initial }) {
               <button
                 type="button"
                 disabled={step === STEPS.length - 1}
-                onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
+                onClick={handleNext}
                 className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 Next
@@ -428,6 +505,7 @@ export function BuilderClient({ resumeId, initial }) {
               <PersonalInfoForm
                 value={data.personalInfo ?? {}}
                 onChange={(v) => update("personalInfo", v)}
+                validateTrigger={validateTrigger}
               />
             )}
             {step === 1 && (
@@ -440,18 +518,21 @@ export function BuilderClient({ resumeId, initial }) {
               <ExperienceForm
                 value={data.experience ?? []}
                 onChange={(v) => update("experience", v)}
+                validateTrigger={validateTrigger}
               />
             )}
             {step === 3 && (
               <EducationForm
                 value={data.education ?? []}
                 onChange={(v) => update("education", v)}
+                validateTrigger={validateTrigger}
               />
             )}
             {step === 4 && (
               <ProjectForm
                 value={data.projects ?? []}
                 onChange={(v) => update("projects", v)}
+                validateTrigger={validateTrigger}
               />
             )}
             {step === 5 && (
@@ -464,6 +545,7 @@ export function BuilderClient({ resumeId, initial }) {
               <CustomSectionForm
                 value={data.customSections ?? []}
                 onChange={(v) => update("customSections", v)}
+                validateTrigger={validateTrigger}
               />
             )}
             {step === 7 && (
@@ -478,7 +560,7 @@ export function BuilderClient({ resumeId, initial }) {
               {step < STEPS.length - 1 && (
                 <button
                   type="button"
-                  onClick={() => setStep((s) => s + 1)}
+                  onClick={handleNext}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm hover:bg-white/10 transition-all"
                 >
                   Next

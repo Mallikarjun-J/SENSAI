@@ -117,9 +117,9 @@ export async function POST(request) {
     revalidatePath("/resume");
     return NextResponse.json({ resumeId: resume.id });
   } catch (err) {
-    console.error("[parse-resume-pdf]", err);
+    console.error("[parse-resume-pdf]", err.message ?? err.code ?? "unknown");
     return NextResponse.json(
-      { error: err?.message ?? "Failed to parse PDF" },
+      { error: "Failed to parse PDF. Please try again." },
       { status: 500 }
     );
   }

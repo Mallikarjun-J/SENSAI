@@ -1,13 +1,15 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, Plus, Loader2 } from "lucide-react";
+import { X, Plus, Loader2, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
-import { updateUserProfile } from "@/actions/user";
+import { updateUserProfile, deleteAccount } from "@/actions/user";
 
 export function EditProfileModal({ open, onClose, initialData }) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(0); // 0 = idle, 1 = confirm visible
+  const [deleting, setDeleting] = useState(false);
 
   // ── Form state ──────────────────────────────────────────────────────────────
   const [experience, setExperience] = useState(String(initialData?.experience ?? 0));
@@ -23,6 +25,7 @@ export function EditProfileModal({ open, onClose, initialData }) {
       setBio(initialData?.bio ?? "");
       setSkills(initialData?.skills ?? []);
       setSkillInput("");
+      setDeleteStep(0);
     }
   }, [open, initialData]);
 
@@ -72,6 +75,25 @@ export function EditProfileModal({ open, onClose, initialData }) {
       toast.error(e?.message ?? "Failed to update profile");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // ── Delete account ──────────────────────────────────────────────────────────
+  const handleDeleteAccount = async () => {
+    if (deleteStep === 0) {
+      setDeleteStep(1);
+      return;
+    }
+    // Step 1 → confirmed
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      toast.success("Account deleted. Goodbye!");
+      router.push("/");
+    } catch (e) {
+      toast.error(e?.message ?? "Failed to delete account");
+      setDeleting(false);
+      setDeleteStep(0);
     }
   };
 
@@ -170,6 +192,63 @@ export function EditProfileModal({ open, onClose, initialData }) {
               className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
             />
           </div>
+
+          {/* ── Danger Zone ─────────────────────────────────────────────────── */}
+          <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
+              <p className="text-sm font-medium text-red-400">Danger Zone</p>
+            </div>
+
+            {deleteStep === 0 ? (
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Permanently delete your account and all associated data — resumes, interviews, roadmaps, cover letters. This cannot be undone.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={saving || deleting}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/20 hover:border-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete Account
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-red-400">
+                  Are you absolutely sure? This will permanently delete:
+                </p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Your profile and all personal data</li>
+                  <li>All resumes and uploaded files</li>
+                  <li>All interviews and feedback reports</li>
+                  <li>All career roadmaps and cover letters</li>
+                </ul>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteStep(0)}
+                    disabled={deleting}
+                    className="flex-1 rounded-lg border border-white/10 bg-white/5 py-2 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    disabled={deleting}
+                    className="flex-1 rounded-lg bg-red-600 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5"
+                  >
+                    {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    {deleting ? "Deleting…" : "Yes, delete everything"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
 
         {/* ── Footer ─────────────────────────────────────────────────────────── */}
@@ -177,7 +256,7 @@ export function EditProfileModal({ open, onClose, initialData }) {
           <button
             type="button"
             onClick={onClose}
-            disabled={saving}
+            disabled={saving || deleting}
             className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-50 transition-all"
           >
             Cancel
@@ -185,7 +264,7 @@ export function EditProfileModal({ open, onClose, initialData }) {
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || deleting}
             className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}

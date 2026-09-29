@@ -1,29 +1,53 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AlertCircle } from "lucide-react";
 import { enhanceProjectDescription } from "@/actions/resume";
 import { toast } from "sonner";
+import { projectArraySchema, formatZodErrors } from "@/lib/resume-schema";
 
-function ProjectItem({ project, onChange, onRemove }) {
+const BASE_INPUT =
+  "w-full rounded-md border bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all";
+
+const inputCls = (hasErr) =>
+  `${BASE_INPUT} ${hasErr ? "border-red-500/50 focus:ring-red-500/30" : "border-white/10 focus:ring-primary/50"}`;
+
+function FieldError({ msg }) {
+  if (!msg) return null;
+  return (
+    <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
+      <AlertCircle className="h-3 w-3 shrink-0" />
+      {msg}
+    </p>
+  );
+}
+
+function ProjectItem({ project, index, onChange, onRemove, errors, touched, onBlur }) {
   const [loading, setLoading] = useState(false);
+  const err = (field) => (touched[`${index}.${field}`] ? errors[`${index}.${field}`] : null);
 
   return (
     <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">Project Name</label>
+          <label className="text-sm font-medium text-foreground">
+            Project Name <span className="text-red-400">*</span>
+          </label>
           <input
             value={project.name ?? ""}
             onChange={(e) => onChange({ name: e.target.value })}
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            onBlur={() => onBlur(index, "name")}
+            className={inputCls(!!err("name"))}
           />
+          <FieldError msg={err("name")} />
         </div>
+
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-foreground">Type / Tech Stack</label>
           <input
             value={project.type ?? ""}
             placeholder="Next.js, Prisma, Gemini..."
             onChange={(e) => onChange({ type: e.target.value })}
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            className={inputCls(false)}
           />
         </div>
       </div>
@@ -85,9 +109,44 @@ function ProjectItem({ project, onChange, onRemove }) {
   );
 }
 
-export function ProjectForm({ value, onChange }) {
-  const set = (i, patch) => onChange(value.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
-  const remove = (i) => onChange(value.filter((_, idx) => idx !== i));
+export function ProjectForm({ value, onChange, validateTrigger = 0 }) {
+  const [errors, setErrors]   = useState({});
+  const [touched, setTouched] = useState({});
+
+  const runValidation = (data) => {
+    const result = projectArraySchema.safeParse(data);
+    return result.success ? {} : formatZodErrors(result.error);
+  };
+
+  useEffect(() => {
+    if (validateTrigger === 0) return;
+    setErrors(runValidation(value));
+    const allTouched = {};
+    (value ?? []).forEach((_, i) => {
+      allTouched[`${i}.name`] = true;
+    });
+    setTouched(allTouched);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validateTrigger]);
+
+  const handleBlur = (index, field) => {
+    setTouched((t) => ({ ...t, [`${index}.${field}`]: true }));
+    setErrors(runValidation(value));
+  };
+
+  const set = (i, patch) => {
+    const next = value.map((p, idx) => (idx === i ? { ...p, ...patch } : p));
+    onChange(next);
+    const hasTouched = Object.keys(touched).some((k) => k.startsWith(`${i}.`));
+    if (hasTouched) setErrors(runValidation(next));
+  };
+
+  const remove = (i) => {
+    onChange(value.filter((_, idx) => idx !== i));
+    setErrors({});
+    setTouched({});
+  };
+
   const add = () => onChange([...value, {}]);
 
   return (
@@ -96,7 +155,16 @@ export function ProjectForm({ value, onChange }) {
         <p className="text-sm text-muted-foreground">No projects added yet. Add your side projects and portfolio pieces below.</p>
       )}
       {value.map((p, i) => (
-        <ProjectItem key={i} project={p} onChange={(patch) => set(i, patch)} onRemove={() => remove(i)} />
+        <ProjectItem
+          key={i}
+          project={p}
+          index={i}
+          errors={errors}
+          touched={touched}
+          onChange={(patch) => set(i, patch)}
+          onRemove={() => remove(i)}
+          onBlur={handleBlur}
+        />
       ))}
       <button
         type="button"

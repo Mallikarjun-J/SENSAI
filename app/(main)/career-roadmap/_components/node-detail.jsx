@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   X,
   ExternalLink,
@@ -7,6 +7,7 @@ import {
   Search,
   Sparkles,
   BookOpen,
+  BookMarked,
   CheckCircle2,
   Circle,
   Loader2,
@@ -15,6 +16,12 @@ import {
 export default function NodeDetail({ node, onClose, isCompleted = false, onToggleComplete }) {
   const [instructions, setInstructions] = useState([]);
   const [loadingAI, setLoadingAI] = useState(false);
+
+  /* ── Reset state when switching nodes ──────────────────────────────────── */
+  useEffect(() => {
+    setInstructions([]);
+    setLoadingAI(false);
+  }, [node.id]);
 
   const loadInstructions = async () => {
     if (instructions.length || loadingAI) return;
@@ -102,6 +109,30 @@ export default function NodeDetail({ node, onClose, isCompleted = false, onToggl
         )}
 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
+
+          {/* Must Learn — steps with pre-generated keyTopics */}
+          {node.isStep && node.keyTopics?.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-2.5">
+                <BookMarked className="w-3.5 h-3.5" style={{ color: "rgba(167,139,250,0.7)" }} />
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/30">
+                  Must Learn
+                </p>
+              </div>
+              <ul className="space-y-1.5">
+                {node.keyTopics.map((topic, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-white/65">
+                    <span
+                      className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ background: "rgba(167,139,250,0.5)" }}
+                    />
+                    <span className="leading-relaxed">{topic}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* AI Summary */}
           {node.resources?.aiSummary && (
             <div>

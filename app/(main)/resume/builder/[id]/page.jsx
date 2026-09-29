@@ -30,5 +30,5 @@ export default async function BuilderPage({ params }) {
     customSections: Array.isArray(resume.customSections) ? resume.customSections : [],
   };
 
-  return <BuilderClient resumeId={id} initial={initial} />;
+  return <BuilderClient asChild resumeId={id} initial={initial} />;
 }

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SensAI — Industry Insights Dashboard Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header { margin-bottom: 32px; }
+        .header h1 {
+            font-size: 20px; font-weight: 700; color: #0f172a;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background: #059669; border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(5, 150, 105, 0); }
+        }
+        .header .subtitle { font-size: 12px; color: #64748b; margin-top: 6px; margin-left: 20px; }
+        .diagram-card {
+            border: 1px solid #e2e8f0; border-radius: 12px;
+            overflow: hidden; background: #ffffff; margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .diagram-card svg { display: block; width: 100%; height: auto; }
+        .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .card {
+            background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .card-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .card-dot.cyan { background: #0891b2; }
+        .card-dot.emerald { background: #059669; }
+        .card-dot.violet { background: #7c3aed; }
+        .card-dot.amber { background: #d97706; }
+        .card-dot.rose { background: #e11d48; }
+        .card-dot.orange { background: #ea580c; }
+        .card h3 {
+            font-size: 11px; font-weight: 600; color: #64748b;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .card ul { list-style: none; }
+        .card li { font-size: 11px; color: #475569; padding: 3px 0; }
+        .footer { text-align: center; font-size: 10px; color: #94a3b8; padding-top: 12px; }
+        @media (max-width: 768px) { .cards-grid { grid-template-columns: 1fr; } body { padding: 20px 12px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="pulse-dot"></span>Feature 1: Industry Insights Dashboard</h1>
+            <p class="subtitle">SensAI — AI-generated market analytics with 7-day caching</p>
+        </div>
+
+        <div class="diagram-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620">
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e2e8f0" stroke-width="0.5"/>
+                    </pattern>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/>
+                    </marker>
+                    <marker id="arrowhead-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#059669"/>
+                    </marker>
+                    <marker id="arrowhead-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#e11d48"/>
+                    </marker>
+                    <marker id="arrowhead-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#d97706"/>
+                    </marker>
+                    <marker id="arrowhead-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
+                    </marker>
+                </defs>
+                <rect width="1000" height="620" fill="#ffffff"/>
+                <rect width="1000" height="620" fill="url(#grid)"/>
+
+                <!-- ============================================================ -->
+                <!-- ARROWS (drawn first, render behind boxes)                     -->
+                <!-- ============================================================ -->
+
+                <!-- User Browser → Clerk Auth (rose dashed) -->
+                <line x1="170" y1="100" x2="170" y2="158" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead-rose)"/>
+
+                <!-- Clerk Auth → dashboard/page.jsx -->
+                <line x1="170" y1="218" x2="170" y2="278" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead-rose)"/>
+
+                <!-- page.jsx → getIndustryInsights() -->
+                <line x1="260" y1="305" x2="398" y2="305" stroke="#059669" stroke-width="1.5" marker-end="url(#arrowhead-emerald)"/>
+
+                <!-- page.jsx → getUserProfile() -->
+                <line x1="260" y1="320" x2="398" y2="400" stroke="#059669" stroke-width="1.5" marker-end="url(#arrowhead-emerald)"/>
+
+                <!-- getIndustryInsights → DB check -->
+                <line x1="598" y1="295" x2="748" y2="200" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrowhead-violet)"/>
+
+                <!-- getUserProfile → DB -->
+                <line x1="598" y1="400" x2="748" y2="220" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrowhead-violet)"/>
+
+                <!-- getIndustryInsights → Gemini (if cache miss) -->
+                <line x1="598" y1="310" x2="748" y2="370" stroke="#d97706" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowhead-amber)"/>
+                <text x="680" y="328" fill="#d97706" font-family="'JetBrains Mono', monospace" font-size="7" text-anchor="middle" opacity="0.8">cache miss</text>
+
+                <!-- Gemini → DB write (save insight) -->
+                <line x1="848" y1="358" x2="848" y2="248" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrowhead-violet)"/>
+                <text x="870" y="310" fill="#7c3aed" font-family="'JetBrains Mono', monospace" font-size="7" opacity="0.7">save</text>
+
+                <!-- DB → DashboardView (return data) -->
+                <line x1="748" y1="230" x2="260" y2="470" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,4" marker-end="url(#arrowhead)"/>
+
+                <!-- DashboardView → Recharts -->
+                <line x1="260" y1="480" x2="398" y2="520" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+                <!-- DashboardView → EditProfileModal -->
+                <line x1="170" y1="500" x2="170" y2="508" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+                <!-- Inngest → generateAIInsights (background) -->
+                <line x1="748" y1="478" x2="598" y2="310" stroke="#ea580c" stroke-width="1" stroke-dasharray="4,4" marker-end="url(#arrowhead)"/>
+
+                <!-- ============================================================ -->
+                <!-- REGION BOUNDARY — Next.js App                                -->
+                <!-- ============================================================ -->
+                <rect x="20" y="20" width="640" height="545" rx="12" fill="none" stroke="#0891b2" stroke-width="1" stroke-dasharray="8,4" opacity="0.25"/>
+                <text x="40" y="42" fill="#0891b2" font-family="'JetBrains Mono', monospace" font-size="9" opacity="0.5">Next.js App Router</text>
+
+                <!-- External services boundary -->
+                <rect x="700" y="20" width="280" height="545" rx="12" fill="none" stroke="#d97706" stroke-width="1" stroke-dasharray="8,4" opacity="0.25"/>
+                <text x="720" y="42" fill="#d97706" font-family="'JetBrains Mono', monospace" font-size="9" opacity="0.5">External Services</text>
+
+                <!-- ============================================================ -->
+                <!-- COMPONENTS                                                    -->
+                <!-- ============================================================ -->
+
+                <!-- User / Browser -->
+                <rect x="80" y="60" width="180" height="40" rx="6" fill="#ffffff"/>
+                <rect x="80" y="60" width="180" height="40" rx="6" fill="rgba(100, 116, 139, 0.08)" stroke="#64748b" stroke-width="1.5"/>
+                <text x="170" y="82" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" text-anchor="middle">User / Browser</text>
+
+                <!-- Clerk Auth -->
+                <rect x="80" y="160" width="180" height="56" rx="6" fill="#ffffff"/>
+                <rect x="80" y="160" width="180" height="56" rx="6" fill="rgba(225, 29, 72, 0.08)" stroke="#e11d48" stroke-width="1.5"/>
+                <text x="170" y="186" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" text-anchor="middle">Clerk Auth</text>
+                <text x="170" y="202" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">proxy.js middleware</text>
+
+                <!-- dashboard/page.jsx (Server Component) -->
+                <rect x="80" y="280" width="180" height="56" rx="6" fill="#ffffff"/>
+                <rect x="80" y="280" width="180" height="56" rx="6" fill="rgba(8, 145, 178, 0.08)" stroke="#0891b2" stroke-width="1.5"/>
+                <text x="170" y="304" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" text-anchor="middle">dashboard/page.jsx</text>
+                <text x="170" y="322" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">Server Component</text>
+
+                <!-- getIndustryInsights() -->
+                <rect x="400" y="274" width="196" height="56" rx="6" fill="#ffffff"/>
+                <rect x="400" y="274" width="196" height="56" rx="6" fill="rgba(5, 150, 105, 0.08)" stroke="#059669" stroke-width="1.5"/>
+                <text x="498" y="298" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" text-anchor="middle">getIndustryInsights()</text>
+                <text x="498" y="316" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">actions/dashboard.js</text>
+
+                <!-- getUserProfile() -->
+                <rect x="400" y="374" width="196" height="56" rx="6" fill="#ffffff"/>
+                <rect x="400" y="374" width="196" height="56" rx="6" fill="rgba(5, 150, 105, 0.08)" stroke="#059669" stroke-width="1.5"/>
+                <text x="498" y="398" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" text-anchor="middle">getUserProfile()</text>
+                <text x="498" y="416" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">actions/user.js</text>
+
+                <!-- DashboardView (Client Component) -->
+                <rect x="80" y="450" width="180" height="56" rx="6" fill="#ffffff"/>
+                <rect x="80" y="450" width="180" height="56" rx="6" fill="rgba(8, 145, 178, 0.08)" stroke="#0891b2" stroke-width="1.5"/>
+                <text x="170" y="474" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" text-anchor="middle">DashboardView</text>
+                <text x="170" y="492" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">Client Component</text>
+
+                <!-- Recharts BarChart -->
+                <rect x="400" y="500" width="140" height="46" rx="6" fill="#ffffff"/>
+                <rect x="400" y="500" width="140" height="46" rx="6" fill="rgba(8, 145, 178, 0.08)" stroke="#0891b2" stroke-width="1.5"/>
+                <text x="470" y="520" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" text-anchor="middle">Recharts</text>
+                <text x="470" y="536" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">BarChart + Progress</text>
+
+                <!-- EditProfileModal -->
+                <rect x="80" y="516" width="140" height="40" rx="6" fill="#ffffff"/>
+                <rect x="80" y="516" width="140" height="40" rx="6" fill="rgba(8, 145, 178, 0.06)" stroke="#0891b2" stroke-width="1"/>
+                <text x="150" y="536" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="9" text-anchor="middle">EditProfileModal</text>
+
+                <!-- ============================================================ -->
+                <!-- EXTERNAL SERVICES                                             -->
+                <!-- ============================================================ -->
+
+                <!-- PostgreSQL / Neon -->
+                <rect x="750" y="160" width="200" height="80" rx="6" fill="#ffffff"/>
+                <rect x="750" y="160" width="200" height="80" rx="6" fill="rgba(124, 58, 237, 0.08)" stroke="#7c3aed" stroke-width="1.5"/>
+                <text x="850" y="190" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" text-anchor="middle">PostgreSQL (Neon)</text>
+                <text x="850" y="208" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">User + IndustryInsight</text>
+                <text x="850" y="224" fill="#7c3aed" font-family="'JetBrains Mono', monospace" font-size="7" text-anchor="middle">TTL: 7 days (nextUpdate)</text>
+
+                <!-- Gemini AI -->
+                <rect x="750" y="350" width="200" height="70" rx="6" fill="#ffffff"/>
+                <rect x="750" y="350" width="200" height="70" rx="6" fill="rgba(217, 119, 6, 0.08)" stroke="#d97706" stroke-width="1.5"/>
+                <text x="850" y="378" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" text-anchor="middle">Gemini 2.5 Flash</text>
+                <text x="850" y="396" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">generateAIInsights()</text>
+                <text x="850" y="410" fill="#d97706" font-family="'JetBrains Mono', monospace" font-size="7" text-anchor="middle">GEMINI_API_KEY</text>
+
+                <!-- Inngest Background -->
+                <rect x="750" y="458" width="200" height="50" rx="6" fill="#ffffff"/>
+                <rect x="750" y="458" width="200" height="50" rx="6" fill="rgba(234, 88, 12, 0.08)" stroke="#ea580c" stroke-width="1.5"/>
+                <text x="850" y="480" fill="#0f172a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600" text-anchor="middle">Inngest</text>
+                <text x="850" y="496" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8" text-anchor="middle">Scheduled refresh (7d)</text>
+
+                <!-- ============================================================ -->
+                <!-- ANNOTATIONS                                                   -->
+                <!-- ============================================================ -->
+
+                <!-- Promise.all annotation -->
+                <rect x="285" y="342" width="90" height="18" rx="4" fill="rgba(5, 150, 105, 0.06)" stroke="#059669" stroke-width="0.5"/>
+                <text x="330" y="354" fill="#059669" font-family="'JetBrains Mono', monospace" font-size="7" text-anchor="middle">Promise.all()</text>
+
+                <!-- Data flow annotation -->
+                <text x="380" y="265" fill="#059669" font-family="'JetBrains Mono', monospace" font-size="7" opacity="0.7">fetch data</text>
+
+                <!-- ============================================================ -->
+                <!-- LEGEND (outside boundaries, y=580+)                          -->
+                <!-- ============================================================ -->
+                <rect x="40" y="585" width="10" height="10" rx="2" fill="rgba(8, 145, 178, 0.08)" stroke="#0891b2" stroke-width="1"/>
+                <text x="56" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Page / Component</text>
+
+                <rect x="180" y="585" width="10" height="10" rx="2" fill="rgba(5, 150, 105, 0.08)" stroke="#059669" stroke-width="1"/>
+                <text x="196" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Server Action</text>
+
+                <rect x="310" y="585" width="10" height="10" rx="2" fill="rgba(124, 58, 237, 0.08)" stroke="#7c3aed" stroke-width="1"/>
+                <text x="326" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Database</text>
+
+                <rect x="410" y="585" width="10" height="10" rx="2" fill="rgba(217, 119, 6, 0.08)" stroke="#d97706" stroke-width="1"/>
+                <text x="426" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">AI / Cloud</text>
+
+                <rect x="510" y="585" width="10" height="10" rx="2" fill="rgba(225, 29, 72, 0.08)" stroke="#e11d48" stroke-width="1"/>
+                <text x="526" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Auth Flow</text>
+
+                <rect x="610" y="585" width="10" height="10" rx="2" fill="rgba(234, 88, 12, 0.08)" stroke="#ea580c" stroke-width="1"/>
+                <text x="626" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Background Job</text>
+
+                <line x1="750" y1="590" x2="780" y2="590" stroke="#d97706" stroke-width="1" stroke-dasharray="6,3"/>
+                <text x="786" y="594" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Cache Miss Path</text>
+            </svg>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-dot emerald"></div>
+                    <h3>Data Flow</h3>
+                </div>
+                <ul>
+                    <li>• page.jsx fetches via Promise.all()</li>
+                    <li>• getIndustryInsights() checks DB cache</li>
+                    <li>• Cache miss → Gemini generates JSON</li>
+                    <li>• Result saved with 7-day TTL</li>
+                    <li>• getUserProfile() fetches user data</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-dot amber"></div>
+                    <h3>AI Prompt Output</h3>
+                </div>
+                <ul>
+                    <li>• salaryRanges (5+ roles with min/max/median)</li>
+                    <li>• growthRate (percentage)</li>
+                    <li>• demandLevel (High / Medium / Low)</li>
+                    <li>• marketOutlook (Positive / Neutral / Negative)</li>
+                    <li>• topSkills, keyTrends, recommendedSkills</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-dot cyan"></div>
+                    <h3>UI Components</h3>
+                </div>
+                <ul>
+                    <li>• Recharts BarChart (salary ranges in K)</li>
+                    <li>• Radix Progress bar (demand level)</li>
+                    <li>• Badge components (skills, trends)</li>
+                    <li>• EditProfileModal (experience, bio, skills)</li>
+                    <li>• date-fns "Last updated" formatting</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            SensAI Architecture · Feature 1 of 7 · Industry Insights Dashboard
+        </div>
+    </div>
+</body>
+</html>

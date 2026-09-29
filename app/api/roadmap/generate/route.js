@@ -32,9 +32,9 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true, roadmapId, title: projectName });
   } catch (error) {
-    console.error("Roadmap generation error:", error);
+    console.error("Roadmap generation error:", error.message ?? error.code ?? "unknown");
     return NextResponse.json(
-      { error: error?.message ?? "Generation failed" },
+      { error: "Roadmap generation failed. Please try again." },
       { status: 500 }
     );
   }

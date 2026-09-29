@@ -90,27 +90,43 @@ End the conversation on a polite and positive note.
 - This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long.`;
 
 // ─── Zod schema for AI feedback generation ────────────────────────────────────
+const bulletPoint = z.object({
+  title:   z.string(),                  // bold label, e.g. "Go deeper on trade-offs"
+  detail:  z.string(),                  // explanation paragraph
+  seenIn:  z.string().optional(),       // e.g. "Question 3" or "Question 3, Question 8"
+});
+
 export const feedbackSchema = z.object({
   totalScore: z.number(),
 
-  communicationScore: z.number(),
-  communicationComment: z.string(),
+  communicationScore:        z.number(),
+  communicationComment:      z.string(),
+  communicationImprovements: z.array(bulletPoint).default([]),
+  communicationStrengths:    z.array(bulletPoint).default([]),
 
-  technicalScore: z.number(),
-  technicalComment: z.string(),
+  technicalScore:            z.number(),
+  technicalComment:          z.string(),
+  technicalImprovements:     z.array(bulletPoint).default([]),
+  technicalStrengths:        z.array(bulletPoint).default([]),
 
-  problemSolvingScore: z.number(),
-  problemSolvingComment: z.string(),
+  problemSolvingScore:        z.number(),
+  problemSolvingComment:      z.string(),
+  problemSolvingImprovements: z.array(bulletPoint).default([]),
+  problemSolvingStrengths:    z.array(bulletPoint).default([]),
 
-  culturalFitScore: z.number(),
-  culturalFitComment: z.string(),
+  culturalFitScore:           z.number(),
+  culturalFitComment:         z.string(),
+  culturalFitImprovements:    z.array(bulletPoint).default([]),
+  culturalFitStrengths:       z.array(bulletPoint).default([]),
 
-  confidenceScore: z.number(),
-  confidenceComment: z.string(),
+  confidenceScore:            z.number(),
+  confidenceComment:          z.string(),
+  confidenceImprovements:     z.array(bulletPoint).default([]),
+  confidenceStrengths:        z.array(bulletPoint).default([]),
 
-  strengths: z.string(),
-  areasForImprovement: z.string(),
-  finalAssessment: z.string(),
+  strengths:            z.string(),
+  areasForImprovement:  z.string(),
+  finalAssessment:      z.string(),
 });
 
 // ─── Interview cover images ────────────────────────────────────────────────────

@@ -1,135 +1,210 @@
 "use client";
-import { SectionLabel, SkillLines, BulletLines, ContactLine, has, hasText } from "../_templates/shared";
+import { Fragment } from "react";
+import { BulletLines, ContactLine, has, hasText } from "../_templates/shared";
 import { DEFAULT_SECTION_ORDER } from "../_components/SectionOrderForm";
+
+/** Minimal section header — thin left accent bar + small muted caps label */
+function MinSection({ label, children }) {
+  return (
+    <section className="break-inside-avoid mt-4 first:mt-0">
+      <div className="flex items-center gap-2.5 mb-2">
+        <div
+          className="w-[3px] h-3.5 rounded-sm shrink-0"
+          style={{ backgroundColor: "var(--accent)" }}
+        />
+        <span className="text-[0.91em] font-semibold uppercase tracking-[0.18em] text-black">
+          {label}
+        </span>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 function GpaLabel({ gpa }) {
   if (!gpa?.trim()) return null;
   const label = gpa.includes("%") ? gpa.trim() : `GPA ${gpa.trim()}`;
-  return <div className="font-mono text-[0.81em] text-gray-500">{label}</div>;
+  return <span className="text-gray-400 text-[0.9em]"> · {label}</span>;
 }
 
 export function MinimalTemplate({ data }) {
   const pi = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
 
+  const customMap = {};
+  (data.customSections ?? []).forEach((cs) => {
+    if (!cs.name?.trim() || !cs.entries?.length) return;
+    customMap[cs.id] = (
+      <MinSection label={cs.name} key={cs.id}>
+        <div className="space-y-2">
+          {cs.entries.map((entry) => (
+            <div
+              key={entry.id}
+              className="break-inside-avoid grid grid-cols-[1fr_auto] gap-4"
+            >
+              <div>
+                <div className="font-semibold text-gray-900">{entry.title}</div>
+                {entry.subtitle && (
+                  <div className="text-[0.905em] text-gray-500">{entry.subtitle}</div>
+                )}
+                {hasText(entry.description) && (
+                  <p className="text-[0.905em] text-gray-600 mt-0.5">{entry.description}</p>
+                )}
+              </div>
+              {entry.date && (
+                <div className="text-[0.81em] text-gray-400 whitespace-nowrap text-right">
+                  {entry.date}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </MinSection>
+    );
+  });
+
   const sections = {
     summary: hasText(data.professionalSummary) ? (
-      <section key="summary">
-        <SectionLabel>Summary</SectionLabel>
-        <p className="mt-1 text-justify">{data.professionalSummary}</p>
-      </section>
+      <MinSection label="About">
+        <p className="text-[0.952em] text-gray-600 leading-relaxed">
+          {data.professionalSummary}
+        </p>
+      </MinSection>
     ) : null,
 
     experience: has(data.experience) ? (
-      <section key="experience">
-        <SectionLabel>Experience</SectionLabel>
-        <div className="mt-1 space-y-2">
+      <MinSection label="Experience">
+        <div className="space-y-3">
           {data.experience.map((e, i) => (
-            <div key={i} className="break-inside-avoid grid grid-cols-[1fr_auto] gap-4">
+            <div
+              key={i}
+              className="break-inside-avoid grid grid-cols-[1fr_auto] gap-4"
+            >
               <div>
-                <div className="font-semibold text-left">{e.position}</div>
-                <div className="text-[0.952em] text-gray-500 text-left">{e.company}</div>
-                {hasText(e.description) && <BulletLines text={e.description} />}
+                <div className="font-semibold text-gray-900">{e.position}</div>
+                <div className="text-[0.905em] text-gray-500">{e.company}</div>
+                {hasText(e.description) && (
+                  <BulletLines
+                    text={e.description}
+                    className="mt-1 text-gray-600 text-[0.952em]"
+                  />
+                )}
               </div>
-              <div className="font-mono text-[0.81em] text-gray-500 whitespace-nowrap text-right">
-                {e.startDate}{(e.endDate || e.isCurrent) ? ` – ${e.isCurrent ? "Present" : e.endDate}` : ""}
+              <div className="text-[0.81em] text-gray-400 whitespace-nowrap text-right leading-snug">
+                {e.startDate}
+                {(e.endDate || e.isCurrent) && (
+                  <>
+                    <br />
+                    {e.isCurrent ? "Present" : e.endDate}
+                  </>
+                )}
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </MinSection>
     ) : null,
 
     education: has(data.education) ? (
-      <section key="education">
-        <SectionLabel>Education</SectionLabel>
-        <div className="mt-1 space-y-1.5">
+      <MinSection label="Education">
+        <div className="space-y-2">
           {data.education.map((e, i) => (
-            <div key={i} className="break-inside-avoid flex justify-between gap-4">
-              <div className="text-left min-w-0">
-                <div className="font-semibold">{e.institution}</div>
-                <div className="text-[0.952em] text-gray-500">
+            <div
+              key={i}
+              className="break-inside-avoid grid grid-cols-[1fr_auto] gap-4"
+            >
+              <div>
+                <div className="font-semibold text-gray-900">{e.institution}</div>
+                <div className="text-[0.905em] text-gray-500">
                   {[e.degree, e.field].filter(Boolean).join(", ")}
+                  <GpaLabel gpa={e.gpa} />
                 </div>
               </div>
-              <div className="text-right shrink-0">
-                <div className="font-mono text-[0.81em] text-gray-500 whitespace-nowrap">{e.graduationDate}</div>
-                <GpaLabel gpa={e.gpa} />
+              <div className="text-[0.81em] text-gray-400 whitespace-nowrap text-right">
+                {e.graduationDate}
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </MinSection>
     ) : null,
 
     projects: has(data.projects) ? (
-      <section key="projects">
-        <SectionLabel>Projects</SectionLabel>
-        <div className="mt-1 space-y-1.5">
+      <MinSection label="Projects">
+        <div className="space-y-2">
           {data.projects.map((p, i) => (
             <div key={i} className="break-inside-avoid">
-              <div className="font-semibold text-left">
-                {p.name}{p.type ? ` · ${p.type}` : ""}
+              <div className="font-semibold text-gray-900">
+                {p.name}
+                {p.type && (
+                  <span className="font-normal text-gray-400 text-[0.905em]">
+                    {" "}/ {p.type}
+                  </span>
+                )}
               </div>
-              {hasText(p.description) && <BulletLines text={p.description} />}
+              {hasText(p.description) && (
+                <BulletLines
+                  text={p.description}
+                  className="mt-0.5 text-gray-600 text-[0.952em]"
+                />
+              )}
             </div>
           ))}
         </div>
-      </section>
+      </MinSection>
     ) : null,
 
     skills: has(data.skills) ? (
-      <section key="skills">
-        <SectionLabel>Skills</SectionLabel>
-        <SkillLines skills={data.skills} />
-      </section>
+      <MinSection label="Skills">
+        <div className="space-y-1 text-[0.905em]">
+          {data.skills.map((skill, i) => {
+            const [category, ...rest] = skill.split(":");
+            const details = rest.join(":").trim();
+            if (!details) return <div key={i} className="text-gray-700">{skill}</div>;
+            return (
+              <div key={i} className="flex gap-1">
+                <span className="text-black font-semibold uppercase tracking-wide text-[0.88em] shrink-0 pt-px">
+                  {category.trim()}
+                </span>
+                <span className="text-gray-400 shrink-0">—</span>
+                <span className="text-gray-900">{details}</span>
+              </div>
+            );
+          })}
+        </div>
+      </MinSection>
     ) : null,
 
-    ...(() => {
-      const m = {};
-      (data.customSections ?? []).forEach((cs) => {
-        if (!cs.name?.trim() || !cs.entries?.length) return;
-        m[cs.id] = (
-          <section key={cs.id} className="break-inside-avoid">
-            <SectionLabel>{cs.name}</SectionLabel>
-            <div className="mt-1 space-y-2">
-              {cs.entries.map((entry) => (
-                <div key={entry.id} className="break-inside-avoid">
-                  <div className="flex items-baseline justify-between">
-                    <div className="font-semibold text-left">
-                      {entry.title}{entry.subtitle ? ` — ${entry.subtitle}` : ""}
-                    </div>
-                    {entry.date && (
-                      <div className="font-mono text-[0.81em] text-gray-500 whitespace-nowrap ml-4">{entry.date}</div>
-                    )}
-                  </div>
-                  {hasText(entry.description) && (
-                    <p className="text-[0.905em] text-gray-700 mt-0.5 font-mono">{entry.description}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      });
-      return m;
-    })(),
+    ...customMap,
   };
 
   return (
-    <div className="space-y-3 text-gray-900">
+    <div className="text-gray-900">
+      {/* ── Left-aligned ultra-clean header ── */}
       {(hasText(pi.fullName) || hasText(pi.profession)) && (
-        <header className="text-left border-b pb-2" style={{ borderColor: "var(--accent)" }}>
-          <h1 className="text-[2.14em] font-bold tracking-tight">{pi.fullName}</h1>
+        <header className="mb-4 pb-3 border-b border-gray-200">
+          <h1 className="text-[2.38em] font-light tracking-tight leading-none text-gray-900">
+            {pi.fullName}
+          </h1>
           {hasText(pi.profession) && (
-            <div className="text-[0.857em] text-gray-500">{pi.profession}</div>
+            <div
+              className="text-[0.76em] uppercase tracking-[0.18em] mt-1.5 font-semibold"
+              style={{ color: "var(--accent)" }}
+            >
+              {pi.profession}
+            </div>
           )}
-          <div className="mt-1 font-mono text-[0.81em] text-gray-500">
+          <div className="mt-1.5 text-[0.81em] text-black">
             <ContactLine pi={pi} />
           </div>
         </header>
       )}
-      {order.map((key) => sections[key] ?? null)}
+
+      {order.map((key) =>
+        sections[key]
+          ? <Fragment key={key}>{sections[key]}</Fragment>
+          : null
+      )}
     </div>
   );
 }

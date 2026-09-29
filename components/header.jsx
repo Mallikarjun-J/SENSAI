@@ -119,7 +119,7 @@ export default async function Header() {
           </SignedOut>
 
           <SignedIn>
-            <UserButton aschild
+            <UserButton asChild
               appearance={{
                 elements: {
                   avatarBox: "w-10 h-10",

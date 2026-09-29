@@ -36,13 +36,20 @@ export default async function VoiceInterviewSetupPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { clerkUserId: clerkUser.id },
-    select: { industry: true, experience: true, skills: true },
+    select: { id: true, industry: true, experience: true, skills: true },
   });
 
   const defaultRole = industryToRole(dbUser?.industry);
   const defaultLevel = experienceToLevel(dbUser?.experience);
   const defaultTechstack = dbUser?.skills ?? [];
 
+  const resumes = dbUser
+    ? await prisma.resume.findMany({
+        where: { userId: dbUser.id },
+        orderBy: { updatedAt: "desc" },
+        select: { id: true, title: true, updatedAt: true },
+      })
+    : [];
 
   return (
     <div className="space-y-6">
@@ -65,6 +72,7 @@ export default async function VoiceInterviewSetupPage() {
         defaultRole={defaultRole}
         defaultLevel={defaultLevel}
         defaultTechstack={defaultTechstack}
+        resumes={resumes.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString() }))}
       />
     </div>
   );

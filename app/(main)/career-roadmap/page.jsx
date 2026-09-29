@@ -8,7 +8,7 @@ import RoadmapCard from "./_components/roadmap-card";
 import prisma from "@/lib/prisma";
 
 export const metadata = {
-  title: "Career Roadmap — SensAI",
+  title: "Career Roadmap - SensAI",
   description: "Your AI-generated interactive career roadmaps",
 };
 

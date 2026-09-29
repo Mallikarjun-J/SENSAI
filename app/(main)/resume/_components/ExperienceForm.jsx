@@ -1,66 +1,108 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { AlertCircle } from "lucide-react";
 import { enhanceJobDescription } from "@/actions/resume";
 import { toast } from "sonner";
+import { experienceArraySchema, formatZodErrors } from "@/lib/resume-schema";
+import { MonthYearPicker } from "./MonthYearPicker";
 
-function Field({ label, children }) {
+function FieldError({ msg }) {
+  if (!msg) return null;
+  return (
+    <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
+      <AlertCircle className="h-3 w-3 shrink-0" />
+      {msg}
+    </p>
+  );
+}
+
+function Field({ label, required, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-sm font-medium text-foreground">{label}</label>
+      <label className="text-sm font-medium text-foreground">
+        {label}
+        {required && <span className="text-red-400 ml-1">*</span>}
+      </label>
       {children}
     </div>
   );
 }
 
-function ExpItem({ exp, onChange, onRemove }) {
+const BASE_INPUT =
+  "w-full rounded-md border bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all";
+
+const inputCls = (hasErr) =>
+  `${BASE_INPUT} ${hasErr ? "border-red-500/50 focus:ring-red-500/30" : "border-white/10 focus:ring-primary/50"}`;
+
+function ExpItem({ exp, index, onChange, onRemove, errors, touched, onTouch }) {
   const [loading, setLoading] = useState(false);
+
+  const err = (field) => (touched[`${index}.${field}`] ? errors[`${index}.${field}`] : null);
+
+  const handleDateChange = (field, val) => {
+    onChange({ [field]: val });
+    onTouch(index, field);
+  };
 
   return (
     <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Company">
+        {/* Company */}
+        <Field label="Company" required>
           <input
             value={exp.company ?? ""}
             onChange={(e) => onChange({ company: e.target.value })}
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            onBlur={() => onTouch(index, "company")}
+            className={inputCls(!!err("company"))}
           />
+          <FieldError msg={err("company")} />
         </Field>
-        <Field label="Job Title">
+
+        {/* Job Title */}
+        <Field label="Job Title" required>
           <input
             value={exp.position ?? ""}
             onChange={(e) => onChange({ position: e.target.value })}
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            onBlur={() => onTouch(index, "position")}
+            className={inputCls(!!err("position"))}
           />
+          <FieldError msg={err("position")} />
         </Field>
-        <Field label="Start Date">
-          <input
+
+        {/* Start Date */}
+        <Field label="Start Date" required>
+          <MonthYearPicker
             value={exp.startDate ?? ""}
-            placeholder="Jan 2022"
-            onChange={(e) => onChange({ startDate: e.target.value })}
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            onChange={(val) => handleDateChange("startDate", val)}
           />
+          <FieldError msg={err("startDate")} />
         </Field>
+
+        {/* End Date */}
         <Field label="End Date">
-          <input
+          <MonthYearPicker
             value={exp.endDate ?? ""}
-            placeholder="Present"
+            onChange={(val) => handleDateChange("endDate", val)}
             disabled={exp.isCurrent}
-            onChange={(e) => onChange({ endDate: e.target.value })}
-            className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-40 transition-all"
           />
+          <FieldError msg={err("endDate")} />
         </Field>
       </div>
 
+      {/* Currently working here */}
       <label className="flex items-center gap-2 text-sm cursor-pointer">
         <input
           type="checkbox"
           checked={!!exp.isCurrent}
-          onChange={(e) => onChange({ isCurrent: e.target.checked, endDate: e.target.checked ? "" : exp.endDate })}
+          onChange={(e) =>
+            onChange({ isCurrent: e.target.checked, endDate: e.target.checked ? "" : exp.endDate })
+          }
           className="h-4 w-4 rounded border-white/20 bg-white/5 accent-primary"
         />
         <span className="text-muted-foreground">Currently working here</span>
       </label>
 
+      {/* Description */}
       <Field label="Description">
         <textarea
           rows={4}
@@ -116,10 +158,52 @@ function ExpItem({ exp, onChange, onRemove }) {
   );
 }
 
-export function ExperienceForm({ value, onChange }) {
-  const set = (i, patch) => onChange(value.map((e, idx) => (idx === i ? { ...e, ...patch } : e)));
-  const remove = (i) => onChange(value.filter((_, idx) => idx !== i));
-  const add = () => onChange([...value, { company: "", position: "", description: "" }]);
+export function ExperienceForm({ value, onChange, validateTrigger = 0 }) {
+  const [errors, setErrors]   = useState({});
+  const [touched, setTouched] = useState({});
+
+  const runValidation = (data) => {
+    const result = experienceArraySchema.safeParse(data);
+    return result.success ? {} : formatZodErrors(result.error);
+  };
+
+  useEffect(() => {
+    if (validateTrigger === 0) return;
+    setErrors(runValidation(value));
+    const allTouched = {};
+    (value ?? []).forEach((_, i) => {
+      ["company", "position", "startDate", "endDate"].forEach((f) => {
+        allTouched[`${i}.${f}`] = true;
+      });
+    });
+    setTouched(allTouched);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validateTrigger]);
+
+  // Called by text fields (onBlur) and date pickers (onChange)
+  const onTouch = (index, field) => {
+    setTouched((t) => {
+      const next = { ...t, [`${index}.${field}`]: true };
+      setErrors(runValidation(value));
+      return next;
+    });
+  };
+
+  const set = (i, patch) => {
+    const next = value.map((e, idx) => (idx === i ? { ...e, ...patch } : e));
+    onChange(next);
+    const hasTouched = Object.keys(touched).some((k) => k.startsWith(`${i}.`));
+    if (hasTouched) setErrors(runValidation(next));
+  };
+
+  const remove = (i) => {
+    onChange(value.filter((_, idx) => idx !== i));
+    setErrors({});
+    setTouched({});
+  };
+
+  const add = () =>
+    onChange([...value, { company: "", position: "", startDate: "", endDate: "", description: "" }]);
 
   return (
     <div className="space-y-4">
@@ -127,7 +211,16 @@ export function ExperienceForm({ value, onChange }) {
         <p className="text-sm text-muted-foreground">No experience added yet. Add your work history below.</p>
       )}
       {value.map((exp, i) => (
-        <ExpItem key={i} exp={exp} onChange={(patch) => set(i, patch)} onRemove={() => remove(i)} />
+        <ExpItem
+          key={i}
+          exp={exp}
+          index={i}
+          errors={errors}
+          touched={touched}
+          onChange={(patch) => set(i, patch)}
+          onRemove={() => remove(i)}
+          onTouch={onTouch}
+        />
       ))}
       <button
         type="button"

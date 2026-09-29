@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -73,8 +73,11 @@ export default function RoadmapCanvas({ nodes: rawNodes, completedSteps, onToggl
     return edges;
   }, [rawNodes]);
 
-  const [nodes, , onNodesChange] = useNodesState(flowNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(flowNodes);
   const [edges, , onEdgesChange] = useEdgesState(flowEdges);
+
+  // Re-sync ReactFlow internal state whenever completedSteps changes upstream
+  useEffect(() => { setNodes(flowNodes); }, [flowNodes]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="w-full h-full relative">

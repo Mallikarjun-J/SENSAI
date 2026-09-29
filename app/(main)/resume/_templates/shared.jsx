@@ -90,7 +90,7 @@ export function BulletLines({ text, className = "" }) {
     <ul className={`mt-0.5 space-y-0.5 ${className}`}>
       {lines.map((line, i) => (
         <li key={i} className="flex gap-1.5">
-          <span className="mt-[2px] shrink-0 select-none text-foreground">●</span>
+          <span className="mt-[2px] shrink-0 select-none">●</span>
           <span className="text-justify">
             {line.startsWith("●") ? line.slice(1).trim() : line}
           </span>

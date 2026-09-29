@@ -64,6 +64,31 @@ async function getYouTubeVideos(query) {
   }
 }
 
+async function generatePhaseKeyTopics(phaseName, steps) {
+  try {
+    const stepList = steps.map((s, i) => `${i + 1}. ${s.title}`).join("\n");
+    const result = await model.generateContent(
+      `For the roadmap phase "${phaseName}", list 4-5 must-learn subtopics for each step below.
+Be specific and practical — these are the core concepts a learner must understand.
+Return ONLY a JSON array of arrays, one inner array per step in the same order:
+[["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"], [...], [...], [...]]
+
+Steps:
+${stepList}`
+    );
+    const text = result.response.text().trim();
+    const match = text.match(/\[[\s\S]*\]/);
+    if (!match) return steps.map(() => []);
+    const parsed = JSON.parse(match[0]);
+    if (Array.isArray(parsed) && parsed.length === steps.length) {
+      return parsed.map((arr) => (Array.isArray(arr) ? arr.map(String) : []));
+    }
+    return steps.map(() => []);
+  } catch {
+    return steps.map(() => []);
+  }
+}
+
 async function buildRoadmapNodes(phases, projectName) {
   const PHASE_SPACING = 600;
   const BRANCH_OFFSET = 380;
@@ -83,6 +108,9 @@ async function buildRoadmapNodes(phases, projectName) {
 
     const stepConnections = steps.map((_, si) => `step-${phase.number}-${si + 1}`);
 
+    // Fetch key topics for all 4 steps in this phase — one Gemini call per phase
+    const keyTopicsPerStep = await generatePhaseKeyTopics(phase.name, steps);
+
     nodes.push({
       id: `phase-${phase.number}`,
       title: phase.name,
@@ -97,6 +125,7 @@ async function buildRoadmapNodes(phases, projectName) {
       phaseNumber: phase.number,
       stepNumber: null,
       isLeft: false,
+      keyTopics: [],
       resources: {
         aiSummary: `Phase ${phase.number} of your ${projectName} roadmap: ${phase.name}`,
         youtubeVideos: await getYouTubeVideos(`${phase.name} ${projectName}`),
@@ -131,6 +160,7 @@ async function buildRoadmapNodes(phases, projectName) {
         phaseNumber: phase.number,
         stepNumber: si + 1,
         isLeft,
+        keyTopics: keyTopicsPerStep[si] ?? [],
         resources: {
           aiSummary: `Step ${si + 1} of ${phase.name}: ${step.description}`,
           youtubeVideos: await getYouTubeVideos(`${step.title} tutorial`),

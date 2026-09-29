@@ -1,23 +1,67 @@
 "use client";
+import { useState, useEffect } from "react";
+import { AlertCircle } from "lucide-react";
+import { educationArraySchema, formatZodErrors } from "@/lib/resume-schema";
+import { MonthYearPicker } from "./MonthYearPicker";
 
-function Item({ label, value, onChange }) {
+const BASE_INPUT =
+  "w-full rounded-md border bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all";
+
+const inputCls = (hasErr) =>
+  `${BASE_INPUT} ${hasErr ? "border-red-500/50 focus:ring-red-500/30" : "border-white/10 focus:ring-primary/50"}`;
+
+function FieldError({ msg }) {
+  if (!msg) return null;
   return (
-    <div className="space-y-1.5">
-      <label className="text-sm font-medium text-foreground">{label}</label>
-      <input
-        value={value ?? ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-      />
-    </div>
+    <p className="mt-1 flex items-center gap-1 text-xs text-red-400">
+      <AlertCircle className="h-3 w-3 shrink-0" />
+      {msg}
+    </p>
   );
 }
 
-export function EducationForm({ value, onChange }) {
-  const set = (i, key, val) =>
-    onChange(value.map((e, idx) => (idx === i ? { ...e, [key]: val } : e)));
-  const remove = (i) => onChange(value.filter((_, idx) => idx !== i));
+export function EducationForm({ value, onChange, validateTrigger = 0 }) {
+  const [errors, setErrors]   = useState({});
+  const [touched, setTouched] = useState({});
+
+  const runValidation = (data) => {
+    const result = educationArraySchema.safeParse(data);
+    return result.success ? {} : formatZodErrors(result.error);
+  };
+
+  useEffect(() => {
+    if (validateTrigger === 0) return;
+    setErrors(runValidation(value));
+    const allTouched = {};
+    (value ?? []).forEach((_, i) => {
+      ["institution", "degree", "gpa"].forEach((f) => {
+        allTouched[`${i}.${f}`] = true;
+      });
+    });
+    setTouched(allTouched);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validateTrigger]);
+
+  const handleBlur = (i, field) => {
+    setTouched((t) => ({ ...t, [`${i}.${field}`]: true }));
+    setErrors(runValidation(value));
+  };
+
+  const set = (i, key, val) => {
+    const next = value.map((e, idx) => (idx === i ? { ...e, [key]: val } : e));
+    onChange(next);
+    if (touched[`${i}.${key}`]) setErrors(runValidation(next));
+  };
+
+  const remove = (i) => {
+    onChange(value.filter((_, idx) => idx !== i));
+    setErrors({});
+    setTouched({});
+  };
+
   const add = () => onChange([...value, {}]);
+
+  const err = (i, field) => (touched[`${i}.${field}`] ? errors[`${i}.${field}`] : null);
 
   return (
     <div className="space-y-4">
@@ -27,12 +71,73 @@ export function EducationForm({ value, onChange }) {
       {value.map((ed, i) => (
         <div key={i} className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
-            <Item label="Institution" value={ed.institution} onChange={(v) => set(i, "institution", v)} />
-            <Item label="Degree" value={ed.degree} onChange={(v) => set(i, "degree", v)} />
-            <Item label="Field of Study" value={ed.field} onChange={(v) => set(i, "field", v)} />
-            <Item label="Graduation Date" value={ed.graduationDate} onChange={(v) => set(i, "graduationDate", v)} />
-            <Item label="GPA / Percentage" value={ed.gpa} onChange={(v) => set(i, "gpa", v)} />
+            {/* Institution */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">
+                Institution <span className="text-red-400">*</span>
+              </label>
+              <input
+                value={ed.institution ?? ""}
+                onChange={(e) => set(i, "institution", e.target.value)}
+                onBlur={() => handleBlur(i, "institution")}
+                className={inputCls(!!err(i, "institution"))}
+              />
+              <FieldError msg={err(i, "institution")} />
+            </div>
+
+            {/* Degree */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">
+                Degree <span className="text-red-400">*</span>
+              </label>
+              <input
+                value={ed.degree ?? ""}
+                onChange={(e) => set(i, "degree", e.target.value)}
+                onBlur={() => handleBlur(i, "degree")}
+                className={inputCls(!!err(i, "degree"))}
+              />
+              <FieldError msg={err(i, "degree")} />
+            </div>
+
+            {/* Field of Study */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">Field of Study</label>
+              <input
+                value={ed.field ?? ""}
+                onChange={(e) => set(i, "field", e.target.value)}
+                className={inputCls(false)}
+              />
+            </div>
+
+            {/* Graduation Date — allows future, present, and year-only */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">
+                Graduation Date
+                <span className="ml-1 text-xs text-muted-foreground">(expected OK)</span>
+              </label>
+              <MonthYearPicker
+                value={ed.graduationDate ?? ""}
+                onChange={(val) => set(i, "graduationDate", val)}
+                allowFuture
+                allowPresent
+                allowYearOnly
+              />
+            </div>
+
+            {/* GPA */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">GPA / Percentage</label>
+              <input
+                value={ed.gpa ?? ""}
+                placeholder="8.5 or 85%"
+                onChange={(e) => set(i, "gpa", e.target.value)}
+                onBlur={() => handleBlur(i, "gpa")}
+                className={inputCls(!!err(i, "gpa"))}
+              />
+              <FieldError msg={err(i, "gpa")} />
+            </div>
           </div>
+
           <div className="flex justify-end">
             <button
               type="button"

@@ -98,7 +98,8 @@ export async function updateResume({ resumeId, data }) {
       fontScale: data.fontScale ?? 1.0,
       professionalSummary: data.professionalSummary,
       skills: data.skills ?? [],
-      personalInfo: data.personalInfo ?? {},
+      // Store font inside personalInfo JSON (no dedicated column in schema)
+      personalInfo: { ...(data.personalInfo ?? {}), _font: data.font ?? "inter" },
       experience: data.experience ?? [],
       projects: data.projects ?? [],
       education: data.education ?? [],

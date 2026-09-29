@@ -12,6 +12,11 @@ const CustomRoadmapNode = ({ data: rawData }) => {
   const data = rawData;
   const isPhase = data.isPhase;
   const isStep = data.isStep;
+  const isPhaseComplete =
+    isPhase &&
+    Array.isArray(data.connections) &&
+    data.connections.length > 0 &&
+    data.connections.every((stepId) => data.completedSteps?.has(stepId));
   const isDone = isStep && (data.completedSteps?.has(data.id) ?? false);
 
   const handleClick = () => data.onNodeClick(data);
@@ -24,11 +29,11 @@ const CustomRoadmapNode = ({ data: rawData }) => {
             type="target"
             position={Position.Top}
             style={{
-              background: THEME.primary,
+              background: isPhaseComplete ? "#4ade80" : THEME.primary,
               width: 14,
               height: 14,
               border: "2px solid #ffffff",
-              boxShadow: `0 0 8px ${THEME.primary}`,
+              boxShadow: `0 0 8px ${isPhaseComplete ? "#4ade80" : THEME.primary}`,
             }}
           />
         )}
@@ -37,11 +42,11 @@ const CustomRoadmapNode = ({ data: rawData }) => {
           position={Position.Left}
           id="left"
           style={{
-            background: THEME.secondary,
+            background: isPhaseComplete ? "#22c55e" : THEME.secondary,
             width: 12,
             height: 12,
             border: "2px solid #ffffff",
-            boxShadow: `0 0 6px ${THEME.secondary}`,
+            boxShadow: `0 0 6px ${isPhaseComplete ? "#22c55e" : THEME.secondary}`,
             left: -6,
           }}
         />
@@ -50,11 +55,11 @@ const CustomRoadmapNode = ({ data: rawData }) => {
           position={Position.Right}
           id="right"
           style={{
-            background: THEME.secondary,
+            background: isPhaseComplete ? "#22c55e" : THEME.secondary,
             width: 12,
             height: 12,
             border: "2px solid #ffffff",
-            boxShadow: `0 0 6px ${THEME.secondary}`,
+            boxShadow: `0 0 6px ${isPhaseComplete ? "#22c55e" : THEME.secondary}`,
             right: -6,
           }}
         />
@@ -64,8 +69,10 @@ const CustomRoadmapNode = ({ data: rawData }) => {
           className="relative rounded-2xl border-2 hover:scale-[1.025] hover:-translate-y-1 transition-all duration-300 cursor-pointer w-80 h-36"
           style={{
             background: "rgba(26, 28, 32, 0.95)",
-            borderColor: THEME.primary + "70",
-            boxShadow: `0 0 28px ${THEME.primary}18`,
+            borderColor: isPhaseComplete ? "rgba(34,197,94,0.45)" : THEME.primary + "70",
+            boxShadow: isPhaseComplete
+              ? "0 0 28px rgba(34,197,94,0.12)"
+              : `0 0 28px ${THEME.primary}18`,
           }}
         >
           <div className="p-6 h-full flex items-center justify-start text-white">
@@ -73,18 +80,24 @@ const CustomRoadmapNode = ({ data: rawData }) => {
               <div
                 className="w-14 h-14 rounded-xl flex items-center justify-center border"
                 style={{
-                  backgroundColor: `${THEME.primary}15`,
-                  borderColor: `${THEME.primary}35`,
-                  color: THEME.primary,
-                  boxShadow: `0 0 12px ${THEME.primary}12`,
+                  backgroundColor: isPhaseComplete ? "rgba(34,197,94,0.12)" : `${THEME.primary}15`,
+                  borderColor: isPhaseComplete ? "rgba(34,197,94,0.3)" : `${THEME.primary}35`,
+                  color: isPhaseComplete ? "#4ade80" : THEME.primary,
+                  boxShadow: isPhaseComplete
+                    ? "0 0 12px rgba(34,197,94,0.1)"
+                    : `0 0 12px ${THEME.primary}12`,
                 }}
               >
-                <Target className="w-7 h-7" />
+                {isPhaseComplete ? (
+                  <CheckCircle2 className="w-7 h-7" />
+                ) : (
+                  <Target className="w-7 h-7" />
+                )}
               </div>
               <div className="text-left">
                 <p
                   className="text-xs font-semibold tracking-wider uppercase"
-                  style={{ color: THEME.primary }}
+                  style={{ color: isPhaseComplete ? "#4ade80" : THEME.primary }}
                 >
                   Phase {data.phaseNumber}
                 </p>
@@ -102,7 +115,7 @@ const CustomRoadmapNode = ({ data: rawData }) => {
               color: "rgba(255,255,255,0.6)",
             }}
           >
-            Click to explore
+            {isPhaseComplete ? "Phase complete!" : "Click to explore"}
           </div>
         </div>
 
@@ -111,11 +124,11 @@ const CustomRoadmapNode = ({ data: rawData }) => {
           position={Position.Bottom}
           id="bottom"
           style={{
-            background: THEME.primary,
+            background: isPhaseComplete ? "#4ade80" : THEME.primary,
             width: 14,
             height: 14,
             border: "2px solid #ffffff",
-            boxShadow: `0 0 8px ${THEME.primary}`,
+            boxShadow: `0 0 8px ${isPhaseComplete ? "#4ade80" : THEME.primary}`,
           }}
         />
       </div>

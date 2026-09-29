@@ -1,9 +1,10 @@
 "use client";
 
 const TEMPLATES = [
-  { id: "classic", name: "Classic", hint: "Traditional clean layout", emoji: "📄" },
-  { id: "modern", name: "Modern", hint: "Accent header, bordered entries", emoji: "🎨" },
-  { id: "minimal", name: "Minimal", hint: "Quiet, whitespace-forward", emoji: "⬜" },
+  { id: "classic", name: "Classic",  hint: "Centered formal layout",         emoji: "📄" },
+  { id: "modern",  name: "Modern",   hint: "Accent header, bordered entries", emoji: "🎨" },
+  { id: "minimal", name: "Minimal",  hint: "Clean left-bar sections",         emoji: "⬜" },
+  { id: "photo",   name: "Creative", hint: "Sidebar with candidate photo",    emoji: "🖼️" },
 ];
 
 export function TemplateSelector({ value, onChange }) {
