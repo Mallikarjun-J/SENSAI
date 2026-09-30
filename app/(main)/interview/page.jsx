@@ -32,7 +32,7 @@ export default async function InterviewPage() {
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-6xl font-bold gradient-title mb-2">Interview Preparation</h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold gradient-title mb-2">Interview Preparation</h1>
         <p className="text-muted-foreground">
           AI-powered tools to practise and ace your next interview.
         </p>

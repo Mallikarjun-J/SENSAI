@@ -416,7 +416,7 @@ const Agent = ({
 
         {/* LEFT — AI panel: avatar before call, live transcript during call */}
         <div className={cn(
-          "relative flex flex-col items-center justify-center gap-5 p-10 min-h-[420px] rounded-3xl border transition-all duration-500 overflow-hidden",
+          "relative flex flex-col items-center justify-center gap-4 p-5 sm:p-10 min-h-[220px] sm:min-h-[420px] rounded-3xl border transition-all duration-500 overflow-hidden",
           "bg-gradient-to-br from-[#0f0c29] via-[#1a1040] to-[#0d0d1a]",
           isSpeaking
             ? "border-violet-500/60 shadow-[0_0_40px_rgba(139,92,246,0.25)]"
@@ -431,14 +431,14 @@ const Agent = ({
 
           {/* Speaking ring */}
           {isSpeaking && (
-            <span className="absolute inline-flex size-[168px] rounded-full border-2 border-violet-400/40 animate-ping opacity-60 pointer-events-none" />
+            <span className="absolute inline-flex size-[100px] sm:size-[168px] rounded-full border-2 border-violet-400/40 animate-ping opacity-60 pointer-events-none" />
           )}
 
           {/* Content area */}
           {!isActive ? (
             /* Before call — show AI avatar */
             <div className={cn(
-              "relative size-32 rounded-full ring-4 transition-all duration-500 overflow-hidden",
+              "relative size-24 sm:size-32 rounded-full ring-4 transition-all duration-500 overflow-hidden",
               "ring-white/10"
             )}>
               <Image src="/ai.png" alt="AI Interviewer" fill className="object-cover" priority />
@@ -447,7 +447,7 @@ const Agent = ({
             /* During call — show latest AI message */
             <div className="z-10 w-full px-2 text-center">
               {displayText ? (
-                <p className="text-white text-base leading-relaxed font-medium">
+                <p className="text-white text-sm sm:text-base leading-relaxed font-medium">
                   {displayText}
                 </p>
               ) : (
@@ -460,7 +460,7 @@ const Agent = ({
 
           {/* Name + status */}
           <div className="text-center z-10">
-            <h3 className="text-lg font-bold text-white">AI Interviewer</h3>
+            <h3 className="text-base sm:text-lg font-bold text-white">AI Interviewer</h3>
             <div className="flex items-center justify-center gap-1.5 mt-1.5">
               {isActive ? (
                 <>
@@ -491,7 +491,7 @@ const Agent = ({
         </div>
 
         {/* RIGHT — User panel: live webcam or avatar fallback */}
-        <div className="relative flex flex-col items-center justify-center gap-5 p-10 min-h-[420px] rounded-3xl border border-white/10 bg-gradient-to-br from-[#111318] via-[#161a20] to-[#0d0f13] overflow-hidden">
+        <div className="relative flex flex-col items-center justify-center gap-4 p-5 sm:p-10 min-h-[220px] sm:min-h-[420px] rounded-3xl border border-white/10 bg-gradient-to-br from-[#111318] via-[#161a20] to-[#0d0f13] overflow-hidden">
 
           {cameraOn ? (
             /* ── Live webcam ── */
@@ -532,7 +532,7 @@ const Agent = ({
               {/* Subtle ambient */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-600/5 to-transparent pointer-events-none" />
 
-              <div className="relative size-32 rounded-full ring-4 ring-white/10 overflow-hidden shadow-xl">
+              <div className="relative size-24 sm:size-32 rounded-full ring-4 ring-white/10 overflow-hidden shadow-xl">
                 {userImageUrl ? (
                   <Image
                     src={userImageUrl}
@@ -549,7 +549,7 @@ const Agent = ({
               </div>
 
               <div className="text-center z-10">
-                <h3 className="text-lg font-bold text-white">{userName}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-white">{userName}</h3>
                 <div className="flex items-center justify-center gap-1.5 mt-1.5">
                   {isMuted ? (
                     <>

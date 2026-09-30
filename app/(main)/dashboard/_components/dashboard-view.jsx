@@ -98,11 +98,11 @@ const DashboardView = ({ insights, userProfile }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-2">
         <Badge className={'border border-white/20'}>Last updated: {lastUpdatedDate}</Badge>
         <button
           onClick={() => setEditOpen(true)}
-          className="inline-flex items-center gap-2 border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/10 transition-all"
+          className="inline-flex items-center gap-2 border border-white/15 bg-white/5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-muted-foreground hover:text-white hover:bg-white/10 transition-all"
         >
           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -119,14 +119,14 @@ const DashboardView = ({ insights, userProfile }) => {
 
       {/* ── Profile Info Strip ─────────────────────────────────────────────── */}
       {industryName && (
-        <div className="flex items-center gap-2">
-          <span className="text-4xl font-bold tracking-tighter bg-gradient-to-b from-gray-400 via-gray-200 to-gray-600 bg-clip-text text-transparent">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter bg-gradient-to-b from-gray-400 via-gray-200 to-gray-600 bg-clip-text text-transparent">
             {industryName}
           </span>
           {specialization && (
             <>
               <span className="text-base text-white/20">/</span>
-              <span className="text-4xl font-bold tracking-tighter bg-gradient-to-b from-gray-400 via-gray-200 to-gray-600 bg-clip-text text-transparent">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tighter bg-gradient-to-b from-gray-400 via-gray-200 to-gray-600 bg-clip-text text-transparent">
                 {specialization}
               </span>
             </>
@@ -207,11 +207,19 @@ const DashboardView = ({ insights, userProfile }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[400px]">
+          <div className="h-[280px] sm:h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={salaryData}>
+              <BarChart data={salaryData} margin={{ bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <XAxis
+                  dataKey="name"
+                  angle={-25}
+                  textAnchor="end"
+                  height={70}
+                  tick={{ fontSize: 11 }}
+                  tickFormatter={(v) => v.length > 14 ? v.slice(0, 14) + '…' : v}
+                  interval={0}
+                />
                 <YAxis />
                 <Tooltip
                   content={({ active, payload, label }) => {

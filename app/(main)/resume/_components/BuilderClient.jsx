@@ -13,6 +13,7 @@ import {
   Palette,
   Loader2,
   ALargeSmall,
+  Eye,
 } from "lucide-react";
 import { updateResume } from "@/actions/resume";
 import {
@@ -145,6 +146,20 @@ export function BuilderClient({ resumeId, initial }) {
   const [showFonts, setShowFonts] = useState(false);
   const [validateTrigger, setValidateTrigger] = useState(0);
 
+  // ── Mobile tab state ──────────────────────────────────────────────────────
+  const [mobileTab, setMobileTab] = useState("edit"); // 'edit' | 'preview'
+
+  // ── Viewport size tracker (for conditional inline styles) ─────────────────
+  // Start with true (desktop) to avoid hydration mismatch; corrects on mount
+  const [isLg, setIsLg] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsLg(mq.matches);
+    const handler = (e) => setIsLg(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   // ── Step validation map ───────────────────────────────────────────────────
   const STEP_SCHEMAS = {
     0: [personalInfoSchema,    () => data.personalInfo   ?? {}],
@@ -266,6 +281,10 @@ export function BuilderClient({ resumeId, initial }) {
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
+  // Padding for sub-toolbar / progress / form area — use formLeft on desktop,
+  // plain px-4 (1rem) on mobile so content doesn't hug the bezel
+  const leftPad = isLg ? formLeft : '1rem';
+
   return (
     <div
       className="flex flex-col overflow-hidden bg-background pt-16"
@@ -322,19 +341,50 @@ export function BuilderClient({ resumeId, initial }) {
         </div>
       </div>
 
+      {/* ── Mobile-only tab switcher (Edit Form / Preview) — hidden on lg+ ── */}
+      <div className="no-print shrink-0 flex lg:hidden border-b border-white/10 bg-background">
+        <button
+          type="button"
+          onClick={() => setMobileTab("edit")}
+          className={`flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            mobileTab === "edit"
+              ? "border-primary text-white"
+              : "border-transparent text-muted-foreground hover:text-white"
+          }`}
+        >
+          <FileText className="h-4 w-4" />
+          Edit Form
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("preview")}
+          className={`flex flex-1 items-center justify-center gap-2 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            mobileTab === "preview"
+              ? "border-primary text-white"
+              : "border-transparent text-muted-foreground hover:text-white"
+          }`}
+        >
+          <Eye className="h-4 w-4" />
+          Preview
+        </button>
+      </div>
+
       {/* ── Resizable body ── */}
       <div ref={containerRef} className="flex min-h-0 flex-1 overflow-hidden">
-        {/* LEFT PANEL */}
+
+        {/* LEFT PANEL — hidden on mobile when preview tab active */}
         <div
-          className="no-print flex flex-col overflow-hidden border-r border-white/10 bg-background"
-          style={{ width: `${leftPct}%`, minWidth: MIN_WIDTH }}
+          className={`no-print flex-col overflow-hidden border-r border-white/10 bg-background ${
+            mobileTab === "preview" ? "hidden lg:flex" : "flex"
+          }`}
+          style={isLg ? { width: `${leftPct}%`, minWidth: MIN_WIDTH } : undefined}
         >
-          {/* ROW 2: Form sub-toolbar — Template/Accent (left) | Previous/Next (right) */}
+          {/* ROW 2: Form sub-toolbar — Template/Accent/Font/Size (left) | Previous/Next (right) */}
           <div
-            className="flex items-center justify-between border-b border-white/10 py-2 shrink-0 pr-4"
-            style={{ paddingLeft: formLeft }}
+            className="flex flex-wrap items-center justify-between gap-y-1 border-b border-white/10 py-2 shrink-0 pr-4"
+            style={{ paddingLeft: leftPad }}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Template picker */}
               <div className="relative" ref={templateRef}>
                 <button
@@ -344,7 +394,7 @@ export function BuilderClient({ resumeId, initial }) {
                     setShowColors(false);
                     setShowFonts(false);
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 sm:px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
                 >
                   <LayoutTemplate className="h-4 w-4" />
                   Template
@@ -371,7 +421,7 @@ export function BuilderClient({ resumeId, initial }) {
                     setShowTemplates(false);
                     setShowFonts(false);
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 sm:px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
                 >
                   <Palette className="h-4 w-4" />
                   Accent
@@ -395,7 +445,7 @@ export function BuilderClient({ resumeId, initial }) {
                     setShowTemplates(false);
                     setShowColors(false);
                   }}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 sm:px-4 py-1.5 text-sm hover:bg-white/10 transition-all"
                 >
                   <ALargeSmall className="h-4 w-4" />
                   Font
@@ -483,10 +533,10 @@ export function BuilderClient({ resumeId, initial }) {
             </div>
           </div>
 
-          {/* Progress bar — starts at the same formLeft offset as the form content */}
+          {/* Progress bar — starts at the same leftPad offset as the form content */}
           <div
             className="h-0.5 shrink-0 bg-white/10"
-            style={{ marginLeft: formLeft }}
+            style={{ marginLeft: leftPad }}
           >
             <div
               className="h-full bg-primary transition-all duration-300"
@@ -497,7 +547,7 @@ export function BuilderClient({ resumeId, initial }) {
           {/* Form area */}
           <div
             className="flex-1 overflow-y-auto py-5 pr-4"
-            style={{ paddingLeft: formLeft }}
+            style={{ paddingLeft: leftPad }}
           >
             <h2 className="mb-4 text-lg font-semibold">{STEPS[step]}</h2>
 
@@ -579,17 +629,21 @@ export function BuilderClient({ resumeId, initial }) {
           </div>
         </div>
 
-        {/* DRAG HANDLE */}
+        {/* DRAG HANDLE — desktop only */}
         <div
           onMouseDown={onMouseDown}
-          className="group relative flex w-1.5 shrink-0 cursor-col-resize items-center justify-center bg-white/10 hover:bg-primary/50 transition-colors"
+          className="group relative hidden lg:flex w-1.5 shrink-0 cursor-col-resize items-center justify-center bg-white/10 hover:bg-primary/50 transition-colors"
           title="Drag to resize"
         >
           <div className="h-8 w-0.5 rounded-full bg-white/30 group-hover:bg-primary/80 transition-colors" />
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="flex-1 overflow-y-auto bg-muted/20 p-6">
+        {/* RIGHT PANEL — hidden on mobile when edit tab active */}
+        <div
+          className={`flex-1 overflow-y-auto bg-muted/20 p-4 sm:p-6 ${
+            mobileTab === "edit" ? "hidden lg:block" : "block"
+          }`}
+        >
           <ResumePreview data={data} />
         </div>
       </div>

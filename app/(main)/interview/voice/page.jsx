@@ -35,7 +35,7 @@ export default async function VoiceInterviewPage() {
     <div className="space-y-8">
       {/* Page header */}
       <div>
-        <h1 className="text-6xl font-bold gradient-title mb-2">Interview Preparation</h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold gradient-title mb-2">Interview Preparation</h1>
         <p className="text-muted-foreground">
           AI-powered tools to practise and ace your next interview.
         </p>
@@ -90,18 +90,18 @@ export default async function VoiceInterviewPage() {
 
         {/* Recent Interviews card */}
         <div className="rounded-2xl border border-white/20 bg-gradient-to-b from-[#1A1C20] to-[#08090D]">
-          <div className="flex items-center justify-between p-6 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-6 pb-4">
             <div>
-              <h3 className="gradient-title text-3xl md:text-4xl font-bold">Recent Interviews</h3>
+              <h3 className="gradient-title text-xl sm:text-2xl md:text-3xl font-bold">Recent Interviews</h3>
               <p className="text-muted-foreground text-sm mt-1">Review your past voice interview performance</p>
             </div>
             {voiceLimitReached ? (
-              <Button disabled className="rounded-full gap-2 opacity-50 cursor-not-allowed">
+              <Button disabled className="rounded-full gap-2 opacity-50 cursor-not-allowed self-start sm:self-auto shrink-0">
                 <Mic className="h-4 w-4" />
                 Limit Reached
               </Button>
             ) : (
-              <Button asChild >
+              <Button asChild className="self-start sm:self-auto shrink-0">
                 <Link href="/interview/voice/new">
                   <Mic className="h-4 w-4" />
                   Start New Interview
@@ -112,7 +112,7 @@ export default async function VoiceInterviewPage() {
 
           <div className="px-6 pb-6">
             {voiceInterviews && voiceInterviews.length > 0 ? (
-              <div className="flex flex-wrap gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {voiceInterviews.map((interview) => (
                   <VoiceInterviewCard
                     key={interview.id}

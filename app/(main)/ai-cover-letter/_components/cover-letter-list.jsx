@@ -56,16 +56,16 @@ export default function CoverLetterList({ coverLetters }) {
       {coverLetters.map((letter) => (
         <Card key={letter.id} className="group relative ">
           <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-xl gradient-title">
+            <div className="flex flex-col sm:flex-row sm:items-start gap-3 justify-between">
+              <div className="min-w-0">
+                <CardTitle className="text-xl gradient-title break-words">
                   {letter.jobTitle} at {letter.companyName}
                 </CardTitle>
                 <CardDescription>
                   Created {format(new Date(letter.createdAt), "PPP")}
                 </CardDescription>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex shrink-0 space-x-2 self-start">
                 <AlertDialog>
                   <Button
                     variant="outline"

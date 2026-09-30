@@ -32,7 +32,7 @@ export default async function CareerRoadmapPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-5xl font-bold gradient-title">Career Roadmap</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-title">Career Roadmap</h1>
           <p className="text-muted-foreground mt-2">
             AI-generated visual roadmaps tailored to your career goal.
           </p>

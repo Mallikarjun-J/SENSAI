@@ -31,7 +31,7 @@ const VoiceInterviewCard = async ({
   const formattedDate = dayjs(feedback?.createdAt ?? createdAt).format("MMM D, YYYY");
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] p-6 flex flex-col gap-5 justify-between min-h-[320px] w-full sm:w-[340px] relative overflow-hidden hover:border-white/20 transition-colors">
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] p-6 flex flex-col gap-5 justify-between min-h-[320px] w-full relative overflow-hidden hover:border-white/20 transition-colors">
       {/* Type badge */}
       <div className="absolute top-4 right-4">
         <Badge variant={badgeVariant} className="text-xs font-semibold capitalize">
@@ -69,12 +69,12 @@ const VoiceInterviewCard = async ({
       </div>
 
       {/* Footer: tech icons + delete + CTA */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <DisplayTechIcons techStack={techstack} />
           <DeleteInterviewButton interviewId={interviewId} role={role} />
         </div>
-        <Button size="sm" asChild>
+        <Button size="sm" asChild className="shrink-0">
           <Link
             href={
               feedback

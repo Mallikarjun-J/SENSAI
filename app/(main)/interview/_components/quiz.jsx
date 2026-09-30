@@ -140,9 +140,9 @@ export default function Quiz() {
           className="space-y-2"
         >
           {question.options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <RadioGroupItem value={option} id={`option-${index}`} />
-              <Label htmlFor={`option-${index}`}>{option}</Label>
+            <div key={index} className="flex items-start space-x-2">
+              <RadioGroupItem value={option} id={`option-${index}`} className="mt-0.5 shrink-0" />
+              <Label htmlFor={`option-${index}`} className="leading-snug cursor-pointer">{option}</Label>
             </div>
           ))}
         </RadioGroup>

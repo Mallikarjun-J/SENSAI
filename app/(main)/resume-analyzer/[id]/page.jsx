@@ -208,7 +208,7 @@ export default async function AnalysisPage({ params }) {
         <div className="flex max-lg:flex-col gap-6">
 
           {/* ── LEFT SIDEBAR ─────────────────────────────────────────────── */}
-          <aside className="lg:w-[280px] flex-shrink-0 space-y-4">
+          <aside className="lg:w-[280px] flex-shrink-0 space-y-4 order-last lg:order-first">
             {/* PDF preview */}
             <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
               <iframe
@@ -241,7 +241,7 @@ export default async function AnalysisPage({ params }) {
           </aside>
 
           {/* ── RIGHT MAIN ───────────────────────────────────────────────── */}
-          <main className="flex-1 space-y-6 min-w-0 max-w-5xl">
+          <main className="flex-1 space-y-6 min-w-0 max-w-5xl order-first lg:order-none">
 
             {/* Gauge + category grid */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
