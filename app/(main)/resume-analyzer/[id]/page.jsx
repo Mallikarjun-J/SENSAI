@@ -209,12 +209,21 @@ export default async function AnalysisPage({ params }) {
 
           {/* ── LEFT SIDEBAR ─────────────────────────────────────────────── */}
           <aside className="lg:w-[280px] flex-shrink-0 space-y-4 order-last lg:order-first">
-            {/* PDF preview — Google Docs Viewer works on all devices including mobile */}
-            <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
+            {/* PDF preview — desktop: native browser viewer; mobile: Google Docs Viewer */}
+            <div className="hidden lg:block rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
+              <iframe
+                src={`${analysis.resumeUrl}#toolbar=0&navpanes=0&view=FitH`}
+                className="absolute inset-0 w-full h-full border-0"
+                title="Resume preview"
+              />
+            </div>
+
+            {/* Mobile PDF preview via Google Docs Viewer */}
+            <div className="lg:hidden rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
               <iframe
                 src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
                 className="absolute inset-0 w-full h-full border-0"
-                title="Resume preview"
+                title="Resume preview (mobile)"
               />
             </div>
 

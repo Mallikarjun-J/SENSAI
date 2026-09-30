@@ -21,15 +21,14 @@ import {
 } from "@/components/ui/dialog";
 import QuizResult from "./quiz-result";
 import { deleteAssessment } from "@/actions/interview";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 
 export default function QuizList({ assessments }) {
   const router = useRouter();
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
 
-  const handleDeleteQuiz = async (e, id) => {
-    e.stopPropagation();
-    if (!confirm("Delete this quiz? This action cannot be undone.")) return;
+  const handleDeleteQuiz = async (id) => {
     setDeletingId(id);
     try {
       await deleteAssessment(id);
@@ -69,16 +68,25 @@ export default function QuizList({ assessments }) {
                 onClick={() => setSelectedQuiz(assessment)}
               >
                 {/* Delete button */}
-                <button
-                  onClick={(e) => handleDeleteQuiz(e, assessment.id)}
-                  disabled={deletingId === assessment.id}
-                  className="absolute top-3 right-3 w-7 h-7 rounded-md border border-white/10 bg-background flex items-center justify-center text-muted-foreground hover:text-red-400 hover:border-red-500/30 transition-colors z-10"
-                  title="Delete quiz"
-                >
-                  {deletingId === assessment.id
-                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    : <Trash2 className="h-3.5 w-3.5" />}
-                </button>
+                <div className="absolute top-3 right-3 z-10" onClick={(e) => e.stopPropagation()}>
+                  <ConfirmDeleteDialog
+                    trigger={
+                      <button
+                        disabled={deletingId === assessment.id}
+                        className="w-7 h-7 rounded-md border border-white/10 bg-background flex items-center justify-center text-muted-foreground hover:text-red-400 hover:border-red-500/30 transition-colors"
+                        title="Delete quiz"
+                      >
+                        {deletingId === assessment.id
+                          ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          : <Trash2 className="h-3.5 w-3.5" />}
+                      </button>
+                    }
+                    title={`Delete Quiz ${i + 1}?`}
+                    description="This will permanently delete this quiz assessment. This action cannot be undone."
+                    onConfirm={() => handleDeleteQuiz(assessment.id)}
+                    loading={deletingId === assessment.id}
+                  />
+                </div>
 
                 <CardHeader>
                   <CardTitle className="gradient-title text-2xl pr-8">

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { FileText, Calendar, ArrowRight, Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteResumeAnalysis } from "@/actions/resume-analysis";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 
 function getInitials(name) {
   return name
@@ -50,10 +51,7 @@ export default function AnalysisCard({ analysis }) {
   const score     = analysis.overallScore ?? 0;
   const info      = !isPending && !isError ? getScoreInfo(score) : null;
 
-  const handleDelete = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!confirm(`Delete analysis for ${analysis.jobTitle} at ${analysis.companyName}?`)) return;
+  const handleDelete = async () => {
     setDeleting(true);
     const result = await deleteResumeAnalysis(analysis.id);
     if (result.success) {
@@ -102,13 +100,21 @@ export default function AnalysisCard({ analysis }) {
             )}
           </div>
 
-          {/* PDF preview — Google Docs Viewer works on all devices including mobile */}
+          {/* PDF preview — desktop: native; mobile: Google Docs Viewer */}
           <div className="flex-1 rounded-lg overflow-hidden border border-white/5 aspect-[3/4] mb-4 relative bg-white/[0.02]">
+            {/* Desktop iframe */}
             <iframe
-              src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
-              className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+              src={`${analysis.resumeUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+              className="absolute inset-0 w-full h-full border-0 pointer-events-none hidden sm:block"
               loading="lazy"
               title={`${analysis.jobTitle} resume preview`}
+            />
+            {/* Mobile iframe via Google Docs Viewer */}
+            <iframe
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
+              className="absolute inset-0 w-full h-full border-0 pointer-events-none sm:hidden"
+              loading="lazy"
+              title={`${analysis.jobTitle} resume preview (mobile)`}
             />
           </div>
 
@@ -128,17 +134,26 @@ export default function AnalysisCard({ analysis }) {
 
         {/* Footer */}
         <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-          >
-            {deleting
-              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              : <Trash2 className="w-3.5 h-3.5" />}
-            {deleting ? "Deleting…" : "Delete"}
-          </button>
-          <div className="flex items-center gap-1.5">
+          <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+            <ConfirmDeleteDialog
+              trigger={
+                <button
+                  disabled={deleting}
+                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  {deleting
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <Trash2 className="w-3.5 h-3.5" />}
+                  {deleting ? "Deleting…" : "Delete"}
+                </button>
+              }
+              title={`Delete analysis for ${analysis.jobTitle}?`}
+              description={`Are you sure you want to delete the analysis for ${analysis.jobTitle} at ${analysis.companyName}? This action cannot be undone.`}
+              onConfirm={handleDelete}
+              loading={deleting}
+            />
+          </div>
+          <div className="flex items-center gap-1.5 pointer-events-none">
             <span className="text-xs text-muted-foreground">
               {isPending ? "Processing..." : isError ? "Failed" : "View analysis"}
             </span>

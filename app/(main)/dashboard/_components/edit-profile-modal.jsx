@@ -203,7 +203,7 @@ export function EditProfileModal({ open, onClose, initialData }) {
             {deleteStep === 0 ? (
               <div className="flex items-center justify-between gap-4">
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Permanently delete your account and all associated data — resumes, interviews, roadmaps, cover letters. This cannot be undone.
+                  Permanently delete your account and all associated data - resumes, interviews, roadmaps, cover letters. This cannot be undone.
                 </p>
                 <button
                   type="button"

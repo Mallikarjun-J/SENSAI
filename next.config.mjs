@@ -79,7 +79,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https:",
       "media-src 'self' blob:",
       "connect-src 'self' https: wss:",
-      "frame-src https://clerk.com https://*.clerk.accounts.dev https://challenges.cloudflare.com https://utfs.io https://*.ufs.sh",
+      "frame-src https://clerk.com https://*.clerk.accounts.dev https://challenges.cloudflare.com https://utfs.io https://*.ufs.sh https://docs.google.com",
       "worker-src 'self' blob:",
       "form-action 'self'",
       "base-uri 'self'",
