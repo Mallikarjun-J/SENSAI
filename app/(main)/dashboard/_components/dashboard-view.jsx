@@ -276,7 +276,11 @@ const DashboardView = ({ insights, userProfile }) => {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {insights.recommendedSkills.map((skill) => (
-                <Badge key={skill} variant="secondary">
+                <Badge
+                  key={skill}
+                  variant="secondary"
+                  className="whitespace-normal text-left h-auto py-1.5 px-3 break-words max-w-full leading-snug"
+                >
                   {skill}
                 </Badge>
               ))}
