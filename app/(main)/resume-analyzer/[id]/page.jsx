@@ -209,21 +209,13 @@ export default async function AnalysisPage({ params }) {
 
           {/* ── LEFT SIDEBAR ─────────────────────────────────────────────── */}
           <aside className="lg:w-[280px] flex-shrink-0 space-y-4 order-last lg:order-first">
-            {/* PDF preview — desktop only (mobile browsers can't render PDFs in iframes) */}
-            <div className="hidden lg:block rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
+            {/* PDF preview — Google Docs Viewer works on all devices including mobile */}
+            <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
               <iframe
-                src={`${analysis.resumeUrl}#toolbar=0&navpanes=0`}
+                src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
                 className="absolute inset-0 w-full h-full border-0"
                 title="Resume preview"
               />
-            </div>
-
-            {/* Mobile PDF placeholder */}
-            <div className="lg:hidden rounded-xl border border-white/10 bg-white/[0.02] p-6 flex flex-col items-center justify-center gap-3 text-center">
-              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <p className="text-sm text-muted-foreground">PDF preview not available on mobile</p>
             </div>
 
             <a href={analysis.resumeUrl} target="_blank" rel="noopener noreferrer" className="block">

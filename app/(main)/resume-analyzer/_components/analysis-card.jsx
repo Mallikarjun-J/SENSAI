@@ -102,20 +102,14 @@ export default function AnalysisCard({ analysis }) {
             )}
           </div>
 
-          {/* PDF preview — hidden on mobile (browsers can't render PDFs in iframes) */}
+          {/* PDF preview — Google Docs Viewer works on all devices including mobile */}
           <div className="flex-1 rounded-lg overflow-hidden border border-white/5 aspect-[3/4] mb-4 relative bg-white/[0.02]">
-            {/* Desktop iframe */}
             <iframe
-              src={`${analysis.resumeUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-              className="absolute inset-0 w-full h-full border-0 pointer-events-none hidden sm:block"
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
+              className="absolute inset-0 w-full h-full border-0 pointer-events-none"
               loading="lazy"
               title={`${analysis.jobTitle} resume preview`}
             />
-            {/* Mobile placeholder */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 sm:hidden">
-              <FileText className="h-8 w-8 text-white/20" />
-              <span className="text-xs text-muted-foreground">Resume</span>
-            </div>
           </div>
 
           {/* Footer row */}
