@@ -61,7 +61,7 @@ export default function RoadmapViewer({ roadmap }) {
   const rawTitles = Array.from(pendingSkills.values());
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-[calc(100vh-4rem)] -mt-8 -mb-20 -mx-4 sm:-mx-6 lg:-mx-8">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-background/80 backdrop-blur-sm flex-shrink-0">
         <div className="flex items-center gap-4">
