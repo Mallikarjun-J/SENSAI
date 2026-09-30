@@ -12,6 +12,7 @@ import {
   parseResumeFromText,
   getResumeCount,
 } from "@/actions/resume";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 
 const RESUME_LIMIT = 5;
 
@@ -110,17 +111,21 @@ function ResumeCard({ resume, onDelete, onRename }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
         </button>
-        <button
-          onClick={() => {
-            if (confirm(`Delete "${resume.title}"? This cannot be undone.`)) onDelete(resume.id);
-          }}
-          className="rounded-lg border border-white/10 bg-white/5 p-2 text-muted-foreground hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/10 transition-all"
-          title="Delete"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+        <ConfirmDeleteDialog
+          trigger={
+            <button
+              className="rounded-lg border border-white/10 bg-white/5 p-2 text-muted-foreground hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/10 transition-all"
+              title="Delete"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          }
+          title={`Delete "${resume.title}"?`}
+          description="Are you sure you want to delete this resume? This cannot be undone."
+          onConfirm={() => onDelete(resume.id)}
+        />
       </div>
     </div>
   );

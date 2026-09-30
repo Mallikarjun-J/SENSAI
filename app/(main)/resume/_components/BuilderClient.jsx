@@ -160,7 +160,11 @@ export function BuilderClient({ resumeId, initial }) {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // ── Step validation map ───────────────────────────────────────────────────
+  // ── Lock body scroll while builder is open (prevents underlying page scroll) ─
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
   const STEP_SCHEMAS = {
     0: [personalInfoSchema,    () => data.personalInfo   ?? {}],
     2: [experienceArraySchema, () => data.experience     ?? []],
@@ -287,8 +291,8 @@ export function BuilderClient({ resumeId, initial }) {
 
   return (
     <div
-      className="flex flex-col overflow-hidden bg-background pt-16"
-      style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+      className="flex flex-col overflow-hidden bg-background"
+      style={{ position: 'fixed', top: '4rem', left: 0, right: 0, bottom: 0, zIndex: 40 }}
     >
       {/* ── ROW 1: Full-width top bar — Back (left) | .md PDF Save (right) ── */}
       <div className="no-print shrink-0 border-b border-white/10">

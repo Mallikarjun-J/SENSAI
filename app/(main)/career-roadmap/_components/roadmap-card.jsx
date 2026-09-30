@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Map, Calendar, CheckCircle2, Trash2, ArrowRight, Loader2 } from "lucide-react";
 import dayjs from "dayjs";
 import { deleteRoadmap } from "@/actions/roadmap";
+import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 
 export default function RoadmapCard({ roadmap }) {
   const router = useRouter();
@@ -19,10 +20,7 @@ export default function RoadmapCard({ roadmap }) {
   const completionPct =
     stepNodes.length > 0 ? Math.round((completed.length / stepNodes.length) * 100) : 0;
 
-  const handleDelete = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!confirm("Delete this roadmap? This cannot be undone.")) return;
+  const handleDelete = async () => {
     setDeleting(true);
     const result = await deleteRoadmap(roadmap.id);
     if (result.success) {
@@ -56,17 +54,24 @@ export default function RoadmapCard({ roadmap }) {
             </p>
           </div>
         </div>
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 flex-shrink-0"
-        >
-          {deleting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Trash2 className="h-4 w-4" />
-          )}
-        </button>
+        <ConfirmDeleteDialog
+          trigger={
+            <button
+              disabled={deleting}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 flex-shrink-0"
+            >
+              {deleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </button>
+          }
+          title="Delete Roadmap?"
+          description="This will permanently delete your roadmap and all progress. This action cannot be undone."
+          onConfirm={handleDelete}
+          loading={deleting}
+        />
       </div>
 
       {/* Progress bar */}
