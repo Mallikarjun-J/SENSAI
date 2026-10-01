@@ -150,8 +150,9 @@ export default function ScrollWorld() {
         row1.appendChild(brandEl); // move brand into row1
         row1.appendChild(authGroup);
 
-        // Row 2: nav right-aligned
+        // Row 2: nav — gets class for mobile targeting
         const row2 = document.createElement("div");
+        row2.className = "sw-topbar__row2";
         row2.style.cssText = "display:flex;width:100%;justify-content:flex-end;padding-top:8px;";
         row2.appendChild(navEl); // move nav into row2
 
@@ -163,65 +164,248 @@ export default function ScrollWorld() {
         topbar.appendChild(row2);
       }
 
-      // Fix: push copy block up so CTA buttons are always visible, even on short viewports
+      // Fix & polish: clean mobile typography, proper vertical positioning below 3D graphics,
+      // refined tags, and high-readability backdrop gradient
       const fixStyle = document.createElement("style");
       fixStyle.id = "sw-fix";
       fixStyle.textContent = `
+        /* ── Base / Desktop styling ──────────────────────────────────── */
         .sw-copy {
-          top: 38% !important;
+          top: 42% !important;
         }
         .sw-copy__title {
-          font-size: clamp(1.7rem, 3.8vw, 3rem) !important;
+          font-size: clamp(1.8rem, 3.8vw, 3rem) !important;
           line-height: 1.08 !important;
           margin-top: 8px !important;
+          text-shadow: 0 2px 20px rgba(0,0,0,0.8) !important;
         }
         .sw-copy__body {
           margin-top: 12px !important;
+          text-shadow: 0 1px 12px rgba(0,0,0,0.85) !important;
         }
         .sw-copy__tags {
-          margin-top: 16px !important;
+          margin-top: 18px !important;
         }
         .sw-copy__cta {
-          margin-top: 20px !important;
+          margin-top: 22px !important;
         }
-        /* Dark theme: primary button — accent blue bg, white text */
+        /* Dark theme: primary button */
         .sw-btn--primary {
           background: var(--sw-accent) !important;
           color: #fff !important;
         }
-        .sw-btn--primary:hover {
-          filter: brightness(1.15);
-        }
-        /* Dark theme: ghost button — visible white border + light text */
+        .sw-btn--primary:hover { filter: brightness(1.15); }
+        /* Ghost button */
         .sw-btn--ghost {
           color: var(--sw-ink) !important;
           border: 1.5px solid rgba(240,244,255,0.45) !important;
         }
-        .sw-btn--ghost:hover {
-          background: rgba(240,244,255,0.08) !important;
-        }
-        /* Nav items more visible on dark bg */
+        .sw-btn--ghost:hover { background: rgba(240,244,255,0.08) !important; }
+        /* Nav */
         .sw-nav {
           background: rgba(255,255,255,0.08) !important;
           border-color: rgba(255,255,255,0.12) !important;
         }
-        .sw-nav__item {
-          color: rgba(240,244,255,0.7) !important;
-        }
-        .sw-nav__item:hover, .sw-nav__item.is-active {
-          color: #fff !important;
-        }
-        /* Top CTA button (Get Started in topbar) */
-        .sw-topcta {
-          background: var(--sw-accent) !important;
-          color: #fff !important;
-        }
-        /* Right-side route dot labels — dark bg for dark theme */
+        .sw-nav__item { color: rgba(240,244,255,0.7) !important; }
+        .sw-nav__item:hover, .sw-nav__item.is-active { color: #fff !important; }
+        .sw-topcta { background: var(--sw-accent) !important; color: #fff !important; }
         .sw-route__label {
           background: rgba(13,15,20,0.88) !important;
           color: #f0f4ff !important;
           border-color: rgba(255,255,255,0.15) !important;
           backdrop-filter: blur(8px) !important;
+        }
+
+        /* ── Tablet portrait (≤ 768px) ─────────────────────────────── */
+        @media (max-width: 768px) {
+          .sw-topbar__row2 { display: none !important; }
+          .sw-route { right: 8px !important; opacity: 0.5 !important; }
+          .sw-route__label { display: none !important; }
+
+          /* Smooth dark gradient behind text for clean readability */
+          .sw-copylayer::before {
+            width: 100% !important;
+            height: 65% !important;
+            top: auto !important;
+            bottom: 0 !important;
+            background: linear-gradient(
+              0deg,
+              rgba(13, 15, 20, 0.95) 0%,
+              rgba(13, 15, 20, 0.72) 48%,
+              rgba(13, 15, 20, 0.25) 78%,
+              transparent 100%
+            ) !important;
+          }
+
+          /* Place text below the central 3D graphic so it never blocks subjects */
+          .sw-copy {
+            top: 42% !important;
+            left: 24px !important;
+            right: 32px !important;
+            max-width: calc(100vw - 56px) !important;
+            width: auto !important;
+            box-sizing: border-box !important;
+          }
+          .sw-copy__title {
+            font-size: clamp(1.55rem, 5.5vw, 2.3rem) !important;
+            line-height: 1.15 !important;
+          }
+        }
+
+        /* ── Mobile portrait (≤ 480px) ─────────────────────────────── */
+        @media (max-width: 480px) {
+          .sw-topbar { padding: 10px 14px !important; }
+          .sw-topbar__row2 { display: none !important; }
+
+          /* Subtle route dots docked at right margin */
+          .sw-route {
+            right: 6px !important;
+            opacity: 0.45 !important;
+            gap: 14px !important;
+          }
+          .sw-route__dot { width: 18px !important; height: 18px !important; }
+          .sw-route__label { display: none !important; }
+
+          /* Background vignette for text clarity */
+          .sw-copylayer::before {
+            width: 100% !important;
+            height: 68% !important;
+            top: auto !important;
+            bottom: 0 !important;
+            background: linear-gradient(
+              0deg,
+              rgba(13, 15, 20, 0.96) 0%,
+              rgba(13, 15, 20, 0.76) 52%,
+              rgba(13, 15, 20, 0.3) 80%,
+              transparent 100%
+            ) !important;
+          }
+
+          /* Position text cleanly in lower half — 3D model stays clear at top */
+          .sw-copy {
+            top: 42% !important;
+            left: 18px !important;
+            right: 28px !important;
+            max-width: calc(100vw - 46px) !important;
+            width: auto !important;
+            box-sizing: border-box !important;
+          }
+
+          /* Clean section counter */
+          .sw-copy__num {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+            font-size: 0.72rem !important;
+            letter-spacing: 0.12em !important;
+            color: rgba(240, 244, 255, 0.5) !important;
+            display: inline-block !important;
+            margin-bottom: 4px !important;
+          }
+
+          /* Eyebrow badge */
+          .sw-copy__eyebrow {
+            font-size: 0.68rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.15em !important;
+            text-transform: uppercase !important;
+            color: var(--sw-accent, #60a5fa) !important;
+            margin: 2px 0 6px !important;
+            display: block !important;
+          }
+
+          /* Crisp, high-contrast title */
+          .sw-copy__title {
+            font-size: clamp(1.4rem, 6.4vw, 1.85rem) !important;
+            font-weight: 800 !important;
+            line-height: 1.18 !important;
+            letter-spacing: -0.02em !important;
+            color: #ffffff !important;
+            margin: 0 0 8px !important;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85), 0 4px 28px rgba(0, 0, 0, 0.6) !important;
+          }
+
+          /* Body text with comfortable line-height */
+          .sw-copy__body {
+            font-size: 0.84rem !important;
+            line-height: 1.54 !important;
+            color: rgba(226, 232, 240, 0.9) !important;
+            margin: 0 0 12px !important;
+            max-width: 36ch !important;
+            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.95) !important;
+          }
+
+          /* Modern pill tags */
+          .sw-copy__tags {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 7px !important;
+            margin: 10px 0 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+          }
+          .sw-copy__tags li {
+            font-size: 0.72rem !important;
+            font-weight: 600 !important;
+            padding: 5px 13px !important;
+            border-radius: 999px !important;
+            background: rgba(255, 255, 255, 0.92) !important;
+            color: #0f172a !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+            white-space: nowrap !important;
+          }
+
+          /* CTA buttons stack / wrap neatly */
+          .sw-copy__cta {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin-top: 16px !important;
+          }
+          .sw-copy__cta .sw-btn--primary {
+            background: #3b82f6 !important;
+            color: #ffffff !important;
+            padding: 9px 20px !important;
+            font-size: 0.84rem !important;
+            font-weight: 600 !important;
+            border-radius: 999px !important;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.45) !important;
+          }
+          .sw-copy__cta .sw-btn--ghost {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+            padding: 9px 20px !important;
+            font-size: 0.84rem !important;
+            font-weight: 600 !important;
+            border-radius: 999px !important;
+            backdrop-filter: blur(8px) !important;
+          }
+
+          /* Topbar auth buttons */
+          .sw-btn--ghost,
+          .sw-btn--primary {
+            padding: 6px 14px !important;
+            font-size: 0.8rem !important;
+          }
+          .sw-hint { font-size: 0.7rem !important; bottom: 18px !important; }
+        }
+
+        /* ── Very small phones (≤ 360px) ───────────────────────────── */
+        @media (max-width: 360px) {
+          .sw-copy { top: 40% !important; left: 14px !important; right: 24px !important; }
+          .sw-copy__title {
+            font-size: clamp(1.22rem, 7.8vw, 1.55rem) !important;
+          }
+          .sw-copy__body {
+            font-size: 0.78rem !important;
+          }
+          .sw-btn--ghost,
+          .sw-btn--primary {
+            padding: 5px 11px !important;
+            font-size: 0.74rem !important;
+          }
         }
       `;
       document.head.appendChild(fixStyle);
@@ -263,10 +447,10 @@ export default function ScrollWorld() {
     <div
       ref={worldRef}
       style={{
-        "--sw-bg": "#0d0f14",       // near-black — vignette blends into dark videos
-        "--sw-ink": "#f0f4ff",      // near-white text
-        "--sw-ink-soft": "#94a3b8", // muted blue-gray
-        "--sw-accent": "#60a5fa",   // bright blue — matches the glowing AI in videos
+        "--sw-bg": "#0d0f14",
+        "--sw-ink": "#f0f4ff",
+        "--sw-ink-soft": "#94a3b8",
+        "--sw-accent": "#60a5fa",
       }}
     />
   );
