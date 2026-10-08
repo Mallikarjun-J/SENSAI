@@ -27,6 +27,8 @@ export default async function VoiceInterviewPage() {
     getVoiceInterviewsByUserId(),
     getVoiceFeedbacksForUser(),
   ]);
+  
+
 
   return (
     <div className="space-y-8">

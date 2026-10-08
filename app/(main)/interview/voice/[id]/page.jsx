@@ -36,7 +36,9 @@ export default async function VoiceInterviewSessionPage({ params }) {
   });
 
   const userName =
-    `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() ||
+    dbUser.name ||
+    clerkUser.fullName ||
+    `${clerkUser.firstName ?? clerkUser.first_name ?? ""} ${clerkUser.lastName ?? clerkUser.last_name ?? ""}`.trim() ||
     clerkUser.emailAddresses[0]?.emailAddress;
 
   return (

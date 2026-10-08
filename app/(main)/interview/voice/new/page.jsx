@@ -39,6 +39,8 @@ export default async function VoiceInterviewSetupPage() {
     select: { id: true, industry: true, experience: true, skills: true },
   });
 
+
+
   const defaultRole = industryToRole(dbUser?.industry);
   const defaultLevel = experienceToLevel(dbUser?.experience);
   const defaultTechstack = dbUser?.skills ?? [];
@@ -64,6 +66,7 @@ export default async function VoiceInterviewSetupPage() {
         <p className="text-muted-foreground">
           Configure your session and let AI generate personalised questions for you.
         </p>
+
       </div>
 
       <VoiceInterviewForm

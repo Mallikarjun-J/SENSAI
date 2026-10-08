@@ -104,7 +104,11 @@ export async function POST(request) {
       const roomClient = new RoomServiceClient(liveKitApiHost, apiKey, apiSecret);
 
       try {
-        await roomClient.createRoom({ name: roomName, metadata: sessionMetadata });
+        await roomClient.createRoom({
+          name: roomName,
+          metadata: sessionMetadata,
+          emptyTimeout: 15,
+        });
       } catch (error) {
         if (!(error instanceof TwirpError) || error.code !== "already_exists") {
           throw error;
