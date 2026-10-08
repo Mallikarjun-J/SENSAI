@@ -251,15 +251,9 @@ Generate roadmap for: ${career}`;
 /**
  * Save a generated roadmap to the database.
  */
-const ROADMAP_LIMIT = 2;
-
 export async function createRoadmap({ title, phases, roadmapNodes }) {
   const user = await getDbUser();
   try {
-    const count = await prisma.roadmap.count({ where: { userId: user.id } });
-    if (count >= ROADMAP_LIMIT) {
-      return { success: false, error: `You've reached the ${ROADMAP_LIMIT}-roadmap limit. Delete one to continue.` };
-    }
     const roadmap = await prisma.roadmap.create({
       data: {
         userId: user.id,

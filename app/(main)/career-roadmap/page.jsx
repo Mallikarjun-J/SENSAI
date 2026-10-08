@@ -5,27 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Map, Plus } from "lucide-react";
 import { getRoadmapsByUser } from "@/actions/roadmap";
 import RoadmapCard from "./_components/roadmap-card";
-import prisma from "@/lib/prisma";
 
 export const metadata = {
   title: "Career Roadmap - SensAI",
   description: "Your AI-generated interactive career roadmaps",
 };
 
-const ROADMAP_LIMIT = 2;
-
 export default async function CareerRoadmapPage() {
   const { userId: clerkUserId } = await auth();
   if (!clerkUserId) redirect("/sign-in");
 
-  const [roadmaps, user] = await Promise.all([
-    getRoadmapsByUser(),
-    prisma.user.findUnique({ where: { clerkUserId }, select: { id: true } }),
-  ]);
-  const count = user
-    ? await prisma.roadmap.count({ where: { userId: user.id } })
-    : 0;
-  const atLimit = count >= ROADMAP_LIMIT;
+  const roadmaps = await getRoadmapsByUser();
 
   return (
     <div className="space-y-8">
@@ -38,12 +28,8 @@ export default async function CareerRoadmapPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 self-start sm:self-auto">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] text-xs text-muted-foreground">
-            <span className="font-semibold text-white">{count}</span>
-            <span>/ {ROADMAP_LIMIT} roadmaps</span>
-          </div>
-          <Button asChild disabled={atLimit}>
-            <Link href={atLimit ? "#" : "/career-roadmap/new"}>
+          <Button asChild>
+            <Link href="/career-roadmap/new">
               <Plus className="h-4 w-4" />
               New Roadmap
             </Link>
@@ -71,7 +57,7 @@ export default async function CareerRoadmapPage() {
               interactive learning roadmap for you.
             </p>
           </div>
-          <Button asChild >
+          <Button asChild>
             <Link href="/career-roadmap/new">
               <Plus className="h-4 w-4" />
               Generate Your First Roadmap

@@ -21,12 +21,6 @@ function MinSection({ label, children }) {
   );
 }
 
-function GpaLabel({ gpa }) {
-  if (!gpa?.trim()) return null;
-  const label = gpa.includes("%") ? gpa.trim() : `GPA ${gpa.trim()}`;
-  return <span className="text-gray-400 text-[0.9em]"> · {label}</span>;
-}
-
 export function MinimalTemplate({ data }) {
   const pi = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
@@ -90,14 +84,11 @@ export function MinimalTemplate({ data }) {
                   />
                 )}
               </div>
-              <div className="text-[0.81em] text-gray-400 whitespace-nowrap text-right leading-snug">
+              <div className="text-[0.81em] text-gray-400 whitespace-nowrap text-right shrink-0">
                 {e.startDate}
-                {(e.endDate || e.isCurrent) && (
-                  <>
-                    <br />
-                    {e.isCurrent ? "Present" : e.endDate}
-                  </>
-                )}
+                {(e.endDate || e.isCurrent)
+                  ? ` – ${e.isCurrent ? "Present" : e.endDate}`
+                  : ""}
               </div>
             </div>
           ))}
@@ -117,11 +108,17 @@ export function MinimalTemplate({ data }) {
                 <div className="font-semibold text-gray-900">{e.institution}</div>
                 <div className="text-[0.905em] text-gray-500">
                   {[e.degree, e.field].filter(Boolean).join(", ")}
-                  <GpaLabel gpa={e.gpa} />
                 </div>
               </div>
-              <div className="text-[0.81em] text-gray-400 whitespace-nowrap text-right">
-                {e.graduationDate}
+              <div className="text-[0.81em] whitespace-nowrap text-right shrink-0">
+                <div className="text-gray-400">{e.graduationDate}</div>
+                {e.gpa?.trim() && (
+                  <div className="text-gray-500 font-medium mt-0.5">
+                    {e.gpa.includes("%") || e.gpa.toLowerCase().includes("gpa")
+                      ? e.gpa.trim()
+                      : `CGPA: ${e.gpa.trim()}`}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -135,7 +132,29 @@ export function MinimalTemplate({ data }) {
           {data.projects.map((p, i) => (
             <div key={i} className="break-inside-avoid">
               <div className="font-semibold text-gray-900">
-                {p.name}
+                {p.link ? (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline text-gray-900 transition-colors"
+                  >
+                    {p.name}
+                  </a>
+                ) : (
+                  p.name
+                )}
+                {p.link && (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[0.85em] font-normal text-blue-600 hover:underline inline-flex items-center gap-0.5 ml-1.5"
+                  >
+                    <span>Link</span>
+                    <span className="text-[0.85em]">↗</span>
+                  </a>
+                )}
                 {p.type && (
                   <span className="font-normal text-gray-400 text-[0.905em]">
                     {" "}/ {p.type}

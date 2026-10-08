@@ -10,11 +10,8 @@ import {
   deleteResume,
   renameResume,
   parseResumeFromText,
-  getResumeCount,
 } from "@/actions/resume";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
-
-const RESUME_LIMIT = 5;
 
 function EmptyState({ onCreate }) {
   return (
@@ -48,6 +45,8 @@ function ResumeCard({ resume, onDelete, onRename }) {
     classic: "bg-blue-500/20 text-blue-300 border-blue-500/30",
     modern: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     minimal: "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
+    photo: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    tech: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
   };
 
   const handleRename = async () => {
@@ -149,8 +148,6 @@ export default function ResumePage() {
     queryFn: getUserResumes,
   });
 
-  const atLimit = resumes.length >= RESUME_LIMIT;
-
   const createMut = useMutation({
     mutationFn: () => createResume({ title: newTitle }),
     onSuccess: (data) => {
@@ -221,7 +218,7 @@ export default function ResumePage() {
         <div>
           <h1 className="text-4xl font-bold gradient-title">My Resumes</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {resumes.length}/{RESUME_LIMIT} resumes · Build, edit, and export ATS-ready resumes
+            Build, edit, and export ATS-ready resumes
           </p>
         </div>
         <div className="flex gap-2">
@@ -235,10 +232,8 @@ export default function ResumePage() {
             Import
           </button>
           <button
-            disabled={atLimit}
             onClick={() => setCreateOpen(true)}
-            title={atLimit ? `Max ${RESUME_LIMIT} resumes reached` : ""}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -267,8 +262,7 @@ export default function ResumePage() {
               onRename={(args) => renameMut.mutate(args)}
             />
           ))}
-          {!atLimit && (
-            <button
+          <button
               onClick={() => setCreateOpen(true)}
               className="flex min-h-[160px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 text-muted-foreground hover:border-primary/40 hover:text-primary hover:bg-white/[0.02] transition-all group"
             >
@@ -279,7 +273,6 @@ export default function ResumePage() {
               </div>
               <span className="text-sm font-medium">New Resume</span>
             </button>
-          )}
         </div>
       )}
 

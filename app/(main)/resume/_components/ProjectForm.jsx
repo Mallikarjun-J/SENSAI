@@ -53,6 +53,16 @@ function ProjectItem({ project, index, onChange, onRemove, errors, touched, onBl
       </div>
 
       <div className="space-y-1.5">
+        <label className="text-sm font-medium text-foreground">Live Link / Demo URL</label>
+        <input
+          value={project.link ?? ""}
+          placeholder="https://sensai.com or github.com/user/project"
+          onChange={(e) => onChange({ link: e.target.value })}
+          className={inputCls(false)}
+        />
+      </div>
+
+      <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground">Description</label>
         <textarea
           rows={3}

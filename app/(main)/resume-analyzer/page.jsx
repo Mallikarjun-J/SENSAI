@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import { FileSearch, Plus } from "lucide-react";
-import { getResumeAnalyses, getResumeAnalysisCount } from "@/actions/resume-analysis";
+import { getResumeAnalyses } from "@/actions/resume-analysis";
 import AnalysisCard from "./_components/analysis-card";
 
 export const metadata = {
@@ -11,16 +11,11 @@ export const metadata = {
   description: "AI-powered resume analysis with ATS scoring and actionable feedback",
 };
 
-const LIMIT = 5;
-
 export default async function ResumeAnalyzerPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const [analyses, count] = await Promise.all([
-    getResumeAnalyses(),
-    getResumeAnalysisCount(),
-  ]);
+  const analyses = await getResumeAnalyses();
 
   return (
     <div className="space-y-8">
@@ -32,13 +27,8 @@ export default async function ResumeAnalyzerPage() {
             Upload your resume and get instant AI feedback on ATS compatibility, content, structure, and more.
           </p>
         </div>
-        <div className="flex items-center gap-3 self-start sm:self-auto">
-          {/* Usage counter */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] text-xs text-muted-foreground">
-            <span className="font-semibold text-white">{count}</span>
-            <span>/ {LIMIT} analyses</span>
-          </div>
-          <Button asChild disabled={count >= LIMIT}>
+        <div className="self-start sm:self-auto">
+          <Button asChild>
             <Link href="/resume-analyzer/new">
               <Plus className="h-4 w-4" />
               Analyze Resume
@@ -68,7 +58,7 @@ export default async function ResumeAnalyzerPage() {
               Upload your resume PDF and Gemini AI will score it across ATS compatibility, tone, content, structure, and skills.
             </p>
           </div>
-          <Button asChild >
+          <Button asChild>
             <Link href="/resume-analyzer/new">
               <Plus className="h-4 w-4" />
               Analyze Your Resume

@@ -330,80 +330,47 @@ const Agent = ({
       "Finalising your report",
     ];
 
-    return (
-      <div className="flex items-center justify-center min-h-[520px] w-full">
-        <div className="w-full max-w-sm space-y-8">
+    const currentStepLabel = steps[Math.min(reportStep, steps.length - 1)];
 
-          {/* Thin indeterminate progress bar */}
-          <div className="h-[2px] w-full bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full w-1/3 bg-white/60 rounded-full animate-[slide_1.6s_ease-in-out_infinite]"
-              style={{ animation: "slideBar 1.6s ease-in-out infinite" }} />
+    return (
+      <div className="flex items-center justify-center min-h-[500px] w-full px-4">
+        <div className="w-full max-w-md rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] p-8 sm:p-12 text-center space-y-6 shadow-2xl">
+          {/* Glowing purple orb spinner */}
+          <div className="relative w-28 h-28 mx-auto">
+            <div className="absolute inset-0 bg-purple-500/10 rounded-full animate-ping scale-150 opacity-30" />
+            <div className="absolute inset-2 bg-purple-500/5 rounded-full animate-pulse" />
+            <div className="relative w-28 h-28 bg-gradient-to-br from-purple-600 to-violet-700 rounded-full flex items-center justify-center shadow-2xl shadow-purple-500/20">
+              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            </div>
           </div>
 
-          {/* Title */}
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-white tracking-tight">
-              Preparing your feedback report
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Your interview is complete. Sit tight while we analyse your performance.
+          {/* Heading & active step */}
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+              Analyzing your interview
+            </h2>
+            <p className="text-sm text-muted-foreground min-h-[20px] transition-all duration-500">
+              {currentStepLabel}…
             </p>
           </div>
 
-          {/* Steps */}
-          <div className="space-y-3">
-            {steps.map((label, i) => {
-              const done    = i < reportStep;
-              const active  = i === reportStep;
-              return (
-                <div key={i} className="flex items-center gap-3">
-                  {/* Step indicator */}
-                  <div className={cn(
-                    "flex items-center justify-center w-5 h-5 rounded-full border text-[10px] font-bold shrink-0 transition-all duration-500",
-                    done   ? "bg-white border-white text-black"
-                           : active ? "border-white/60 text-white/60"
-                           : "border-white/15 text-white/20"
-                  )}>
-                    {done ? (
-                      <svg viewBox="0 0 10 10" className="w-2.5 h-2.5" fill="none">
-                        <path d="M2 5l2.5 2.5L8 3" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    ) : (
-                      <span>{i + 1}</span>
-                    )}
-                  </div>
-
-                  {/* Label */}
-                  <span className={cn(
-                    "text-sm transition-colors duration-500",
-                    done   ? "text-white/50 line-through"
-                           : active ? "text-white font-medium"
-                           : "text-white/20"
-                  )}>
-                    {label}
-                    {active && (
-                      <span className="inline-flex gap-0.5 ml-1.5">
-                        {[0,1,2].map((d) => (
-                          <span key={d} className="w-1 h-1 rounded-full bg-white/50 animate-bounce inline-block"
-                            style={{ animationDelay: `${d * 120}ms` }} />
-                        ))}
-                      </span>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
+          {/* Progress dots / pills */}
+          <div className="flex items-center justify-center gap-1.5">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "h-1 rounded-full transition-all duration-500",
+                  i === reportStep ? "w-8 bg-purple-400 shadow-sm shadow-purple-400/50" : "w-1.5 bg-white/10"
+                )}
+              />
+            ))}
           </div>
-        </div>
 
-        {/* Slide animation keyframe */}
-        <style>{`
-          @keyframes slideBar {
-            0%   { transform: translateX(-100%); }
-            50%  { transform: translateX(200%); }
-            100% { transform: translateX(200%); }
-          }
-        `}</style>
+          <p className="text-xs text-muted-foreground">
+            Usually takes 15–30 seconds
+          </p>
+        </div>
       </div>
     );
   }

@@ -4,7 +4,9 @@ import { DEFAULT_SECTION_ORDER } from "../_components/SectionOrderForm";
 
 function GpaLabel({ gpa }) {
   if (!gpa?.trim()) return null;
-  const label = gpa.includes("%") ? gpa.trim() : `GPA ${gpa.trim()}`;
+  const label = gpa.includes("%") || gpa.toLowerCase().includes("gpa")
+    ? gpa.trim()
+    : `CGPA: ${gpa.trim()}`;
   return <div className="font-mono text-[0.81em] text-gray-500">{label}</div>;
 }
 
@@ -69,7 +71,29 @@ export function ModernTemplate({ data }) {
           {data.projects.map((p, i) => (
             <div key={i} className="break-inside-avoid">
               <div className="font-semibold text-left">
-                {p.name}{p.type ? ` · ${p.type}` : ""}
+                {p.link ? (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {p.name}
+                  </a>
+                ) : (
+                  p.name
+                )}
+                {p.link && (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-0.5 ml-1.5 text-[0.85em] font-normal text-blue-600 hover:underline font-mono"
+                  >
+                    Link ↗
+                  </a>
+                )}
+                {p.type ? ` · ${p.type}` : ""}
               </div>
               {hasText(p.description) && <BulletLines text={p.description} />}
             </div>

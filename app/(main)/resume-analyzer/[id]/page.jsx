@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { getResumeAnalysis } from "@/actions/resume-analysis";
 import ResumeBreakdown from "../_components/resume-breakdown";
+import PdfThumbnail from "@/components/pdf-thumbnail";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -209,29 +210,101 @@ export default async function AnalysisPage({ params }) {
 
           {/* ── LEFT SIDEBAR ─────────────────────────────────────────────── */}
           <aside className="lg:w-[280px] flex-shrink-0 space-y-4 order-last lg:order-first">
-            {/* PDF preview — desktop: native browser viewer; mobile: Google Docs Viewer */}
-            <div className="hidden lg:block rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
-              <iframe
-                src={`${analysis.resumeUrl}#toolbar=0&navpanes=0&view=FitH`}
-                className="absolute inset-0 w-full h-full border-0"
-                title="Resume preview"
-              />
-            </div>
+            {/* PDF preview or Builder resume card */}
+            {analysis.resumeUrl?.startsWith("http") ? (
+              <>
+                {/* PDF Canvas preview */}
+                <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
+                  <PdfThumbnail
+                    url={analysis.resumeUrl}
+                    className="w-full h-full"
+                  />
+                </div>
 
-            {/* Mobile PDF preview via Google Docs Viewer */}
-            <div className="lg:hidden rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] aspect-[3/4] relative">
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
-                className="absolute inset-0 w-full h-full border-0"
-                title="Resume preview (mobile)"
-              />
-            </div>
+                <a href={analysis.resumeUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <Button variant="outline" className="w-full border-white/10 gap-2">
+                    <ExternalLink className="h-4 w-4" /> Open Full PDF
+                  </Button>
+                </a>
+              </>
+            ) : (
+              <div className="space-y-3">
+                <div className="rounded-xl overflow-hidden border border-zinc-200/80 aspect-[3/4] relative bg-white text-zinc-900 p-4 shadow-sm select-none flex flex-col justify-between">
+                  {/* Top document strip: Resume Name + Builder pill */}
+                  <div>
+                    <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-zinc-200/90">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <FileText className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                        <span className="text-xs font-bold text-zinc-900 truncate tracking-tight">
+                          {analysis.resumeTitle || "SensAI Resume"}
+                        </span>
+                      </div>
+                      <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                        Builder
+                      </span>
+                    </div>
 
-            <a href={analysis.resumeUrl} target="_blank" rel="noopener noreferrer" className="block">
-              <Button variant="outline" className="w-full border-white/10 gap-2">
-                <ExternalLink className="h-4 w-4" /> Open Full PDF
-              </Button>
-            </a>
+                    {/* Simulated Realistic Document Body */}
+                    <div className="mt-3 space-y-2.5">
+                      <div className="text-center pb-1 border-b border-zinc-100">
+                        <div className="h-2 bg-zinc-800 rounded-sm w-28 mx-auto mb-1" />
+                        <div className="h-1 bg-zinc-400 rounded-sm w-16 mx-auto" />
+                      </div>
+
+                      <div>
+                        <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                          Summary
+                        </span>
+                        <div className="space-y-0.5">
+                          <div className="h-1 bg-zinc-300 rounded-sm w-full" />
+                          <div className="h-1 bg-zinc-300 rounded-sm w-4/5" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                          Experience
+                        </span>
+                        <div className="space-y-0.5">
+                          <div className="flex justify-between items-center">
+                            <div className="h-1 bg-zinc-600 rounded-sm w-20" />
+                            <div className="h-1 bg-zinc-300 rounded-sm w-8" />
+                          </div>
+                          <div className="h-1 bg-zinc-300 rounded-sm w-full" />
+                          <div className="h-1 bg-zinc-300 rounded-sm w-5/6" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                          Skills
+                        </span>
+                        <div className="flex flex-wrap gap-1 mt-0.5">
+                          <div className="h-1.5 bg-zinc-200 rounded-sm w-8" />
+                          <div className="h-1.5 bg-zinc-200 rounded-sm w-10" />
+                          <div className="h-1.5 bg-zinc-200 rounded-sm w-7" />
+                          <div className="h-1.5 bg-zinc-200 rounded-sm w-9" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom footer bar of document */}
+                  <div className="pt-2 border-t border-zinc-200/80 flex items-center justify-between text-[9px] text-zinc-500 font-medium">
+                    <span className="truncate">SensAI Resume</span>
+                    <span className="capitalize shrink-0">{analysis.resumeTemplate || "Classic"}</span>
+                  </div>
+                </div>
+
+                {analysis.resumeKey && (
+                  <Link href={`/resume/builder/${analysis.resumeKey}`} className="block">
+                    <Button variant="outline" className="w-full border-white/10 gap-2">
+                      <ExternalLink className="h-4 w-4" /> Edit in Resume Builder
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Score breakdown */}
             <Card className="border-white/10 bg-white/[0.02]">

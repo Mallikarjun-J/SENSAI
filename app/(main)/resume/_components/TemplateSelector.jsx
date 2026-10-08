@@ -4,6 +4,7 @@ const TEMPLATES = [
   { id: "classic", name: "Classic",  hint: "Centered formal layout",         emoji: "📄" },
   { id: "modern",  name: "Modern",   hint: "Accent header, bordered entries", emoji: "🎨" },
   { id: "minimal", name: "Minimal",  hint: "Clean left-bar sections",         emoji: "⬜" },
+  { id: "tech",    name: "Tech",     hint: "Software engineering & FAANG layout", emoji: "💻" },
   { id: "photo",   name: "Creative", hint: "Sidebar with candidate photo",    emoji: "🖼️" },
 ];
 

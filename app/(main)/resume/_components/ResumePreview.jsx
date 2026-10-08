@@ -4,6 +4,7 @@ import { ClassicTemplate } from "../_templates/ClassicTemplate";
 import { ModernTemplate } from "../_templates/ModernTemplate";
 import { MinimalTemplate } from "../_templates/MinimalTemplate";
 import { PhotoTemplate } from "../_templates/PhotoTemplate";
+import { TechTemplate } from "../_templates/TechTemplate";
 import { getFontConfig } from "./FontSelector";
 
 const A4_W = 794;
@@ -18,7 +19,9 @@ export function ResumePreview({ data }) {
         ? MinimalTemplate
         : data.template === "photo"
           ? PhotoTemplate
-          : ClassicTemplate;
+          : data.template === "tech"
+            ? TechTemplate
+            : ClassicTemplate;
 
   const wrapperRef = useRef(null);
   const [panelScale, setPanelScale] = useState(1);
