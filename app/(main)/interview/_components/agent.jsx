@@ -34,6 +34,7 @@ const Agent = ({
   const processedSegmentIdsRef  = useRef(new Set());
   const videoRef                = useRef(null);   // <video> for webcam
   const cameraStreamRef         = useRef(null);   // MediaStream for cleanup
+  const roomNameRef             = useRef(null);   // Active LiveKit room name for deletion
 
   const [isSpeaking,         setIsSpeaking]         = useState(false);
   const [callStatus,         setCallStatus]         = useState(CallStatus.INACTIVE);
@@ -186,15 +187,65 @@ const Agent = ({
 
   /* ── Room cleanup ───────────────────────────────────────────────────── */
   const cleanupRoom = () => {
-    if (!roomRef.current) return;
-    roomRef.current.disconnect();
-    roomRef.current.removeAllListeners();
-    roomRef.current = null;
+    // 1. Tell server to immediately destroy the LiveKit room so the AI agent stops instantly
+    const roomToClose = roomNameRef.current;
+    if (roomToClose) {
+      roomNameRef.current = null;
+      try {
+        fetch("/api/livekit/end-room", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ roomName: roomToClose }),
+          keepalive: true, // Guarantees execution even during tab close or page navigation
+        }).catch(() => {});
+      } catch {}
+    }
+
+    // 2. Stop local webcam stream and release hardware camera
+    if (cameraStreamRef.current) {
+      try {
+        cameraStreamRef.current.getTracks().forEach((t) => t.stop());
+      } catch {}
+      cameraStreamRef.current = null;
+    }
+
+    // 3. Stop local audio tracks and disconnect LiveKit session
+    if (roomRef.current) {
+      try {
+        roomRef.current.localParticipant?.trackPublications?.forEach((pub) => {
+          try {
+            pub.track?.stop();
+          } catch {}
+        });
+        roomRef.current.disconnect();
+        roomRef.current.removeAllListeners();
+      } catch (err) {
+        console.error("Error disconnecting room:", err);
+      }
+      roomRef.current = null;
+    }
+
     setIsSpeaking(false);
+    setCameraOn(false);
     if (remoteAudioContainerRef.current) remoteAudioContainerRef.current.innerHTML = "";
   };
 
-  useEffect(() => () => cleanupRoom(), []);
+  useEffect(() => {
+    const handleLeave = () => {
+      cleanupRoom();
+    };
+
+    window.addEventListener("beforeunload", handleLeave);
+    window.addEventListener("pagehide", handleLeave);
+    window.addEventListener("popstate", handleLeave);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleLeave);
+      window.removeEventListener("pagehide", handleLeave);
+      window.removeEventListener("popstate", handleLeave);
+      cleanupRoom();
+    };
+  }, []);
 
   /* ── Feedback + navigation ──────────────────────────────────────────── */
   const handleGenerateFeedback = async (msgs) => {
@@ -239,6 +290,8 @@ const Agent = ({
       if (!response.ok || !payload.success || !payload.data) {
         throw new Error(payload.error ?? "Failed to initialize LiveKit session");
       }
+
+      roomNameRef.current = payload.data.roomName;
 
       const room = new Room({ adaptiveStream: false, dynacast: false });
       registerRoomListeners(room);
