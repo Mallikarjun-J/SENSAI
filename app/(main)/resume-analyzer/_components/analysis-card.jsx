@@ -7,6 +7,7 @@ import { FileText, Calendar, ArrowRight, Loader2, AlertCircle, Trash2 } from "lu
 import { Button } from "@/components/ui/button";
 import { deleteResumeAnalysis } from "@/actions/resume-analysis";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
+import PdfThumbnail from "@/components/pdf-thumbnail";
 
 function getInitials(name) {
   return name
@@ -100,23 +101,86 @@ export default function AnalysisCard({ analysis }) {
             )}
           </div>
 
-          {/* PDF preview — desktop: native; mobile: Google Docs Viewer */}
-          <div className="flex-1 rounded-lg overflow-hidden border border-white/5 aspect-[3/4] mb-4 relative bg-white/[0.02]">
-            {/* Desktop iframe */}
-            <iframe
-              src={`${analysis.resumeUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-              className="absolute inset-0 w-full h-full border-0 pointer-events-none hidden sm:block"
-              loading="lazy"
-              title={`${analysis.jobTitle} resume preview`}
-            />
-            {/* Mobile iframe via Google Docs Viewer */}
-            <iframe
-              src={`https://docs.google.com/viewer?url=${encodeURIComponent(analysis.resumeUrl)}&embedded=true`}
-              className="absolute inset-0 w-full h-full border-0 pointer-events-none sm:hidden"
-              loading="lazy"
-              title={`${analysis.jobTitle} resume preview (mobile)`}
-            />
-          </div>
+          {/* Preview — PDF canvas thumbnail if uploaded, or Builder badge if from builder */}
+          {analysis.resumeUrl?.startsWith("http") ? (
+            <div className="flex-1 rounded-lg overflow-hidden border border-white/5 aspect-[3/4] mb-4 relative bg-white/[0.02]">
+              <PdfThumbnail
+                url={analysis.resumeUrl}
+                className="w-full h-full"
+              />
+            </div>
+          ) : (
+            <div className="flex-1 rounded-lg overflow-hidden border border-zinc-200/80 aspect-[3/4] mb-4 relative bg-white text-zinc-900 p-3.5 shadow-sm select-none flex flex-col justify-between">
+              {/* Top document strip: Resume Name + Builder pill */}
+              <div>
+                <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-zinc-200/90">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <FileText className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                    <span className="text-[11px] font-bold text-zinc-900 truncate tracking-tight">
+                      {analysis.resumeTitle || "SensAI Resume"}
+                    </span>
+                  </div>
+                  <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                    Builder
+                  </span>
+                </div>
+
+                {/* Simulated Realistic Document Body */}
+                <div className="mt-2.5 space-y-2">
+                  {/* Candidate Header line */}
+                  <div className="text-center pb-1 border-b border-zinc-100">
+                    <div className="h-2 bg-zinc-800 rounded-sm w-24 mx-auto mb-1" />
+                    <div className="h-1 bg-zinc-400 rounded-sm w-16 mx-auto" />
+                  </div>
+
+                  {/* Summary Block */}
+                  <div>
+                    <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                      Summary
+                    </span>
+                    <div className="space-y-0.5">
+                      <div className="h-1 bg-zinc-300 rounded-sm w-full" />
+                      <div className="h-1 bg-zinc-300 rounded-sm w-4/5" />
+                    </div>
+                  </div>
+
+                  {/* Experience Block */}
+                  <div>
+                    <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                      Experience
+                    </span>
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between items-center">
+                        <div className="h-1 bg-zinc-600 rounded-sm w-16" />
+                        <div className="h-1 bg-zinc-300 rounded-sm w-6" />
+                      </div>
+                      <div className="h-1 bg-zinc-300 rounded-sm w-full" />
+                      <div className="h-1 bg-zinc-300 rounded-sm w-5/6" />
+                    </div>
+                  </div>
+
+                  {/* Skills Block */}
+                  <div>
+                    <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                      Skills
+                    </span>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      <div className="h-1.5 bg-zinc-200 rounded-sm w-7" />
+                      <div className="h-1.5 bg-zinc-200 rounded-sm w-9" />
+                      <div className="h-1.5 bg-zinc-200 rounded-sm w-6" />
+                      <div className="h-1.5 bg-zinc-200 rounded-sm w-8" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom footer bar of document */}
+              <div className="pt-2 border-t border-zinc-200/80 flex items-center justify-between text-[8px] text-zinc-500 font-medium">
+                <span className="truncate">SensAI Resume</span>
+                <span className="capitalize shrink-0">{analysis.resumeTemplate || "Classic"}</span>
+              </div>
+            </div>
+          )}
 
           {/* Footer row */}
           <div className="flex items-center justify-between">

@@ -54,6 +54,7 @@
     "react-dropzone": "^17.0.0",
     "react-hook-form": "^7.66.1",
     "react-is": "^19.2.7",
+    "react-pdf": "^11.0.0",
     "react-spinners": "^0.17.0",
     "recharts": "^3.5.0",
     "rehype-sanitize": "^6.0.0",

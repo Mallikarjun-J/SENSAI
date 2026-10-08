@@ -25,8 +25,6 @@ export default async function InterviewPage() {
 
   const assessments = await getAssessments();
   const hasQuizHistory = assessments && assessments.length > 0;
-  const QUIZ_LIMIT = 7;
-  const quizLimitReached = assessments.length >= QUIZ_LIMIT;
 
   return (
     <div className="space-y-8">
@@ -57,27 +55,13 @@ export default async function InterviewPage() {
               <p className="text-sm text-muted-foreground">MCQ-based questions tailored to your industry</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 self-start sm:self-auto">
-            <span className={`text-sm font-medium px-3 py-1 rounded-full border ${
-              quizLimitReached
-                ? "bg-red-500/10 border-red-500/30 text-red-400"
-                : "bg-white/5 border-white/10 text-muted-foreground"
-            }`}>
-              {assessments.length} / {QUIZ_LIMIT}
-            </span>
-            {quizLimitReached ? (
-              <Button disabled className="rounded-full gap-2 opacity-50 cursor-not-allowed">
+          <div className="self-start sm:self-auto">
+            <Button asChild>
+              <Link href="/interview/mock">
                 <Plus className="h-4 w-4" />
-                Limit Reached
-              </Button>
-            ) : (
-              <Button asChild >
-                <Link href="/interview/mock">
-                  <Plus className="h-4 w-4" />
-                  Start New Quiz
-                </Link>
-              </Button>
-            )}
+                Start New Quiz
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -97,7 +81,7 @@ export default async function InterviewPage() {
                 Practice with industry-specific MCQ questions to sharpen your knowledge and track progress.
               </p>
             </div>
-            <Button asChild variant="outline" >
+            <Button asChild variant="outline">
               <Link href="/interview/mock">
                 <ClipboardList className="h-4 w-4" />
                 Take Your First Quiz

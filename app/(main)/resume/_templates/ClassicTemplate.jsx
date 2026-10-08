@@ -18,12 +18,6 @@ function ClassicSection({ label, children }) {
   );
 }
 
-function GpaLabel({ gpa }) {
-  if (!gpa?.trim()) return null;
-  const label = gpa.includes("%") ? gpa.trim() : `GPA ${gpa.trim()}`;
-  return <span className="text-gray-500"> · {label}</span>;
-}
-
 export function ClassicTemplate({ data }) {
   const pi = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
@@ -101,11 +95,17 @@ export function ClassicTemplate({ data }) {
                 <div className="font-bold">{e.institution}</div>
                 <div className="text-[0.952em] text-gray-600">
                   {[e.degree, e.field].filter(Boolean).join(", ")}
-                  <GpaLabel gpa={e.gpa} />
                 </div>
               </div>
-              <div className="text-[0.81em] text-gray-500 whitespace-nowrap text-right shrink-0">
-                {e.graduationDate}
+              <div className="text-[0.81em] whitespace-nowrap text-right shrink-0">
+                <div className="text-gray-500">{e.graduationDate}</div>
+                {e.gpa?.trim() && (
+                  <div className="text-gray-600 font-medium mt-0.5">
+                    {e.gpa.includes("%") || e.gpa.toLowerCase().includes("gpa")
+                      ? e.gpa.trim()
+                      : `CGPA: ${e.gpa.trim()}`}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -118,10 +118,33 @@ export function ClassicTemplate({ data }) {
         <div className="space-y-1.5">
           {data.projects.map((p, i) => (
             <div key={i} className="break-inside-avoid">
-              <span className="font-bold">{p.name}</span>
-              {p.type && (
-                <span className="text-gray-500 text-[0.905em]"> · {p.type}</span>
-              )}
+              <div>
+                {p.link ? (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold hover:underline"
+                  >
+                    {p.name}
+                  </a>
+                ) : (
+                  <span className="font-bold">{p.name}</span>
+                )}
+                {p.link && (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-0.5 ml-1.5 text-[0.85em] font-normal text-blue-600 hover:underline"
+                  >
+                    Link ↗
+                  </a>
+                )}
+                {p.type && (
+                  <span className="text-gray-500 text-[0.905em]"> · {p.type}</span>
+                )}
+              </div>
               {hasText(p.description) && (
                 <BulletLines text={p.description} className="mt-0.5" />
               )}

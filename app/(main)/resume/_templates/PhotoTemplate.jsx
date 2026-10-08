@@ -30,11 +30,6 @@ function MainLabel({ children }) {
   );
 }
 
-function GpaText({ gpa }) {
-  if (!gpa?.trim()) return null;
-  return ` · ${gpa.includes("%") ? gpa.trim() : `GPA ${gpa.trim()}`}`;
-}
-
 export function PhotoTemplate({ data }) {
   const pi    = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
@@ -114,11 +109,17 @@ export function PhotoTemplate({ data }) {
                 <div className="font-semibold text-[#111]">{e.institution}</div>
                 <div className="text-[0.905em] text-[#666]">
                   {[e.degree, e.field].filter(Boolean).join(", ")}
-                  <GpaText gpa={e.gpa} />
                 </div>
               </div>
-              <div className="text-[0.79em] text-[#888] whitespace-nowrap shrink-0">
-                {e.graduationDate}
+              <div className="text-[0.79em] whitespace-nowrap text-right shrink-0">
+                <div className="text-[#888]">{e.graduationDate}</div>
+                {e.gpa?.trim() && (
+                  <div className="font-medium text-[#666] mt-0.5">
+                    {e.gpa.includes("%") || e.gpa.toLowerCase().includes("gpa")
+                      ? e.gpa.trim()
+                      : `CGPA: ${e.gpa.trim()}`}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -134,10 +135,33 @@ export function PhotoTemplate({ data }) {
         <div className="flex flex-col gap-2">
           {data.projects.map((p, i) => (
             <div key={i} className="break-inside-avoid">
-              <span className="font-semibold text-[#111]">{p.name}</span>
-              {p.type && (
-                <span className="text-[0.905em] text-[#888]"> · {p.type}</span>
-              )}
+              <div>
+                {p.link ? (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#111] hover:underline"
+                  >
+                    {p.name}
+                  </a>
+                ) : (
+                  <span className="font-semibold text-[#111]">{p.name}</span>
+                )}
+                {p.link && (
+                  <a
+                    href={p.link.startsWith("http") ? p.link : `https://${p.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-0.5 ml-1.5 text-[0.85em] font-normal text-blue-600 hover:underline"
+                  >
+                    Link ↗
+                  </a>
+                )}
+                {p.type && (
+                  <span className="text-[0.905em] text-[#888]"> · {p.type}</span>
+                )}
+              </div>
               {hasText(p.description) && (
                 <BulletLines text={p.description} className="mt-0.5 text-[#444]" />
               )}

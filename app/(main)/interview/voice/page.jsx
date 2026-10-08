@@ -28,9 +28,6 @@ export default async function VoiceInterviewPage() {
     getVoiceFeedbacksForUser(),
   ]);
 
-  const VOICE_LIMIT = 7;
-  const voiceLimitReached = (voiceInterviews?.length ?? 0) >= VOICE_LIMIT;
-
   return (
     <div className="space-y-8">
       {/* Page header */}
@@ -60,27 +57,13 @@ export default async function VoiceInterviewPage() {
               <p className="text-sm text-muted-foreground">Real-time AI voice interview with instant feedback</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 self-start sm:self-auto">
-            <span className={`text-sm font-medium px-3 py-1 rounded-full border ${
-              voiceLimitReached
-                ? "bg-red-500/10 border-red-500/30 text-red-400"
-                : "bg-white/5 border-white/10 text-muted-foreground"
-            }`}>
-              {voiceInterviews?.length ?? 0} / {VOICE_LIMIT}
-            </span>
-            {voiceLimitReached ? (
-              <Button disabled className="rounded-full gap-2 opacity-50 cursor-not-allowed">
+          <div className="self-start sm:self-auto">
+            <Button asChild>
+              <Link href="/interview/voice/new">
                 <Plus className="h-4 w-4" />
-                Limit Reached
-              </Button>
-            ) : (
-              <Button asChild >
-                <Link href="/interview/voice/new">
-                  <Plus className="h-4 w-4" />
-                  New Voice Interview
-                </Link>
-              </Button>
-            )}
+                New Voice Interview
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -95,19 +78,12 @@ export default async function VoiceInterviewPage() {
               <h3 className="gradient-title text-xl sm:text-2xl md:text-3xl font-bold">Recent Interviews</h3>
               <p className="text-muted-foreground text-sm mt-1">Review your past voice interview performance</p>
             </div>
-            {voiceLimitReached ? (
-              <Button disabled className="rounded-full gap-2 opacity-50 cursor-not-allowed self-start sm:self-auto shrink-0">
+            <Button asChild className="self-start sm:self-auto shrink-0">
+              <Link href="/interview/voice/new">
                 <Mic className="h-4 w-4" />
-                Limit Reached
-              </Button>
-            ) : (
-              <Button asChild className="self-start sm:self-auto shrink-0">
-                <Link href="/interview/voice/new">
-                  <Mic className="h-4 w-4" />
-                  Start New Interview
-                </Link>
-              </Button>
-            )}
+                Start New Interview
+              </Link>
+            </Button>
           </div>
 
           <div className="px-6 pb-6">
@@ -136,7 +112,7 @@ export default async function VoiceInterviewPage() {
                     Start a live AI voice interview and get instant detailed feedback on your answers.
                   </p>
                 </div>
-                <Button asChild >
+                <Button asChild>
                   <Link href="/interview/voice/new">
                     <Mic className="h-4 w-4" />
                     Start Your First Interview

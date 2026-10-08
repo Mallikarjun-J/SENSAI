@@ -92,7 +92,7 @@ export function BulletLines({ text, className = "" }) {
         <li key={i} className="flex gap-1.5">
           <span className="mt-[2px] shrink-0 select-none">●</span>
           <span className="text-justify">
-            {line.startsWith("●") ? line.slice(1).trim() : line}
+            {line.replace(/^[•●\-*]\s*/, "")}
           </span>
         </li>
       ))}

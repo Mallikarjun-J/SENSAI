@@ -19,8 +19,6 @@ function getFlashLite() {
 // Gemini native client (for PDF parsing)
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const RESUME_LIMIT = 5;
-
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
 async function getDbUser() {
@@ -62,10 +60,6 @@ export async function getResumeCount() {
 
 export async function createResume({ title }) {
   const user = await getDbUser();
-  const count = await prisma.resume.count({ where: { userId: user.id } });
-  if (count >= RESUME_LIMIT) {
-    throw new Error(`Resume limit reached (max ${RESUME_LIMIT})`);
-  }
   const resume = await prisma.resume.create({
     data: { userId: user.id, title: title || "Untitled Resume" },
   });
@@ -224,8 +218,6 @@ export async function enhanceCustomEntry({ sectionName, title, subtitle, descrip
 export async function parseResumeFromText({ title, resumeText }) {
   if (!resumeText?.trim()) throw new Error("No resume text provided");
   const user = await getDbUser();
-  const count = await prisma.resume.count({ where: { userId: user.id } });
-  if (count >= RESUME_LIMIT) throw new Error(`Resume limit reached (max ${RESUME_LIMIT})`);
 
   const ai = getFlashLite();
   const system = `Extract resume data from the provided text and return ONLY strict JSON matching exactly this shape (no extra fields, no markdown, no commentary):
@@ -291,8 +283,6 @@ Use empty strings/arrays where information is not present. Return ONLY the JSON 
 export async function parseResumeFromPdf({ title, pdfUrl }) {
   if (!pdfUrl) throw new Error("No PDF URL provided");
   const user = await getDbUser();
-  const count = await prisma.resume.count({ where: { userId: user.id } });
-  if (count >= RESUME_LIMIT) throw new Error(`Resume limit reached (max ${RESUME_LIMIT})`);
 
   // Fetch the PDF and convert to base64
   const response = await fetch(pdfUrl);

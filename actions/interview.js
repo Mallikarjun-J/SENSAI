@@ -14,13 +14,16 @@ const googleAI = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-const QUIZ_LIMIT = 7;
-const VOICE_LIMIT = 7;
-
 // ─── Existing Quiz Actions ─────────────────────────────────────────────────────
 
-export async function generateQuiz(){
-    const { userId } = await auth();
+export async function generateQuiz({
+  topic = "",
+  difficulty = "Medium",
+  type = "Mixed",
+  topics = [],
+  questionCount = 10,
+} = {}) {
+  const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await prisma.User.findUnique({
@@ -28,36 +31,58 @@ export async function generateQuiz(){
   });
 
   if (!user) throw new Error("User not found");
-    
-  const prompt = `
-    Generate 10 technical interview questions for a ${
-      user.industry
-    } professional${
-    user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
-  }.
-    
-    Each question should be multiple choice with 4 options.
-    
-    Return the response in this JSON format only, no additional text:
-    {
-      "questions": [
-        {
-          "question": "string",
-          "options": ["string", "string", "string", "string"],
-          "correctAnswer": "string",
-          "explanation": "string"
-        }
-      ]
-    }
-  `;
 
-    try {
+  // Fall back to user's industry if no topic specified
+  const resolvedTopic = topic.trim() || user.industry || "General Software Development";
+  const topicsLine = topics.length > 0
+    ? `Focus specifically on these sub-topics: ${topics.join(", ")}.`
+    : "";
+
+  const typeInstruction =
+    type === "Technical"
+      ? "All questions should be technical — testing code knowledge, algorithms, system design, or tool-specific details."
+      : type === "Conceptual"
+      ? "All questions should be conceptual — testing understanding of principles, theory, and how things work."
+      : "Mix technical and conceptual questions roughly 50/50.";
+
+  const difficultyInstruction =
+    difficulty === "Easy"
+      ? "Questions should be beginner-friendly and straightforward."
+      : difficulty === "Hard"
+      ? "Questions should be challenging and require deep expertise."
+      : "Questions should be moderate — suitable for someone with working experience.";
+
+  const prompt = `Generate ${questionCount} multiple-choice interview questions on the subject: "${resolvedTopic}".
+
+${typeInstruction}
+${difficultyInstruction}
+${topicsLine}
+
+Rules:
+- Each question must have exactly 4 options.
+- Only one option is correct.
+- Provide a clear, concise explanation for the correct answer.
+- Do NOT repeat questions.
+- Questions must directly relate to "${resolvedTopic}".
+
+Return ONLY this JSON (no markdown, no extra text):
+{
+  "questions": [
+    {
+      "question": "string",
+      "options": ["string", "string", "string", "string"],
+      "correctAnswer": "string",
+      "explanation": "string"
+    }
+  ]
+}`;
+
+  try {
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
     const quiz = JSON.parse(cleanedText);
-
     return quiz.questions;
   } catch (error) {
     console.error("Error generating quiz:", error);
@@ -74,12 +99,6 @@ export async function saveQuizResult(questions, answers, score){
   });
 
   if (!user) throw new Error("User not found");
-
-  // Enforce quiz limit
-  const quizCount = await prisma.assessment.count({ where: { userId: user.id } });
-  if (quizCount >= QUIZ_LIMIT) {
-    throw new Error(`LIMIT_REACHED: You can only save up to ${QUIZ_LIMIT} quizzes. Delete an old one to save a new result.`);
-  }
 
   const questionsResults = questions.map((q, index) => ({
     question: q.question,
@@ -354,12 +373,6 @@ export async function createVoiceInterview({ role, level, type, techstack, quest
 
   const user = await prisma.user.findUnique({ where: { clerkUserId } });
   if (!user) throw new Error("User not found");
-
-  // Enforce voice interview limit
-  const voiceCount = await prisma.interview.count({ where: { userId: user.id } });
-  if (voiceCount >= VOICE_LIMIT) {
-    return { success: false, limitReached: true, limit: VOICE_LIMIT };
-  }
 
   try {
     const interview = await prisma.interview.create({
