@@ -9,10 +9,36 @@ const REQUIRED_ENV_VARS = [
   // Clerk auth
   "CLERK_SECRET_KEY",
   "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-  // AI
+  // Global AI
   "GEMINI_API_KEY",
-  "ROADMAP_API",
+  "GEMINI_MODEL",
+  // Mock Interview & Voice AI
+  "INTERVIEW_API_KEY",
+  "INTERVIEW_MODEL",
+  // Resume Analyzer
   "RESUME_ANALYSIS_KEY",
+  "RESUME_ANALYSIS_MODEL",
+  // Resume Builder
+  "RESUME_BUILDER_API_KEY",
+  "RESUME_BUILDER_MODEL",
+  // Resume PDF Parser
+  "RESUME_PARSER_API_KEY",
+  "RESUME_PARSER_MODEL",
+  // Career Roadmap
+  "ROADMAP_API",
+  "ROADMAP_MODEL",
+  // AI Cover Letter
+  "COVER_LETTER_API_KEY",
+  "COVER_LETTER_MODEL",
+  // Dashboard Insights
+  "DASHBOARD_API_KEY",
+  "DASHBOARD_MODEL",
+  // User Skills Extraction
+  "USER_SKILLS_API_KEY",
+  "USER_SKILLS_MODEL",
+  // Inngest Background Jobs AI
+  "INNGEST_GEMINI_API_KEY",
+  "INNGEST_GEMINI_MODEL",
   // LiveKit
   "LIVEKIT_API_KEY",
   "LIVEKIT_API_SECRET",
