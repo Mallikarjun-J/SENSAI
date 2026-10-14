@@ -97,7 +97,7 @@ export function ModernTemplate({ data }) {
               </div>
               {hasText(p.description) && <BulletLines text={p.description} />}
             </div>
-          ))}
+          ))}a
         </div>
       </section>
     ) : null,
@@ -121,7 +121,7 @@ export function ModernTemplate({ data }) {
                 <div key={entry.id} className="break-inside-avoid border-l-2 pl-3" style={{ borderColor: "var(--accent)" }}>
                   <div className="flex items-baseline justify-between">
                     <div className="font-semibold text-left">
-                      {entry.title}{entry.subtitle ? ` — ${entry.subtitle}` : ""}
+                      {entry.title}{entry.subtitle ? ` - ${entry.subtitle}` : ""}
                     </div>
                     {entry.date && (
                       <div className="font-mono text-[0.81em] text-gray-500 whitespace-nowrap ml-4">{entry.date}</div>

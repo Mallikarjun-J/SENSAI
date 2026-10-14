@@ -6,18 +6,26 @@ import { revalidatePath } from "next/cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
 
+import { AI_CONFIG } from "@/lib/ai-config";
+
 // ─── AI clients ──────────────────────────────────────────────────────────────
 
-// Gemini flash-lite via OpenAI-compat (for enhance/parse text actions)
-function getFlashLite() {
-  return new OpenAI({
-    apiKey: process.env.GEMINI_API_KEY,
+// Gemini via OpenAI-compat (for enhance/parse text actions)
+function getResumeBuilderClient() {
+  const { apiKey, model } = AI_CONFIG.resumeBuilder;
+  const client = new OpenAI({
+    apiKey,
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
   });
+  return { client, model };
 }
 
-// Gemini native client (for PDF parsing)
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Native Gemini client (for PDF parsing)
+function getResumeParserModel() {
+  const { apiKey, model } = AI_CONFIG.resumeBuilder;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model });
+}
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
 
@@ -53,10 +61,6 @@ export async function getUserResumes() {
   }));
 }
 
-export async function getResumeCount() {
-  const user = await getDbUser();
-  return prisma.resume.count({ where: { userId: user.id } });
-}
 
 export async function createResume({ title }) {
   const user = await getDbUser();
@@ -127,9 +131,9 @@ export async function renameResume({ resumeId, title }) {
 
 export async function enhanceSummary(text) {
   if (!text?.trim()) throw new Error("No text provided");
-  const ai = getFlashLite();
+  const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
-    model: "gemini-3.1-flash-lite",
+    model,
     messages: [
       {
         role: "system",
@@ -146,14 +150,14 @@ export async function enhanceSummary(text) {
 
 export async function enhanceJobDescription({ description, position, company }) {
   if (!description?.trim()) throw new Error("No description provided");
-  const ai = getFlashLite();
+  const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
-    model: "gemini-3.1-flash-lite",
+    model,
     messages: [
       {
         role: "system",
         content:
-          "You are an expert resume writer. Rewrite the following job description as 1-2 concise, ATS-friendly sentences using strong action verbs and quantifiable results where possible. Return only the rewritten text, no bullets, no commentary, no Markdown.",
+          "You are an expert ATS resume writer. Analyze the target job description and the candidate's experience, skills, and achievements. Write a concise, impactful resume summary tailored to the target role, highlighting relevant technical skills, industry keywords, strengths, and measurable achievements where supported. Use strong language, avoid generic statements, and never invent skills, metrics, or accomplishments. Return only the bullets, each beginning with '●', no commentary or Markdown.",
       },
       {
         role: "user",
@@ -168,14 +172,14 @@ export async function enhanceJobDescription({ description, position, company }) 
 
 export async function enhanceProjectDescription({ description, name, type }) {
   if (!description?.trim()) throw new Error("No description provided");
-  const ai = getFlashLite();
+  const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
-    model: "gemini-3.1-flash-lite",
+    model,
     messages: [
       {
         role: "system",
         content:
-          "You are an expert ATS resume writer. Rewrite the project description into 2-3 concise resume bullets, each beginning with '●'. Make it look like a strong Projects section: action verb first, clear product scope, relevant technical keywords, architecture/tools, outcomes, and measurable impact when the user provided enough detail. Do not invent numbers, employers, awards, or technologies not provided. Return only the bullets, no commentary, no Markdown.",
+          "You are an expert ATS resume writer. Rewrite the project description into as many concise resume bullets as needed to create a strong, competitive Projects section. Prioritize meaningful technical contributions, architecture, tools, problem-solving, relevant ATS keywords, and measurable impact where supported by the provided details. Use strong action verbs, highlight engineering depth, avoid repetition, and never invent metrics, technologies, or achievements. Return only the bullets, each beginning with '●', no commentary or Markdown.",
       },
       {
         role: "user",
@@ -190,18 +194,19 @@ export async function enhanceProjectDescription({ description, name, type }) {
 
 export async function enhanceCustomEntry({ sectionName, title, subtitle, description }) {
   if (!description?.trim()) throw new Error("No description provided");
-  const ai = getFlashLite();
+  const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
-    model: "gemini-3.1-flash-lite",
+    model,
     messages: [
       {
         role: "system",
         content:
           `You are an expert ATS resume writer. The user has a custom resume section called "${sectionName ?? "Custom"}". ` +
-          "Rewrite the provided description into 1-2 concise, impactful, ATS-friendly sentences. " +
-          "Use strong action verbs and include measurable impact where possible. " +
-          "Do not invent facts. Return only the enhanced text, no bullets, no commentary, no Markdown.",
-      },
+          "Rewrite the provided content into a concise, impactful, ATS-friendly resume section. " +
+          "Use strong action verbs, relevant keywords, technical details, and measurable impact wherever supported by the provided information. " +
+          "Adapt the length and format to the section, prioritizing meaningful content over quantity. Never invent facts, skills, metrics, or achievements. " +
+          "Return only the enhanced text in the appropriate format, without commentary or unnecessary formatting, No Markdown.",
+},
       {
         role: "user",
         content: `Title: ${title ?? ""}\nIssuer/Subtitle: ${subtitle ?? ""}\nDescription: ${description}`,
@@ -219,34 +224,52 @@ export async function parseResumeFromText({ title, resumeText }) {
   if (!resumeText?.trim()) throw new Error("No resume text provided");
   const user = await getDbUser();
 
-  const ai = getFlashLite();
-  const system = `Extract resume data from the provided text and return ONLY strict JSON matching exactly this shape (no extra fields, no markdown, no commentary):
-{
-  "professionalSummary": string,
-  "skills": string[],
-  "personalInfo": {
-    "fullName": string, "profession": string, "email": string, "phone": string, "location": string,
-    "links": [ { "label": string, "url": string } ]
-  },
-  "experience": [ { "company": string, "position": string, "startDate": string, "endDate": string, "description": string, "isCurrent": boolean } ],
-  "projects": [ { "name": string, "type": string, "description": string } ],
-  "education": [ { "institution": string, "degree": string, "field": string, "graduationDate": string, "gpa": string } ]
-}
+  const { client: ai, model } = getResumeBuilderClient();
+  const system = `Extract structured resume data from the provided text and return ONLY valid JSON matching exactly this schema:
+  {
+    "professionalSummary": "",
+    "skills": [],
+    "personalInfo": {
+      "fullName": "", "profession": "", "email": "", "phone": "", "location": "",
+      "links": [{ "label": "", "url": "" }]
+    },
+    "experience": [
+      { "company": "", "position": "", "startDate": "", "endDate": "", "description": "", "isCurrent": false }
+    ],
+    "projects": [
+      { "name": "", "type": "", "description": "" }
+    ],
+    "education": [
+      { "institution": "", "degree": "", "field": "", "graduationDate": "", "gpa": "" }
+    ]
+  }
 
-SKILLS RULES — critical:
-- Group skills by category. Each element of "skills" must be ONE string in this exact format: "CategoryName: skill1, skill2, skill3"
-- Common categories (use only relevant ones): Languages, Web & Frameworks, Databases, AI / ML, DevOps & Cloud, Tools, Core Concepts
-- Do NOT list individual skills as separate array items. Always group.
-- Example: ["Languages: Java, Python, C++", "Web & Frameworks: React, Next.js, Node.js", "Databases: MySQL, PostgreSQL"]
+  RULES:
+  - Extract information accurately. Never invent, assume, or fabricate details.
+  - Preserve the meaning of the original content while keeping descriptions clear and concise.
+  - Use empty strings for missing values and empty arrays when no entries are found.
+  - Return only the specified fields with the correct data types.
 
-LINKS RULES:
-- Put ALL social/professional links (LinkedIn, GitHub, Portfolio, website, etc.) in the "links" array as { "label": "LinkedIn", "url": "https://..." }
-- Use empty array [] if no links found.
+  SKILLS:
+  - Group skills by category. Each array element must follow this format: "CategoryName: skill1, skill2, skill3".
+  - Use only relevant categories: Languages, Web & Frameworks, Databases, AI / ML, DevOps & Cloud, Tools, Core Concepts.
+  - Do not list individual skills as separate array elements.
 
-Use empty strings/arrays where information is not present. Return ONLY the JSON object.`;
+  LINKS:
+  - Include all available professional and social links, such as LinkedIn, GitHub, and Portfolio, as objects containing "label" and "url".
+  - Use an empty array if no links are found.
+
+  EXPERIENCE:
+  - Set "isCurrent" to true only when the position is explicitly identified as current or ongoing.
+  - Preserve dates as provided. Do not guess missing dates.
+
+  OUTPUT:
+  - Return ONLY the JSON object.
+  - Ensure the output is valid, strictly formatted JSON with double-quoted keys and string values.
+  - Do not include Markdown, comments, explanations, or additional fields.`;
 
   const res = await ai.chat.completions.create({
-    model: "gemini-3.1-flash-lite",
+    model,
     messages: [
       { role: "system", content: system },
       { role: "user", content: resumeText.slice(0, 20000) },
@@ -290,19 +313,46 @@ export async function parseResumeFromPdf({ title, pdfUrl }) {
   const pdfBuffer = await response.arrayBuffer();
   const pdfBase64 = Buffer.from(pdfBuffer).toString("base64");
 
-  const extractPrompt = `Extract resume data from this PDF and return ONLY strict JSON matching exactly this shape (no extra fields, no markdown, no backticks):
-{
-  "professionalSummary": string,
-  "skills": string[],
-  "personalInfo": { "fullName": string, "profession": string, "email": string, "phone": string, "location": string, "link1Label": string, "link1Url": string, "link2Label": string, "link2Url": string },
-  "experience": [ { "company": string, "position": string, "startDate": string, "endDate": string, "description": string, "isCurrent": boolean } ],
-  "projects": [ { "name": string, "type": string, "description": string } ],
-  "education": [ { "institution": string, "degree": string, "field": string, "graduationDate": string, "gpa": string } ]
-}
-For link1Label/link1Url use LinkedIn if found, link2Label/link2Url use GitHub/portfolio if found.
-Use empty strings/arrays where information is not present.`;
+  const extractPrompt = `Extract resume data from the provided PDF and return ONLY valid JSON matching exactly this shape (no extra fields, no markdown, no backticks, no commentary):
+  {
+    "professionalSummary": string,
+    "skills": string[],
+    "personalInfo": { "fullName": string, "profession": string, "email": string, "phone": string, "location": string, "link1Label": string, "link1Url": string, "link2Label": string, "link2Url": string },
+    "experience": [ { "company": string, "position": string, "startDate": string, "endDate": string, "description": string, "isCurrent": boolean } ],
+    "projects": [ { "name": string, "type": string, "description": string } ],
+    "education": [ { "institution": string, "degree": string, "field": string, "graduationDate": string, "gpa": string } ]
+  }
 
-  const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+  EXTRACTION RULES:
+  - Extract information accurately from the PDF. Do not invent, assume, or fabricate details.
+  - Preserve the original meaning of the resume content. Correctly identify and map information to the appropriate fields.
+  - Keep descriptions concise while preserving meaningful responsibilities, technical contributions, achievements, and relevant details.
+  - Preserve dates, names, qualifications, and metrics as provided. Do not calculate or guess missing values.
+  - Set "isCurrent" to true only when the resume clearly indicates that the position is current or ongoing; otherwise, use false.
+  - For "skills", return an array of strings containing the skills explicitly mentioned in the resume.
+  - For "projects", extract each identifiable project separately, preserving its name, type, and description.
+  - For "education", extract each identifiable qualification separately, preserving the institution, degree, field, graduation date, and GPA when available.
+
+  LINK RULES:
+  - Use "link1Label" and "link1Url" for LinkedIn when available.
+  - Use "link2Label" and "link2Url" for GitHub or a portfolio when available.
+  - Preserve the actual URLs found in the PDF. Do not construct, modify, or guess URLs.
+  - If a link is not available, use an empty string for its label and URL.
+  - If multiple links are present, prioritize LinkedIn for link 1 and GitHub or portfolio for link 2.
+
+  MISSING INFORMATION:
+  - Use empty strings for missing string values.
+  - Use empty arrays when no entries are found for array fields.
+  - Use false for "isCurrent" when a current position cannot be established.
+  - Do not omit any fields, change their names, or introduce additional fields.
+
+  OUTPUT REQUIREMENTS:
+  - Return ONLY the JSON object matching the exact schema above.
+  - Ensure the output is valid JSON, with double-quoted keys and string values.
+  - Use the correct data types for all fields.
+  - Do not include comments, explanations, or any text outside the JSON object.`;
+
+  const model = getResumeParserModel();
   const result = await model.generateContent({
     contents: [
       {

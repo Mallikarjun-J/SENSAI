@@ -3,9 +3,16 @@
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { roadmapGenerationLimiter, checkRateLimit } from "@/lib/rate-limit";
+import { cachedQuery, invalidateCache, cacheKeys } from "@/lib/db-cache";
 
-const genAI = new GoogleGenerativeAI(process.env.ROADMAP_API);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+import { AI_CONFIG } from "@/lib/ai-config";
+
+function getRoadmapModel() {
+  const { apiKey, model } = AI_CONFIG.roadmap;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model });
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -64,29 +71,95 @@ async function getYouTubeVideos(query) {
   }
 }
 
+function fallbackStepTopics(title, description, phaseName) {
+  const cleanTitle = (title || "")
+    .replace(/^(Learn|Master|Understand|Intro to|Introduction to|Getting started with|Build with)\s+/i, "")
+    .trim();
+
+  // If title has multiple items (e.g. "HTML, CSS & Flexbox" or "Docker / Kubernetes")
+  const parts = cleanTitle
+    .split(/[,/&|]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 2);
+
+  if (parts.length >= 3) {
+    return parts.slice(0, 4).map((p) => `Fundamentals & practical usage of ${p}`);
+  }
+
+  return [
+    `Core principles & architecture of ${cleanTitle || phaseName}`,
+    `Standard tooling, libraries & development workflows`,
+    `Performance optimization, security & best practices`,
+    `Real-world implementation patterns & debugging`,
+  ];
+}
+
 async function generatePhaseKeyTopics(phaseName, steps) {
   try {
-    const stepList = steps.map((s, i) => `${i + 1}. ${s.title}`).join("\n");
-    const result = await model.generateContent(
-      `For the roadmap phase "${phaseName}", list 4-5 must-learn subtopics for each step below.
-Be specific and practical — these are the core concepts a learner must understand.
-Return ONLY a JSON array of arrays, one inner array per step in the same order:
-[["subtopic 1", "subtopic 2", "subtopic 3", "subtopic 4"], [...], [...], [...]]
+    const stepList = steps.map((s, i) => `${i + 1}. ${s.title}: ${s.description || s.title}`).join("\n");
+    const result = await getRoadmapModel().generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `You are a Principal Engineer. For the roadmap phase "${phaseName}", provide 4 essential technical "Must Learn" key topics for each step below.
+Focus on core architecture, trade-offs, practical tools, and interview-tested concepts.
 
 Steps:
-${stepList}`
-    );
+${stepList}
+
+Return ONLY a JSON array of string arrays (one inner array per step with 4 strings):
+[
+  ["Topic 1", "Topic 2", "Topic 3", "Topic 4"],
+  ["Topic 1", "Topic 2", "Topic 3", "Topic 4"]
+]
+
+No markdown formatting, no comments, no extra text.`,
+            },
+          ],
+        },
+      ],
+      generationConfig: { temperature: 0.2 },
+    });
+
     const text = result.response.text().trim();
-    const match = text.match(/\[[\s\S]*\]/);
-    if (!match) return steps.map(() => []);
-    const parsed = JSON.parse(match[0]);
-    if (Array.isArray(parsed) && parsed.length === steps.length) {
-      return parsed.map((arr) => (Array.isArray(arr) ? arr.map(String) : []));
+    const cleaned = text.replace(/```(?:json)?/gi, "").replace(/```/g, "").trim();
+    const match = cleaned.match(/\[[\s\S]*\]/);
+
+    if (match) {
+      const parsed = JSON.parse(match[0]);
+      let extracted = [];
+
+      if (Array.isArray(parsed)) {
+        extracted = parsed.map((item) => {
+          if (Array.isArray(item)) return item.map(String).filter(Boolean);
+          if (item && typeof item === "object") {
+            const sub = item.subtopics || item.topics || item.keyTopics || Object.values(item).find(Array.isArray);
+            if (Array.isArray(sub)) return sub.map(String).filter(Boolean);
+          }
+          return [];
+        });
+      } else if (parsed && typeof parsed === "object") {
+        const arr = parsed.steps || parsed.subtopics || parsed.topics || Object.values(parsed).find(Array.isArray);
+        if (Array.isArray(arr)) {
+          extracted = arr.map((item) => (Array.isArray(item) ? item.map(String).filter(Boolean) : []));
+        }
+      }
+
+      return steps.map((s, i) => {
+        const topics = extracted[i];
+        if (Array.isArray(topics) && topics.length >= 3) {
+          return topics.slice(0, 5);
+        }
+        return fallbackStepTopics(s.title, s.description, phaseName);
+      });
     }
-    return steps.map(() => []);
-  } catch {
-    return steps.map(() => []);
+  } catch (err) {
+    console.warn(`generatePhaseKeyTopics fallback triggered for "${phaseName}":`, err?.message || err);
   }
+
+  return steps.map((s) => fallbackStepTopics(s.title, s.description, phaseName));
 }
 
 async function buildRoadmapNodes(phases, projectName) {
@@ -108,7 +181,7 @@ async function buildRoadmapNodes(phases, projectName) {
 
     const stepConnections = steps.map((_, si) => `step-${phase.number}-${si + 1}`);
 
-    // Fetch key topics for all 4 steps in this phase — one Gemini call per phase
+    // Fetch key topics for all 4 steps in this phase
     const keyTopicsPerStep = await generatePhaseKeyTopics(phase.name, steps);
 
     nodes.push({
@@ -125,7 +198,7 @@ async function buildRoadmapNodes(phases, projectName) {
       phaseNumber: phase.number,
       stepNumber: null,
       isLeft: false,
-      keyTopics: [],
+      keyTopics: steps.map((s) => s.title),
       resources: {
         aiSummary: `Phase ${phase.number} of your ${projectName} roadmap: ${phase.name}`,
         youtubeVideos: await getYouTubeVideos(`${phase.name} ${projectName}`),
@@ -211,12 +284,22 @@ export async function generateRoadmap(career, { skills = [], experience = 0 } = 
       ? `The candidate has ${experience} year${experience === 1 ? "" : "s"} of experience. Skip absolute basics and pitch the roadmap at the right level.`
       : "The candidate is a beginner — start from fundamentals.";
 
-  const phasesPrompt = `Create a career roadmap for becoming a ${career}.
+  const phasesPrompt = `You are a Principal Engineer and Engineering Director who has designed onboarding curriculums and hiring bars at top tech companies.
+Design an industry-calibrated, pragmatic career roadmap for becoming a professional ${career}.
 
 ${expLine}
 ${skillsLine}
 
-CRITICAL: Each phase must have EXACTLY 4 steps.
+Industry Standards:
+- Reflect real-world production expectations, not outdated academic or generic tutorial topics.
+- Prioritize technologies, frameworks, system design patterns, and engineering practices that companies actively screen for in technical interviews and job descriptions.
+- Order phases progressively from foundational core to advanced production readiness and real-world project deployment.
+
+CRITICAL FORMAT RULES:
+- Exactly 4 to 6 phases in total.
+- Each phase must have EXACTLY 4 steps.
+- Each step must be a concise, specific technology, tool, architecture concept, or practical skill (under 50 characters).
+- No markdown, no asterisks, no bullets, no commentary.
 
 Format:
 Phase 1: Foundation
@@ -231,12 +314,9 @@ Phase 2: Core Skills
 2.3 [specific skill/tool]
 2.4 [specific skill/tool]
 
-Create 4-6 phases from current level to job-ready.
-Steps must be specific technologies, tools, or skills.
-No markdown, no bullets, concise step names (under 50 chars).
 Generate roadmap for: ${career}`;
 
-  const phasesResult = await model.generateContent(phasesPrompt);
+  const phasesResult = await getRoadmapModel().generateContent(phasesPrompt);
   const phases = parsePhasesFromResponse(phasesResult.response.text());
   if (!phases.length) throw new Error("Failed to parse AI response into phases");
 
@@ -253,6 +333,10 @@ Generate roadmap for: ${career}`;
  */
 export async function createRoadmap({ title, phases, roadmapNodes }) {
   const user = await getDbUser();
+
+  // ── Rate limit: 3 roadmap generations per hour per user ──────────────────────
+  await checkRateLimit(roadmapGenerationLimiter, user.id, "roadmap generation (3/hour)");
+
   try {
     const roadmap = await prisma.roadmap.create({
       data: {
@@ -263,6 +347,8 @@ export async function createRoadmap({ title, phases, roadmapNodes }) {
         completedSteps: [],
       },
     });
+    // ── Invalidate roadmap list cache so next page load shows new roadmap ────────
+    await invalidateCache(cacheKeys.roadmaps(user.id));
     return { success: true, roadmapId: roadmap.id };
   } catch (error) {
     console.error("Error creating roadmap:", error);
@@ -275,20 +361,26 @@ export async function createRoadmap({ title, phases, roadmapNodes }) {
  */
 export async function getRoadmapsByUser() {
   const user = await getDbUser();
-  try {
-    const roadmaps = await prisma.roadmap.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-    });
-    return roadmaps.map((r) => ({
-      ...r,
-      createdAt: r.createdAt.toISOString(),
-      updatedAt: r.updatedAt.toISOString(),
-    }));
-  } catch (error) {
-    console.error("Error fetching roadmaps:", error);
-    return [];
-  }
+  return cachedQuery({
+    key: cacheKeys.roadmaps(user.id),
+    ttl: 5 * 60, // 5 minutes
+    fn: async () => {
+      try {
+        const roadmaps = await prisma.roadmap.findMany({
+          where: { userId: user.id },
+          orderBy: { createdAt: "desc" },
+        });
+        return roadmaps.map((r) => ({
+          ...r,
+          createdAt: r.createdAt.toISOString(),
+          updatedAt: r.updatedAt.toISOString(),
+        }));
+      } catch (error) {
+        console.error("Error fetching roadmaps:", error);
+        return [];
+      }
+    },
+  });
 }
 
 /**
@@ -336,6 +428,7 @@ export async function deleteRoadmap(id) {
   const user = await getDbUser();
   try {
     await prisma.roadmap.deleteMany({ where: { id, userId: user.id } });
+    await invalidateCache(cacheKeys.roadmaps(user.id));
     return { success: true };
   } catch (error) {
     console.error("Error deleting roadmap:", error);
@@ -348,7 +441,7 @@ export async function deleteRoadmap(id) {
  */
 export async function generateStepInstructions(stepDescription) {
   try {
-    const result = await model.generateContent(
+    const result = await getRoadmapModel().generateContent(
       `Provide 5 clear, actionable instructions for learning: "${stepDescription}".
 Each instruction on a new line, no numbering, no markdown.
 Keep each instruction under 20 words and very practical.`

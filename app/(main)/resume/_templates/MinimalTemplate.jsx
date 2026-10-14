@@ -185,7 +185,7 @@ export function MinimalTemplate({ data }) {
                 <span className="text-black font-semibold uppercase tracking-wide text-[0.88em] shrink-0 pt-px">
                   {category.trim()}
                 </span>
-                <span className="text-gray-400 shrink-0">—</span>
+                <span className="text-gray-400 shrink-0">-</span>
                 <span className="text-gray-900">{details}</span>
               </div>
             );

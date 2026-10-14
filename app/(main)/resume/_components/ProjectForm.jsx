@@ -65,11 +65,11 @@ function ProjectItem({ project, index, onChange, onRemove, errors, touched, onBl
       <div className="space-y-1.5">
         <label className="text-sm font-medium text-foreground">Description</label>
         <textarea
-          rows={3}
+          rows={4}
           value={project.description ?? ""}
           placeholder="What did you build, what tools did you use, and what improved?"
           onChange={(e) => onChange({ description: e.target.value })}
-          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
+          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y"
         />
       </div>
 

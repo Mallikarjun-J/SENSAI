@@ -22,6 +22,7 @@ import {
 import QuizResult from "./quiz-result";
 import { deleteAssessment } from "@/actions/interview";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
+import { formatPlainText } from "@/lib/utils";
 
 export default function QuizList({ assessments }) {
   const router = useRouter();
@@ -104,8 +105,8 @@ export default function QuizList({ assessments }) {
                 </CardHeader>
                 {assessment.improvementTip && (
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      {assessment.improvementTip}
+                    <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-line">
+                      {formatPlainText(assessment.improvementTip)}
                     </p>
                   </CardContent>
                 )}
@@ -115,10 +116,10 @@ export default function QuizList({ assessments }) {
         </CardContent>
       </Card>
 
-      <Dialog open={!!selectedQuiz} onOpenChange={() => setSelectedQuiz(null)} >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-black ">
-          <DialogHeader>
-            <DialogTitle></DialogTitle>
+      <Dialog open={!!selectedQuiz} onOpenChange={() => setSelectedQuiz(null)}>
+        <DialogContent className="w-[95vw] sm:max-w-3xl md:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto bg-zinc-950 border border-white/10 p-4 sm:p-6 md:p-8">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Quiz Results</DialogTitle>
           </DialogHeader>
           <QuizResult
             result={selectedQuiz}

@@ -17,6 +17,7 @@ import useFetch from "@/hooks/use-fetch";
 import { BarLoader } from "react-spinners";
 import { Loader2 } from "lucide-react";
 import QuizResult from "./quiz-result";
+import { formatPlainText } from "@/lib/utils";
 
 
 export default function Quiz() {
@@ -93,10 +94,10 @@ export default function Quiz() {
     return <BarLoader className="mt-4" width={"100%"} color="gray" />;
   }
 
-//   Show results if quiz is completed
+  // Show results if quiz is completed
   if (resultData) {
     return (
-      <div className="mx-2">
+      <div className="w-full max-w-4xl lg:max-w-5xl mx-auto space-y-6">
         <QuizResult result={resultData} onStartNew={startNewQuiz} />
       </div>
     );
@@ -104,18 +105,20 @@ export default function Quiz() {
 
   if (!quizData) {
     return (
-      <Card className="mx-2">
-        <CardHeader>
-          <CardTitle>Ready to test your knowledge?</CardTitle>
+      <Card className="w-full max-w-4xl lg:max-w-5xl mx-auto border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] shadow-xl">
+        <CardHeader className="p-6 sm:p-8 border-b border-white/10">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-white">
+            Ready to test your knowledge?
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
+        <CardContent className="p-6 sm:p-8 space-y-4">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
             This quiz contains 10 questions specific to your industry and
             skills. Take your time and choose the best answer for each question.
           </p>
         </CardContent>
-        <CardFooter>
-          <Button onClick={generateQuizFn} className="w-full">
+        <CardFooter className="p-6 sm:p-8 pt-0">
+          <Button onClick={generateQuizFn} className="w-full sm:w-auto font-semibold">
             Start Quiz
           </Button>
         </CardFooter>
@@ -126,48 +129,75 @@ export default function Quiz() {
   const question = quizData[currentQuestion];
 
   return (
-    <Card className="mx-2">
-      <CardHeader>
-        <CardTitle>
-          Question {currentQuestion + 1} of {quizData.length}
+    <Card className="w-full max-w-4xl lg:max-w-5xl mx-auto border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] shadow-xl">
+      <CardHeader className="p-5 sm:p-7 pb-3 sm:pb-4 border-b border-white/10">
+        <CardTitle className="text-base sm:text-lg font-bold text-white">
+          Question {currentQuestion + 1}{" "}
+          <span className="text-muted-foreground font-normal text-sm sm:text-base">
+            of {quizData.length}
+          </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-lg font-medium">{question.question}</p>
+      <CardContent className="p-5 sm:p-7 space-y-6">
+        <p className="text-base sm:text-lg md:text-xl font-medium text-white leading-relaxed whitespace-pre-line">
+          {formatPlainText(question.question)}
+        </p>
         <RadioGroup
           onValueChange={handleAnswer}
           value={answers[currentQuestion]}
-          className="space-y-2"
+          className="space-y-3"
         >
-          {question.options.map((option, index) => (
-            <div key={index} className="flex items-start space-x-2">
-              <RadioGroupItem value={option} id={`option-${index}`} className="mt-0.5 shrink-0" />
-              <Label htmlFor={`option-${index}`} className="leading-snug cursor-pointer">{option}</Label>
-            </div>
-          ))}
+          {question.options.map((option, index) => {
+            const isSelected = answers[currentQuestion] === option;
+            return (
+              <label
+                key={index}
+                htmlFor={`option-${index}`}
+                className={`flex items-start gap-3.5 p-4 rounded-xl border transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-primary/10 border-primary shadow-sm"
+                    : "bg-white/[0.02] border-white/10 hover:border-primary/40 hover:bg-white/[0.04]"
+                }`}
+              >
+                <RadioGroupItem
+                  value={option}
+                  id={`option-${index}`}
+                  className="mt-1 shrink-0"
+                />
+                <span className="text-sm sm:text-base font-medium text-zinc-100 flex-1 leading-relaxed">
+                  {formatPlainText(option)}
+                </span>
+              </label>
+            );
+          })}
         </RadioGroup>
 
         {showExplanation && (
-          <div className="mt-4 p-4 bg-muted rounded-lg">
-            <p className="font-medium">Explanation:</p>
-            <p className="text-muted-foreground">{question.explanation}</p>
+          <div className="mt-4 p-4 sm:p-5 bg-zinc-900/70 border border-white/10 rounded-xl space-y-1.5">
+            <p className="font-semibold text-sm text-primary">Explanation:</p>
+            <p className="text-zinc-300 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+              {formatPlainText(question.explanation)}
+            </p>
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between">
-        {!showExplanation && (
+      <CardFooter className="p-5 sm:p-7 pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/10">
+        {!showExplanation ? (
           <Button
             onClick={() => setShowExplanation(true)}
             variant="outline"
             disabled={!answers[currentQuestion]}
+            className="w-full sm:w-auto"
           >
             Show Explanation
           </Button>
+        ) : (
+          <div className="hidden sm:block" />
         )}
         <Button
           onClick={handleNext}
           disabled={!answers[currentQuestion] || savingResult}
-          className="ml-auto"
+          className="w-full sm:w-auto ml-auto font-semibold"
         >
           {savingResult && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

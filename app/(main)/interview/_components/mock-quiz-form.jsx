@@ -96,9 +96,9 @@ export default function MockQuizForm({
 
   return (
     <div className="w-full flex items-start justify-center px-0 py-2">
-      <div className="w-full max-w-3xl">
-        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D]">
-          <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-7">
+      <div className="w-full max-w-4xl lg:max-w-5xl">
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] shadow-xl">
+          <form onSubmit={handleSubmit} className="p-5 sm:p-8 md:p-10 flex flex-col gap-6 sm:gap-7">
 
             {/* Subject / Topic */}
             <div className="relative flex flex-col gap-2">

@@ -40,7 +40,15 @@ function ExpItem({ exp, index, onChange, onRemove, errors, touched, onTouch }) {
   const err = (field) => (touched[`${index}.${field}`] ? errors[`${index}.${field}`] : null);
 
   const handleDateChange = (field, val) => {
-    onChange({ [field]: val });
+    if (field === "endDate") {
+      if (val === "Present") {
+        onChange({ endDate: "", isCurrent: true });
+      } else {
+        onChange({ endDate: val, isCurrent: false });
+      }
+    } else {
+      onChange({ [field]: val });
+    }
     onTouch(index, field);
   };
 
@@ -74,6 +82,9 @@ function ExpItem({ exp, index, onChange, onRemove, errors, touched, onTouch }) {
           <MonthYearPicker
             value={exp.startDate ?? ""}
             onChange={(val) => handleDateChange("startDate", val)}
+            allowFuture
+            allowPresent
+            allowYearOnly
           />
           <FieldError msg={err("startDate")} />
         </Field>
@@ -81,9 +92,11 @@ function ExpItem({ exp, index, onChange, onRemove, errors, touched, onTouch }) {
         {/* End Date */}
         <Field label="End Date">
           <MonthYearPicker
-            value={exp.endDate ?? ""}
+            value={exp.isCurrent ? "Present" : (exp.endDate ?? "")}
             onChange={(val) => handleDateChange("endDate", val)}
-            disabled={exp.isCurrent}
+            allowFuture
+            allowPresent
+            allowYearOnly
           />
           <FieldError msg={err("endDate")} />
         </Field>
@@ -105,12 +118,14 @@ function ExpItem({ exp, index, onChange, onRemove, errors, touched, onTouch }) {
       {/* Description */}
       <Field label="Description">
         <textarea
-          rows={4}
+          rows={5}
           value={exp.description ?? ""}
+          placeholder="• Spearheaded development of...&#10;• Reduced latency by 35% by implementing Redis caching...&#10;• Collaborated with cross-functional teams to deliver key features..."
           onChange={(e) => onChange({ description: e.target.value })}
-          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
+          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y"
         />
       </Field>
+
 
       <div className="flex justify-between items-center">
         <button

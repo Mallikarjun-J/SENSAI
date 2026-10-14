@@ -65,166 +65,164 @@ export default function AnalysisCard({ analysis }) {
   };
 
   return (
-    <Link href={`/resume-analyzer/${analysis.id}`}>
-      <div className="group rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] overflow-hidden flex flex-col h-full hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/5 relative">
+    <div className="group rounded-2xl border border-white/10 bg-gradient-to-b from-[#1A1C20] to-[#08090D] overflow-hidden flex flex-col h-full hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/5 relative">
 
-        {/* Score stripe at top */}
-        <div className={`h-0.5 w-full ${isPending ? "bg-white/10 animate-pulse" : isError ? "bg-white/5" : `bg-gradient-to-r ${info?.stripe} to-transparent`}`} />
+      {/* Score stripe at top */}
+      <div className={`h-0.5 w-full ${isPending ? "bg-white/10 animate-pulse" : isError ? "bg-white/5" : `bg-gradient-to-r ${info?.stripe} to-transparent`}`} />
 
-
-
-        <div className="p-4 flex flex-col flex-1">
-          {/* Header */}
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center font-bold text-black text-xs shrink-0">
-                {getInitials(analysis.companyName)}
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-sm text-white truncate">{analysis.companyName}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 truncate">{analysis.jobTitle}</p>
-              </div>
+      {/* Clickable body — navigates to analysis detail */}
+      <Link href={`/resume-analyzer/${analysis.id}`} className="flex flex-col flex-1 p-4">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center font-bold text-black text-xs shrink-0">
+              {getInitials(analysis.companyName)}
             </div>
-
-            {isPending ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 shrink-0">
-                <Loader2 className="w-3 h-3 text-muted-foreground animate-spin" />
-                <span className="text-[10px] text-muted-foreground">Analyzing</span>
-              </div>
-            ) : isError ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 shrink-0">
-                <AlertCircle className="w-3 h-3 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground">Error</span>
-              </div>
-            ) : (
-              <ScoreArc score={score} />
-            )}
+            <div className="min-w-0">
+              <p className="font-semibold text-sm text-white truncate">{analysis.companyName}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">{analysis.jobTitle}</p>
+            </div>
           </div>
 
-          {/* Preview — PDF canvas thumbnail if uploaded, or Builder badge if from builder */}
-          {analysis.resumeUrl?.startsWith("http") ? (
-            <div className="flex-1 rounded-lg overflow-hidden border border-white/5 aspect-[3/4] mb-4 relative bg-white/[0.02]">
-              <PdfThumbnail
-                url={analysis.resumeUrl}
-                className="w-full h-full"
-              />
+          {isPending ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 shrink-0">
+              <Loader2 className="w-3 h-3 text-muted-foreground animate-spin" />
+              <span className="text-[10px] text-muted-foreground">Analyzing</span>
+            </div>
+          ) : isError ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 shrink-0">
+              <AlertCircle className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[10px] text-muted-foreground">Error</span>
             </div>
           ) : (
-            <div className="flex-1 rounded-lg overflow-hidden border border-zinc-200/80 aspect-[3/4] mb-4 relative bg-white text-zinc-900 p-3.5 shadow-sm select-none flex flex-col justify-between">
-              {/* Top document strip: Resume Name + Builder pill */}
-              <div>
-                <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-zinc-200/90">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <FileText className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                    <span className="text-[11px] font-bold text-zinc-900 truncate tracking-tight">
-                      {analysis.resumeTitle || "SensAI Resume"}
-                    </span>
-                  </div>
-                  <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
-                    Builder
-                  </span>
-                </div>
-
-                {/* Simulated Realistic Document Body */}
-                <div className="mt-2.5 space-y-2">
-                  {/* Candidate Header line */}
-                  <div className="text-center pb-1 border-b border-zinc-100">
-                    <div className="h-2 bg-zinc-800 rounded-sm w-24 mx-auto mb-1" />
-                    <div className="h-1 bg-zinc-400 rounded-sm w-16 mx-auto" />
-                  </div>
-
-                  {/* Summary Block */}
-                  <div>
-                    <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
-                      Summary
-                    </span>
-                    <div className="space-y-0.5">
-                      <div className="h-1 bg-zinc-300 rounded-sm w-full" />
-                      <div className="h-1 bg-zinc-300 rounded-sm w-4/5" />
-                    </div>
-                  </div>
-
-                  {/* Experience Block */}
-                  <div>
-                    <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
-                      Experience
-                    </span>
-                    <div className="space-y-0.5">
-                      <div className="flex justify-between items-center">
-                        <div className="h-1 bg-zinc-600 rounded-sm w-16" />
-                        <div className="h-1 bg-zinc-300 rounded-sm w-6" />
-                      </div>
-                      <div className="h-1 bg-zinc-300 rounded-sm w-full" />
-                      <div className="h-1 bg-zinc-300 rounded-sm w-5/6" />
-                    </div>
-                  </div>
-
-                  {/* Skills Block */}
-                  <div>
-                    <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
-                      Skills
-                    </span>
-                    <div className="flex flex-wrap gap-1 mt-0.5">
-                      <div className="h-1.5 bg-zinc-200 rounded-sm w-7" />
-                      <div className="h-1.5 bg-zinc-200 rounded-sm w-9" />
-                      <div className="h-1.5 bg-zinc-200 rounded-sm w-6" />
-                      <div className="h-1.5 bg-zinc-200 rounded-sm w-8" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom footer bar of document */}
-              <div className="pt-2 border-t border-zinc-200/80 flex items-center justify-between text-[8px] text-zinc-500 font-medium">
-                <span className="truncate">SensAI Resume</span>
-                <span className="capitalize shrink-0">{analysis.resumeTemplate || "Classic"}</span>
-              </div>
-            </div>
+            <ScoreArc score={score} />
           )}
-
-          {/* Footer row */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Calendar className="w-3.5 h-3.5" />
-              {new Date(analysis.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-            </div>
-            {!isPending && !isError && (
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${info?.badge}`}>
-                {score}/100
-              </span>
-            )}
-          </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
-          <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-            <ConfirmDeleteDialog
-              trigger={
-                <button
-                  disabled={deleting}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                >
-                  {deleting
-                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    : <Trash2 className="w-3.5 h-3.5" />}
-                  {deleting ? "Deleting…" : "Delete"}
-                </button>
-              }
-              title={`Delete analysis for ${analysis.jobTitle}?`}
-              description={`Are you sure you want to delete the analysis for ${analysis.jobTitle} at ${analysis.companyName}? This action cannot be undone.`}
-              onConfirm={handleDelete}
-              loading={deleting}
+        {/* Preview — PDF canvas thumbnail if uploaded, or Builder badge if from builder */}
+        {analysis.resumeUrl?.startsWith("http") ? (
+          <div className="flex-1 rounded-lg overflow-hidden border border-white/5 aspect-[3/4] mb-4 relative bg-white/[0.02]">
+            <PdfThumbnail
+              url={analysis.resumeUrl}
+              className="w-full h-full"
             />
           </div>
-          <div className="flex items-center gap-1.5 pointer-events-none">
-            <span className="text-xs text-muted-foreground">
-              {isPending ? "Processing..." : isError ? "Failed" : "View analysis"}
-            </span>
-            <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+        ) : (
+          <div className="flex-1 rounded-lg overflow-hidden border border-zinc-200/80 aspect-[3/4] mb-4 relative bg-white text-zinc-900 p-3.5 shadow-sm select-none flex flex-col justify-between">
+            {/* Top document strip: Resume Name + Builder pill */}
+            <div>
+              <div className="flex items-center justify-between gap-1.5 pb-2 border-b border-zinc-200/90">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <FileText className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                  <span className="text-[11px] font-bold text-zinc-900 truncate tracking-tight">
+                    {analysis.resumeTitle || "SensAI Resume"}
+                  </span>
+                </div>
+                <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 border border-purple-200">
+                  Builder
+                </span>
+              </div>
+
+              {/* Simulated Realistic Document Body */}
+              <div className="mt-2.5 space-y-2">
+                {/* Candidate Header line */}
+                <div className="text-center pb-1 border-b border-zinc-100">
+                  <div className="h-2 bg-zinc-800 rounded-sm w-24 mx-auto mb-1" />
+                  <div className="h-1 bg-zinc-400 rounded-sm w-16 mx-auto" />
+                </div>
+
+                {/* Summary Block */}
+                <div>
+                  <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                    Summary
+                  </span>
+                  <div className="space-y-0.5">
+                    <div className="h-1 bg-zinc-300 rounded-sm w-full" />
+                    <div className="h-1 bg-zinc-300 rounded-sm w-4/5" />
+                  </div>
+                </div>
+
+                {/* Experience Block */}
+                <div>
+                  <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                    Experience
+                  </span>
+                  <div className="space-y-0.5">
+                    <div className="flex justify-between items-center">
+                      <div className="h-1 bg-zinc-600 rounded-sm w-16" />
+                      <div className="h-1 bg-zinc-300 rounded-sm w-6" />
+                    </div>
+                    <div className="h-1 bg-zinc-300 rounded-sm w-full" />
+                    <div className="h-1 bg-zinc-300 rounded-sm w-5/6" />
+                  </div>
+                </div>
+
+                {/* Skills Block */}
+                <div>
+                  <span className="text-[8px] font-bold tracking-widest text-zinc-700 block uppercase mb-0.5">
+                    Skills
+                  </span>
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    <div className="h-1.5 bg-zinc-200 rounded-sm w-7" />
+                    <div className="h-1.5 bg-zinc-200 rounded-sm w-9" />
+                    <div className="h-1.5 bg-zinc-200 rounded-sm w-6" />
+                    <div className="h-1.5 bg-zinc-200 rounded-sm w-8" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom footer bar of document */}
+            <div className="pt-2 border-t border-zinc-200/80 flex items-center justify-between text-[8px] text-zinc-500 font-medium">
+              <span className="truncate">SensAI Resume</span>
+              <span className="capitalize shrink-0">{analysis.resumeTemplate || "Classic"}</span>
+            </div>
           </div>
+        )}
+
+        {/* Date + score badge */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Calendar className="w-3.5 h-3.5" />
+            {new Date(analysis.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          </div>
+          {!isPending && !isError && (
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${info?.badge}`}>
+              {score}/100
+            </span>
+          )}
         </div>
+      </Link>
+
+      {/* Footer — NOT inside Link so delete is fully isolated from navigation */}
+      <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
+        <ConfirmDeleteDialog
+          trigger={
+            <button
+              disabled={deleting}
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:text-red-400 hover:bg-red-400/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              {deleting
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Trash2 className="w-3.5 h-3.5" />}
+              {deleting ? "Deleting…" : "Delete"}
+            </button>
+          }
+          title={`Delete analysis for ${analysis.jobTitle}?`}
+          description={`Are you sure you want to delete the analysis for ${analysis.jobTitle} at ${analysis.companyName}? This action cannot be undone.`}
+          onConfirm={handleDelete}
+          loading={deleting}
+        />
+        <Link
+          href={`/resume-analyzer/${analysis.id}`}
+          className="flex items-center gap-1.5"
+        >
+          <span className="text-xs text-muted-foreground">
+            {isPending ? "Processing..." : isError ? "Failed" : "View analysis"}
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+        </Link>
       </div>
-    </Link>
+    </div>
   );
 }

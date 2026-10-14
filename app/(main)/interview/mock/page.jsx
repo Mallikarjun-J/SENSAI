@@ -33,7 +33,7 @@ export default async function MockInterviewPage() {
   const defaultTopic = industryToTopic(dbUser?.industry);
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-4xl lg:max-w-5xl mx-auto space-y-6">
       <div className="flex flex-col gap-2">
         <Link href="/interview">
           <Button variant="link" className="gap-2 pl-0">
@@ -44,7 +44,7 @@ export default async function MockInterviewPage() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold gradient-title">
           Mock Quiz
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Configure your quiz and let AI generate targeted MCQ questions for you.
         </p>
       </div>
