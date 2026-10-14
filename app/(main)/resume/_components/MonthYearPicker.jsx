@@ -50,9 +50,9 @@ function getDisplayText(parsed) {
 export function MonthYearPicker({
   value = "",
   onChange,
-  allowFuture  = false,
-  allowPresent = false,
-  allowYearOnly = false,
+  allowFuture  = true,
+  allowPresent = true,
+  allowYearOnly = true,
   disabled = false,
 }) {
   const parsed = parseValue(value);

@@ -6,13 +6,22 @@ import { generateObject } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
 import { feedbackSchema } from "@/constants/interview";
+import { cachedQuery, invalidateCache, cacheKeys } from "@/lib/db-cache";
+import { formatPlainText } from "@/lib/utils";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+import { AI_CONFIG } from "@/lib/ai-config";
 
-const googleAI = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
+function getInterviewModel() {
+  const { apiKey, model } = AI_CONFIG.interview;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model });
+}
+
+function getInterviewSdkModel() {
+  const { apiKey, model } = AI_CONFIG.interview;
+  const googleAI = createGoogleGenerativeAI({ apiKey });
+  return googleAI(model);
+}
 
 // ─── Existing Quiz Actions ─────────────────────────────────────────────────────
 
@@ -52,18 +61,22 @@ export async function generateQuiz({
       ? "Questions should be challenging and require deep expertise."
       : "Questions should be moderate — suitable for someone with working experience.";
 
-  const prompt = `Generate ${questionCount} multiple-choice interview questions on the subject: "${resolvedTopic}".
+  const prompt = `You are a senior engineer at a competitive tech company designing a screening quiz for a ${resolvedTopic} position. Your questions should reliably distinguish candidates who genuinely understand the subject from those who have only memorized surface-level facts, No Markdown.
 
 ${typeInstruction}
 ${difficultyInstruction}
 ${topicsLine}
 
-Rules:
-- Each question must have exactly 4 options.
-- Only one option is correct.
-- Provide a clear, concise explanation for the correct answer.
-- Do NOT repeat questions.
-- Questions must directly relate to "${resolvedTopic}".
+Generate ${questionCount} multiple-choice questions.
+
+Question Standards:
+- Each question must test understanding, not just recall. Questions that a candidate could answer by memorizing a definition without truly understanding the concept are poor questions.
+- Write options that include plausible wrong answers — common misconceptions, edge case confusions, or subtly incorrect variations. Obvious wrong answers make questions trivial.
+- The explanation for the correct answer must state clearly WHY the other options are wrong, not just why the correct one is right. This teaches the candidate what they missed.
+- Questions must be directly relevant to "${resolvedTopic}" — no tangential topics, no trivia.
+- Each question must have exactly 4 options. Only one is correct.
+- Do NOT repeat questions or rephrase the same concept twice.
+- STRICT: Output ONLY plain text for question, options, and explanation. Never use markdown formatting (no asterisks **, no bullet points, no backticks).
 
 Return ONLY this JSON (no markdown, no extra text):
 {
@@ -78,12 +91,17 @@ Return ONLY this JSON (no markdown, no extra text):
 }`;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await getInterviewModel().generateContent(prompt);
     const response = result.response;
     const text = response.text();
     const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
     const quiz = JSON.parse(cleanedText);
-    return quiz.questions;
+    return (quiz.questions || []).map((q) => ({
+      question: formatPlainText(q.question),
+      options: (q.options || []).map((opt) => formatPlainText(opt)),
+      correctAnswer: formatPlainText(q.correctAnswer),
+      explanation: formatPlainText(q.explanation),
+    }));
   } catch (error) {
     console.error("Error generating quiz:", error);
     throw new Error("Failed to generate quiz questions");
@@ -119,20 +137,24 @@ export async function saveQuizResult(questions, answers, score){
       )
       .join("\n\n");
 
-      const improvementPrompt = `
-      The user got the following ${user.industry} technical interview questions wrong:
+      const improvementPrompt = `You are a senior technical interviewer reviewing candidate quiz results for a ${user.industry} position.
+The candidate missed the following questions:
 
-      ${wrongQuestionsText}
+${wrongQuestionsText}
 
-      Based on these mistakes, provide a concise, specific improvement tip.
-      Focus on the knowledge gaps revealed by these wrong answers.
-      Keep the response under 2 sentences and make it encouraging.
-      Don't explicitly mention the mistakes, instead focus on what to learn/practice.
-    `;
+Task: Write a concise, actionable improvement recommendation summarizing the primary technical knowledge gaps and the specific concepts the candidate must study.
+
+STRICT FORMATTING REQUIREMENTS:
+- Return ONLY plain normal text.
+- Do NOT use ANY markdown formatting (no bold **, no italics *, no headers #, no bullet points, no backticks).
+- Synthesize the core pattern of weaknesses across all missed questions into 2–3 cohesive sentences. Do NOT break down the response question-by-question.
+- Do NOT include any introductory preamble, greeting, or meta-commentary (e.g., do NOT write "Here are the tips", "Based on your answers", "Knowledge gap:").
+- Start directly with the recommendation itself.`;
 
     try {
-      const tipResult = await model.generateContent(improvementPrompt);
-      improvementTip = tipResult.response.text().trim();
+      const tipResult = await getInterviewModel().generateContent(improvementPrompt);
+      const rawTip = tipResult.response.text().trim();
+      improvementTip = formatPlainText(rawTip);
     } catch (error) {
       console.error("Error generating improvement tip:", error);
     }
@@ -147,7 +169,9 @@ export async function saveQuizResult(questions, answers, score){
                 category: "Technical",
                 improvementTip,
             }
-        }) 
+        })
+        // ── Invalidate cached assessment list so next page load is fresh ─────────
+        await invalidateCache(cacheKeys.assessments(user.id));
         return assessment;
   }catch(error){
         console.error("Error saving quiz result:", error.code ?? "unknown");
@@ -165,16 +189,22 @@ export async function getAssessments() {
 
   if (!user) throw new Error("User not found");
 
-  try {
-      const assessments = await prisma.assessment.findMany({
-        where: { userId: user.id },
-        orderBy: { createdAt: "desc" }
-      });
-      return assessments;
-  } catch (error) {
-    console.error("Error fetching assessment:", error.code ?? "unknown");
-    throw new Error("Failed to Fetch the assessments");
-  }
+  return cachedQuery({
+    key: cacheKeys.assessments(user.id),
+    ttl: 5 * 60, // 5 minutes
+    fn: async () => {
+      try {
+        const assessments = await prisma.assessment.findMany({
+          where: { userId: user.id },
+          orderBy: { createdAt: "desc" },
+        });
+        return assessments;
+      } catch (error) {
+        console.error("Error fetching assessment:", error.code ?? "unknown");
+        throw new Error("Failed to Fetch the assessments");
+      }
+    },
+  });
 }
 
 export async function deleteAssessment(assessmentId) {
@@ -185,6 +215,7 @@ export async function deleteAssessment(assessmentId) {
   if (!user) throw new Error("User not found");
 
   await prisma.assessment.deleteMany({ where: { id: assessmentId, userId: user.id } });
+  await invalidateCache(cacheKeys.assessments(user.id));
   return { success: true };
 }
 
@@ -217,25 +248,30 @@ export async function generateVoiceInterviewQuestions({ role, level, type, techs
       : "Mix both technical questions (60%) and behavioral questions (40%).";
 
   const { object } = await generateObject({
-    model: googleAI("gemini-2.5-flash"),
+    model: getInterviewSdkModel(),
     schema: z.object({
       questions: z.array(z.string()).min(1).max(15).describe("List of interview questions"),
     }),
-    prompt: `You are an expert interviewer. Generate exactly ${amount} high-quality interview questions for a ${level}-level ${role} position.
+    prompt: `You are a hiring manager at a competitive tech company conducting a live interview for a ${level}-level ${role} position. Your goal is to assess whether this candidate is genuinely qualified — not to make them comfortable.
 
 ${techContext}
 
 Interview Type: ${type}
 ${typeGuide}
 
-Requirements:
-- Questions should be clear, concise, and relevant to the role and level
-- Vary the difficulty appropriately for a ${level} candidate
+Generate exactly ${amount} questions that will reveal whether this candidate has real depth or surface-level knowledge.
+
+Standards:
+- Questions must be direct and specific — vague questions produce vague answers that tell you nothing
+- Calibrate precisely to ${level} level: a Junior question asked to a Senior signals poor preparation; a Senior question asked to a Junior is equally unhelpful
+- Avoid questions with textbook answers — prefer questions where weak candidates reveal gaps and strong candidates demonstrate genuine understanding
+- For technical questions: probe the "why" and "when" not just the "what" — anyone can memorize definitions
+- For behavioral questions: ask about specific real situations, not hypotheticals — "Tell me about a time when..." surfaces real experience
 - Do NOT number the questions
-- Do NOT include answers
+- Do NOT include answers or hints
 - Return exactly ${amount} questions`,
     system:
-      "You are an expert technical interviewer. Generate precise, relevant interview questions tailored to the role, level, and tech stack provided.",
+      "You are an experienced technical hiring manager. Your questions are precise, role-appropriate, and designed to distinguish candidates with genuine expertise from those with surface-level familiarity. You ask questions that weak candidates cannot bluff through, No Markdown.",
   });
 
   return object.questions.slice(0, amount);
@@ -322,15 +358,13 @@ export async function generateResumeJDInterviewQuestions({ resumeId, resumeText,
   }
 
   const { object } = await generateObject({
-    model: googleAI("gemini-2.5-flash"),
+    model: getInterviewSdkModel(),
     schema: z.object({
       role: z.string().describe("The target job title or role extracted from the job description"),
       techstack: z.array(z.string()).describe("Key technologies and skills required by the job description"),
       questions: z.array(z.string()).min(1).max(15).describe("List of tailored interview questions"),
     }),
-    prompt: `You are an expert technical hiring manager and interviewer conducting a live voice interview for a ${level}-level candidate.
-
-Analyze the candidate's resume and the job description provided below:
+    prompt: `You are a senior hiring manager who has reviewed this candidate's resume and the job description below. You are preparing for a live voice interview with this candidate. Your objective is to efficiently determine whether they are a genuine fit — or whether there are critical gaps that would disqualify them.
 
 === CANDIDATE RESUME ===
 ${finalResumeText.slice(0, 15000)}
@@ -339,22 +373,23 @@ ${finalResumeText.slice(0, 15000)}
 ${jdText.slice(0, 10000)}
 
 Your Task:
-1. Extract the primary Job Title / Role from the job description (e.g. "Senior Frontend Engineer", "DevOps Specialist", "Full Stack Developer").
-2. Extract the key tech stack / primary skills (up to 8 items) required by the job description.
-3. Generate exactly ${amount} interview questions tailored specifically to this candidate and this job opening:
-   - Identify intersection points: probe the candidate's real experience on projects or roles on their resume that match JD requirements.
-   - Probe skill gaps: if the JD requires key tools or skills that are absent or lightly mentioned in the resume, ask how they would handle or learn them.
-   - Assess domain experience: ask scenario-based questions addressing the specific responsibilities in the job description.
-   - Calibrate difficulty and expectations to a ${level}-level candidate.
-   - Mix technical and behavioral questions naturally.
+1. Extract the primary Job Title / Role from the job description.
+2. Extract the key tech stack / primary skills (up to 8 items) required by the job.
+3. Generate exactly ${amount} interview questions that cut to what matters for this specific candidate and this specific role:
+   - Probe experience intersections: where the candidate's resume claims experience the JD requires — verify depth, not just presence. Anyone can write keywords; few can answer follow-up questions.
+   - Expose skill gaps: if the JD requires tools or skills that are absent or thin on the resume, ask directly how the candidate would handle that gap or how quickly they could close it.
+   - Test scenario judgment: use the specific responsibilities from the JD to frame real-world situations — assess decision-making and prioritization, not recall.
+   - Calibrate to ${level} level throughout.
+   - Mix technical and behavioral questions naturally — use behavioral framing where the JD emphasizes team or leadership dimensions.
 
 Requirements:
-- Questions must be clear, concise, and natural for spoken voice conversation.
-- Do NOT number the questions (no "1.", "2.", etc.).
-- Do NOT include answers or hints.
-- Return exactly ${amount} questions.`,
+- Questions must be natural for spoken voice conversation — not academic or essay-style
+- Each question should be answerable in 60–120 seconds by a strong candidate
+- Do NOT number the questions
+- Do NOT include answers or hints
+- Return exactly ${amount} questions`,
     system:
-      "You are an expert technical interviewer. Generate precise, insightful interview questions by cross-referencing candidate resumes with job descriptions.",
+      "You are a senior technical hiring manager conducting a structured interview. You cross-reference resumes with job descriptions to identify where candidates are strong, where they are thin, and where they may be overstating experience. Your questions are specific, direct, and designed to surface real competence.",
   });
 
   return {
@@ -363,6 +398,7 @@ Requirements:
     questions: object.questions.slice(0, amount),
   };
 }
+
 
 /**
  * Save a new voice interview session to the database.
@@ -452,56 +488,70 @@ export async function createVoiceFeedback({ interviewId, userId, transcript, fee
       .join("");
 
     const { object } = await generateObject({
-      model: googleAI("gemini-2.5-flash"),
+      model: getInterviewSdkModel(),
       schema: feedbackSchema,
       prompt: `
-        You are a senior technical recruiter and career coach conducting a rigorous evaluation of a mock interview.
-        Read the full transcript carefully and produce a detailed, honest, and specific assessment.
+        You are a panel of three evaluators: a senior technical hiring manager, an experienced HR professional, and a principal engineer. You have just finished reviewing a mock interview transcript. Your goal is to produce an assessment that is honest, grounded in evidence from the transcript, and useful to the candidate — not to make them feel good.
 
-        IMPORTANT STYLE RULE: Write ALL feedback in second person — use "you" and "your" throughout.
-        Never use the candidate's name. Instead of "John did X", write "You did X".
+        CRITICAL STYLE RULE: Write ALL feedback in second person — use "you" and "your" throughout. Never use the candidate's name.
 
         Transcript:
         ${formattedTranscript}
 
-        Score the candidate from 0 to 100 in each area and write a DETAILED comment (minimum 4–6 sentences) for each.
-        Your comments MUST:
-        - Reference specific things the candidate actually said or did in the transcript (quote or paraphrase examples)
-        - Explain WHY the score was given — what was strong and what fell short
-        - Give concrete, actionable advice on how to improve
-        - Be honest and critical — do NOT be overly positive if performance was weak
+        Score the candidate from 0 to 100 in each area. These scores reflect how this candidate would likely perform in a real hiring decision at a competitive company:
+        - 0–40: Would not pass screening — significant gaps that would disqualify in most processes
+        - 41–60: Borderline — might pass at some companies but would not be competitive at strong teams
+        - 61–75: Acceptable — would progress at many companies but needs specific improvements to stand out
+        - 76–90: Strong — would be a competitive candidate at most companies
+        - 91–100: Exceptional — rare performance that would impress even senior interviewers
+
+        Write a DETAILED comment (minimum 4–6 sentences) for each area. Comments MUST:
+        - Quote or closely paraphrase specific things actually said in the transcript — do not invent examples
+        - Explain the hiring impact: how would this answer affect a real hiring decision?
+        - Name the exact gap or strength — not generic categories
+        - Give a concrete, actionable next step — what exactly should the candidate do differently next time?
+        - Be proportionally critical: if performance was weak, the comment must reflect that clearly
 
         Areas to evaluate:
-        - **Communication Skills** (communicationScore / communicationComment): Assess how clearly the candidate articulated ideas, structured their answers, used (or avoided) filler words, and how easy it was to follow their reasoning.
-        - **Technical Knowledge** (technicalScore / technicalComment): Evaluate depth of technical understanding, accuracy of concepts explained, ability to go beyond surface-level answers, and whether they connected knowledge to real scenarios.
-        - **Problem Solving** (problemSolvingScore / problemSolvingComment): Examine how the candidate approached ambiguous or complex questions — did they break problems down, consider trade-offs, show logical thinking, and arrive at sound conclusions?
-        - **Cultural & Role Fit** (culturalFitScore / culturalFitComment): Assess how well the candidate demonstrated alignment with the role's requirements, enthusiasm for the domain, awareness of team dynamics, and whether their motivations matched the opportunity.
-        - **Confidence & Clarity** (confidenceScore / confidenceComment): Evaluate the candidate's self-assurance, poise when faced with difficult questions, clarity of delivery, and how their confidence level evolved through the session.
 
+        Communication Skills (communicationScore / communicationComment):
+        Did the candidate communicate ideas with clarity and structure? Were answers logically sequenced or scattered? Was the pace appropriate for a professional interview setting? Filler words, hedging, and incomplete sentences signal lack of preparation to interviewers — note these specifically if present.
 
-        For each of the 5 categories above, you must ALSO produce:
-        - **improvements** (2–3 items): specific areas to improve within that category.
-        - **strengths** (1–3 items): specific things done well within that category.
+        Technical Knowledge (technicalScore / technicalComment):
+        Did the candidate demonstrate real technical depth, or surface-level familiarity? Could they go beyond definitions to explain trade-offs, edge cases, and real-world application? Interviewers at strong companies will probe further when an answer is shallow — assess whether this candidate could withstand that follow-up.
+
+        Problem Solving (problemSolvingScore / problemSolvingComment):
+        When faced with open-ended or complex questions, did the candidate structure their thinking, or jump to conclusions? Did they consider alternatives, trade-offs, and constraints? Problem-solving ability is one of the strongest signals of long-term performance — assess it rigorously.
+
+        Cultural & Role Fit (culturalFitScore / culturalFitComment):
+        Did the candidate demonstrate genuine understanding of what the role requires — not just technical skills but how the work gets done in a team? Did their examples reflect ownership, collaboration, and alignment with professional expectations? A mismatch here is a fast rejection even for technically strong candidates.
+
+        Confidence & Clarity (confidenceScore / confidenceComment):
+        Was the candidate poised when questions were difficult, or did they retreat, hedge, or trail off? Confidence is assessed not just by tone but by how directly and completely questions were answered. Experienced interviewers distinguish between genuine confidence and rehearsed bluster — assess which was present here.
+
+        For each of the 5 categories, produce:
+        - improvements (2–3 items): specific, named areas to fix within that category
+        - strengths (1–3 items): specific things done well — only if genuinely demonstrated, not as padding
 
         Each bullet item must have:
-        - "title": a short bold label (5–8 words, imperative or noun phrase), e.g. "Go deeper on trade-offs" or "Clear middleware explanation"
-        - "detail": a paragraph (3–5 sentences) that references what the candidate actually said, explains why it matters, and gives a concrete action to take
-        - "seenIn": which question number(s) this relates to, e.g. "Question 3" or "Question 3, Question 8" — reference the numbered transcript exchanges
+        - "title": 5–8 words, imperative or noun phrase — e.g. "Quantify system design trade-offs" or "Structured STAR delivery"
+        - "detail": 3–5 sentences — must cite what was actually said, explain why it matters in a hiring context, and give a specific action to take
+        - "seenIn": which question(s) this relates to — e.g. "Question 3" or "Question 3, Question 8"
 
         Rules for bullets:
-        - Title must be distinct and specific — not a repeat of the category name
-        - Detail must cite what was actually said (paraphrase, do not invent)
-        - Do NOT copy-paste from the category comment — this is a different angle
-        - Write in second person ("You explained...", "You should...")
+        - Title must be distinct from the category name — specific to what happened
+        - Detail must reference the transcript — do not invent or generalize
+        - Write in second person throughout
+        - Do NOT copy-paste from the category comment
 
-        For strengths (global): List 4–5 standout strengths separated by ||| — short, skill-labelled, second person.
-        For areasForImprovement (global): List 4–5 improvement areas separated by ||| — short, skill-labelled, second person.
-        For finalAssessment: 3–5 sentences. Second person only.
+        For strengths (global): 4–5 standout positives separated by ||| — short, skill-labelled, second person. Only list genuine strengths — do not pad.
+        For areasForImprovement (global): 4–5 gaps separated by ||| — short, named precisely, second person. These are the things a hiring manager would note as concerns.
+        For finalAssessment: 3–5 sentences. Give an honest verdict — would this candidate likely pass a real interview at a competitive company at this level? What is the single most important thing to fix before the next interview?
 
-        Be thorough. Vague or generic points are not acceptable.
+        Accuracy matters more than encouragement here.
       `,
       system:
-        "You are a rigorous senior technical recruiter. Your feedback is specific, evidence-based, actionable, and honest. You always cite examples from the transcript. You do not give inflated scores or empty praise.",
+        "You are a rigorous hiring panel evaluating a mock interview. Your feedback is specific, transcript-grounded, and calibrated to real hiring standards. You do not inflate scores, soften criticism, or give empty praise. Every score and comment must reflect what an experienced recruiter or engineering manager would actually think.",
     });
 
     const categoryScores = [

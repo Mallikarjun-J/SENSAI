@@ -107,6 +107,7 @@ export default function RoadmapCanvas({ nodes: rawNodes, completedSteps, onToggl
       {selectedNode && (
         <NodeDetail
           node={selectedNode}
+          allNodes={rawNodes}
           onClose={() => setSelectedNode(null)}
           isCompleted={completedSteps.has(selectedNode.id)}
           onToggleComplete={onToggleStep}

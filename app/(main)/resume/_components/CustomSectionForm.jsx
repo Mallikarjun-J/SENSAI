@@ -253,6 +253,8 @@ export function CustomSectionForm({ value = [], onChange, validateTrigger = 0 })
                             value={range.from}
                             onChange={(val) => updateEntryDate(section.id, entry.id, val, isPresent ? "Present" : range.to)}
                             allowFuture
+                            allowPresent
+                            allowYearOnly
                           />
                         </div>
 
@@ -262,10 +264,17 @@ export function CustomSectionForm({ value = [], onChange, validateTrigger = 0 })
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground/60">To</p>
                           <MonthYearPicker
-                            value={isPresent ? "" : range.to}
-                            onChange={(val) => updateEntryDate(section.id, entry.id, range.from, val)}
+                            value={isPresent ? "Present" : range.to}
+                            onChange={(val) => {
+                              if (val === "Present") {
+                                updateEntryDate(section.id, entry.id, range.from, "Present");
+                              } else {
+                                updateEntryDate(section.id, entry.id, range.from, val);
+                              }
+                            }}
                             allowFuture
-                            disabled={isPresent}
+                            allowPresent
+                            allowYearOnly
                           />
                         </div>
 
@@ -293,7 +302,7 @@ export function CustomSectionForm({ value = [], onChange, validateTrigger = 0 })
                         onChange={(e) => updateEntry(section.id, entry.id, "description", e.target.value)}
                         rows={3}
                         placeholder="Describe this achievement or activity…"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y"
                       />
                       <div className="flex items-center justify-between">
                         <button type="button" disabled={enhancing[entry.id]}

@@ -28,7 +28,7 @@ export function SkillsForm({ value, onChange }) {
           value={raw}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={`Languages: Java, Python, C++, JavaScript, TypeScript\nWeb & Frameworks: React, Next.js, Node.js, Express.js, FastAPI\nDatabases: MySQL, PostgreSQL, MongoDB, Prisma ORM\nAI / ML: LLM Integration (Gemini, Mistral), RAG Pipelines\nCore Concepts: Data Structures & Algorithms, OOP, REST APIs`}
-          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-none font-mono"
+          className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y font-mono"
         />
       </div>
       <div className="rounded-lg border border-dashed border-white/15 p-3 text-xs text-muted-foreground">

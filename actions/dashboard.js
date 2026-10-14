@@ -3,9 +3,15 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { cachedAICall, makeCacheKey } from "@/lib/ai-cache";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+import { AI_CONFIG } from "@/lib/ai-config";
+
+function getDashboardModel() {
+  const { apiKey, model } = AI_CONFIG.dashboard;
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model });
+}
 
 export const generateAIInsights = async (industry) => {
   const prompt = `
@@ -28,12 +34,21 @@ export const generateAIInsights = async (industry) => {
           Include at least 5 skills and trends.
         `;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  const text = response.text();
-  const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+  // ── Cache: industry insights are NOT user-specific — shared across all users ──
+  // Key is just the industry name (normalised). TTL = 24 hours.
+  const cacheKey = makeCacheKey("dashboard:insights", industry.toLowerCase().trim());
 
-  return JSON.parse(cleanedText);
+  return cachedAICall({
+    key: cacheKey,
+    ttl: 24 * 60 * 60, // 24 hours
+    fn: async () => {
+      const result = await getDashboardModel().generateContent(prompt);
+      const response = result.response;
+      const text = response.text();
+      const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+      return JSON.parse(cleanedText);
+    },
+  });
 };
 
 export async function getIndustryInsights() {

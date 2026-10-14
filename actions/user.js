@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { generateAIInsights } from "./dashboard";
+import { AI_CONFIG } from "@/lib/ai-config";
 
 export async function updateUser(data) {
   const { userId } = await auth();
@@ -154,8 +155,9 @@ export async function normalizeSkillTitles(rawTitles = []) {
 
   try {
     const { GoogleGenerativeAI } = await import("@google/generative-ai");
-    const genAI = new GoogleGenerativeAI(process.env.ROADMAP_API);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const { apiKey, model: modelName } = AI_CONFIG.userSkills;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     const aiResult = await model.generateContent(
       `You are a technical recruiter extracting resume-worthy skills.

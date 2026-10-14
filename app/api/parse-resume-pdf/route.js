@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+import { AI_CONFIG } from "@/lib/ai-config";
+
 const RESUME_LIMIT = 5;
 
 const EXTRACT_PROMPT = `Extract resume data from this PDF and return ONLY strict JSON matching exactly this shape (no extra fields, no markdown, no backticks, no commentary):
@@ -66,7 +67,9 @@ export async function POST(request) {
     const pdfBase64 = Buffer.from(bytes).toString("base64");
 
     // ── Gemini extraction ────────────────────────────────────────────────────────
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const { apiKey, model: modelName } = AI_CONFIG.resumeParser;
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
     const result = await model.generateContent({
       contents: [
         {

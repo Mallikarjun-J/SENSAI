@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import prisma from "@/lib/prisma";
 import { analyzeResumeWithGemini, analyzeResumeWithGeminiText } from "@/lib/resume-ai";
 import { UTApi } from "uploadthing/server";
+import { resumeAnalysisLimiter, checkRateLimit } from "@/lib/rate-limit";
+import { cachedQuery, invalidateCache, cacheKeys } from "@/lib/db-cache";
 
 // ─── Auth helper ──────────────────────────────────────────────────────────────
 
@@ -40,6 +42,9 @@ export async function createResumeAnalysis({ companyName, jobTitle, jobDescripti
 
 export async function analyzeResumeAction(analysisId) {
   const user = await getDbUser();
+
+  // ── Rate limit: 5 resume analyses per hour per user ──────────────────────────
+  await checkRateLimit(resumeAnalysisLimiter, user.id, "resume analysis (5/hour)");
 
   const analysis = await prisma.resumeAnalysis.findFirst({
     where: { id: analysisId, userId: user.id },
@@ -85,42 +90,48 @@ export async function analyzeResumeAction(analysisId) {
 export async function getResumeAnalyses() {
   const user = await getDbUser();
 
-  const analyses = await prisma.resumeAnalysis.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      companyName: true,
-      jobTitle: true,
-      resumeUrl: true,
-      resumeKey: true,
-      overallScore: true,
-      status: true,
-      createdAt: true,
-      feedback: true,
+  return cachedQuery({
+    key: cacheKeys.analyses(user.id),
+    ttl: 5 * 60, // 5 minutes
+    fn: async () => {
+      const analyses = await prisma.resumeAnalysis.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          companyName: true,
+          jobTitle: true,
+          resumeUrl: true,
+          resumeKey: true,
+          overallScore: true,
+          status: true,
+          createdAt: true,
+          feedback: true,
+        },
+      });
+
+      // For any builder analyses, fetch the resume title and template
+      const builderResumeIds = analyses
+        .filter((a) => a.resumeUrl === "builder" && a.resumeKey)
+        .map((a) => a.resumeKey);
+
+      let resumeMap = {};
+      if (builderResumeIds.length > 0) {
+        const resumes = await prisma.resume.findMany({
+          where: { id: { in: builderResumeIds } },
+          select: { id: true, title: true, template: true },
+        });
+        resumeMap = Object.fromEntries(resumes.map((r) => [r.id, r]));
+      }
+
+      return analyses.map((a) => ({
+        ...a,
+        resumeTitle: resumeMap[a.resumeKey]?.title || (a.feedback?.resumeTitle ?? "SensAI Resume"),
+        resumeTemplate: resumeMap[a.resumeKey]?.template || "Standard",
+        createdAt: a.createdAt.toISOString(),
+      }));
     },
   });
-
-  // For any builder analyses, fetch the resume title and template
-  const builderResumeIds = analyses
-    .filter((a) => a.resumeUrl === "builder" && a.resumeKey)
-    .map((a) => a.resumeKey);
-
-  let resumeMap = {};
-  if (builderResumeIds.length > 0) {
-    const resumes = await prisma.resume.findMany({
-      where: { id: { in: builderResumeIds } },
-      select: { id: true, title: true, template: true },
-    });
-    resumeMap = Object.fromEntries(resumes.map((r) => [r.id, r]));
-  }
-
-  return analyses.map((a) => ({
-    ...a,
-    resumeTitle: resumeMap[a.resumeKey]?.title || (a.feedback?.resumeTitle ?? "SensAI Resume"),
-    resumeTemplate: resumeMap[a.resumeKey]?.template || "Standard",
-    createdAt: a.createdAt.toISOString(),
-  }));
 }
 
 // ─── Get single analysis ──────────────────────────────────────────────────────
@@ -181,15 +192,9 @@ export async function deleteResumeAnalysis(id) {
     where: { id, userId: user.id },
   });
 
+  await invalidateCache(cacheKeys.analyses(user.id));
   revalidatePath("/resume-analyzer");
   return { success: true };
-}
-
-// ─── Get analysis count ───────────────────────────────────────────────────────
-
-export async function getResumeAnalysisCount() {
-  const user = await getDbUser();
-  return prisma.resumeAnalysis.count({ where: { userId: user.id } });
 }
 
 // ─── Helper: Convert Resume Builder JSON → plain text ────────────────────────
@@ -259,6 +264,9 @@ function resumeJsonToText(resume) {
 export async function analyzeResumeFromBuilder({ resumeId, companyName, jobTitle, jobDescription }) {
   const user = await getDbUser();
 
+  // ── Rate limit: shared 5/hour limit with PDF analysis ────────────────────────
+  await checkRateLimit(resumeAnalysisLimiter, user.id, "resume analysis (5/hour)");
+
   // Fetch the resume, verify ownership
   const resume = await prisma.resume.findFirst({
     where: { id: resumeId, userId: user.id },
@@ -292,5 +300,6 @@ export async function analyzeResumeFromBuilder({ resumeId, companyName, jobTitle
   });
 
   revalidatePath("/resume-analyzer");
+  await invalidateCache(cacheKeys.analyses(user.id));
   return { id: analysis.id };
 }

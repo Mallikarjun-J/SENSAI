@@ -13,7 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-export default function NodeDetail({ node, onClose, isCompleted = false, onToggleComplete }) {
+export default function NodeDetail({ node, allNodes = [], onClose, isCompleted = false, onToggleComplete }) {
   const [instructions, setInstructions] = useState([]);
   const [loadingAI, setLoadingAI] = useState(false);
 
@@ -40,6 +40,41 @@ export default function NodeDetail({ node, onClose, isCompleted = false, onToggl
       setLoadingAI(false);
     }
   };
+
+  const effectiveKeyTopics = (() => {
+    if (Array.isArray(node.keyTopics) && node.keyTopics.length > 0) {
+      return node.keyTopics;
+    }
+
+    if (node.isPhase) {
+      const phaseSteps = (allNodes || []).filter(
+        (n) => n.isStep && n.phaseNumber === node.phaseNumber
+      );
+      if (phaseSteps.length > 0) {
+        return phaseSteps.map((s) => s.title);
+      }
+      return [
+        `Core principles & architecture of ${node.title}`,
+        `Standard industry workflows & tooling`,
+        `Production implementation patterns`,
+        `Testing & deployment best practices`,
+      ];
+    }
+
+    if (node.isStep) {
+      const cleanTitle = (node.title || "")
+        .replace(/^(Learn|Master|Understand|Intro to|Introduction to|Build with)\s+/i, "")
+        .trim();
+      return [
+        `Core principles & architecture of ${cleanTitle}`,
+        `Standard tooling & practical workflows`,
+        `Performance, security & best practices`,
+        `Real-world implementation & common pitfalls`,
+      ];
+    }
+
+    return [];
+  })();
 
   return (
     <div className="absolute inset-0 flex items-end sm:items-start justify-center sm:justify-end p-4 pointer-events-none z-10">
@@ -110,17 +145,17 @@ export default function NodeDetail({ node, onClose, isCompleted = false, onToggl
 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
 
-          {/* Must Learn — steps with pre-generated keyTopics */}
-          {node.isStep && node.keyTopics?.length > 0 && (
+          {/* Must Learn — steps and phase milestones */}
+          {effectiveKeyTopics.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2.5">
                 <BookMarked className="w-3.5 h-3.5" style={{ color: "rgba(167,139,250,0.7)" }} />
                 <p className="text-xs font-semibold uppercase tracking-wider text-white/30">
-                  Must Learn
+                  {node.isPhase ? "Phase Milestones & Must Learn" : "Must Learn"}
                 </p>
               </div>
               <ul className="space-y-1.5">
-                {node.keyTopics.map((topic, i) => (
+                {effectiveKeyTopics.map((topic, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-white/65">
                     <span
                       className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0"
