@@ -80,6 +80,13 @@ function mountLetsScroll(container, config) {
   const N = SECTIONS.length;
   if (!N) return;
 
+  // Read viewport/scroll ONCE, before any DOM or style writes. Reading these after
+  // injectCSS()/appendChild forces a synchronous layout (Lighthouse "Forced reflow").
+  // Later reads happen inside scroll/resize handlers, where layout is already clean.
+  const VP0 = { w: window.innerWidth, h: window.innerHeight, y: window.scrollY || window.pageYOffset || 0 };
+  const connInfo = navigator.connection || {};
+  const lowData = !!connInfo.saveData || /(^|-)2g$/.test(connInfo.effectiveType || '');
+
   injectCSS();
   container.classList.add('sw-root');
 
@@ -102,14 +109,14 @@ function mountLetsScroll(container, config) {
   const NSEG = SEGMENTS.length;
 
   // ---- DOM ----
-  const sky = el('div', 'sw-sky');
+  const sky = el('div', 'sw-sky'); sky.setAttribute('aria-hidden', 'true');
   if (config.atmosphere !== false) {
     sky.appendChild(el('div', 'sw-sky__grad'));
     sky.appendChild(el('div', 'sw-sky__glow'));
   }
   const particles = el('div', 'sw-particles'); sky.appendChild(particles);
 
-  const scrollbar = el('div', 'sw-scrollbar');
+  const scrollbar = el('div', 'sw-scrollbar'); scrollbar.setAttribute('aria-hidden', 'true');
   const scrollbarFill = el('span'); scrollbar.appendChild(scrollbarFill);
 
   const topbar = el('div', 'sw-topbar');
@@ -119,16 +126,16 @@ function mountLetsScroll(container, config) {
     const nm = el('span', 'sw-brand__name'); nm.textContent = config.brand.name || ''; brand.appendChild(nm);
     topbar.appendChild(brand);
   }
-  const nav = el('nav', 'sw-nav'); if (config.nav !== false) topbar.appendChild(nav);
+  const nav = el('nav', 'sw-nav'); nav.setAttribute('aria-label', 'Primary'); if (config.nav !== false) topbar.appendChild(nav);
   if (config.cta && config.cta.label) {
     const c = el('a', 'sw-topcta'); c.href = config.cta.href || '#'; c.textContent = config.cta.label;
     topbar.appendChild(c);
   }
 
-  const stage = el('div', 'sw-stage');
+  const stage = el('div', 'sw-stage'); stage.setAttribute('aria-hidden', 'true');
   const copylayer = el('div', 'sw-copylayer');
-  const route = el('div', 'sw-route');
-  const hint = el('div', 'sw-hint');
+  const route = el('nav', 'sw-route'); route.setAttribute('aria-label', 'Sections');
+  const hint = el('div', 'sw-hint'); hint.setAttribute('aria-hidden', 'true');
   const hintText = el('span'); hintText.textContent = config.hint || 'scroll'; hint.appendChild(hintText);
   hint.appendChild(el('i'));
   const track = el('div', 'sw-track');
@@ -136,11 +143,17 @@ function mountLetsScroll(container, config) {
   [sky, scrollbar, topbar, stage, copylayer, route, hint, track].forEach(n => container.appendChild(n));
 
   // segment scenes
-  SEGMENTS.forEach(s => {
+  SEGMENTS.forEach((s, i) => {
     const scene = el('div', 'sw-scene'); scene.style.setProperty('--sw-accent', s.accent || '');
-    const img = el('img', 'sw-scene__still'); img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
-    const poster = (isMobile() && s.stillM) ? s.stillM : s.still;
-    if (poster) img.src = poster;
+    const img = el('img', 'sw-scene__still'); img.alt = ''; img.decoding = 'async';
+    s.poster = (isMobile() && s.stillM) ? s.stillM : s.still;
+    s.imgSet = false;
+    // All scenes are stacked at inset:0, so every <img> is "in the viewport" and loading=lazy
+    // never defers anything. Instead: the first still (the LCP element) loads eagerly at high
+    // priority; the rest get their src later via ensureStill() (see read()).
+    if (i === 0 && s.poster) {
+      img.loading = 'eager'; img.setAttribute('fetchpriority', 'high'); img.src = s.poster; s.imgSet = true;
+    }
     scene.appendChild(img); stage.appendChild(scene);
     s.el = scene; s.img = img; s.video = null; s.hasClip = false;
     s.loading = false; s.ready = false; s.cur = 0; s.target = 0; s.visible = false;
@@ -150,17 +163,20 @@ function mountLetsScroll(container, config) {
   const copies = [], dots = [];
   SECTIONS.forEach((s, i) => {
     const c = el('article', 'sw-copy'); c.style.setProperty('--sw-accent', s.accent || '');
+    const hTag = (i === 0 && config.h1 !== false) ? 'h1' : 'h2';   // one h1 per page
     c.innerHTML =
       `<span class="sw-copy__num">${pad(i + 1)} / ${pad(N)}</span>` +
       (s.eyebrow ? `<span class="sw-copy__eyebrow">${esc(s.eyebrow)}</span>` : '') +
-      (s.title ? `<h2 class="sw-copy__title">${esc(s.title)}</h2>` : '') +
+      (s.title ? `<${hTag} class="sw-copy__title">${esc(s.title)}</${hTag}>` : '') +
       (s.body ? `<p class="sw-copy__body">${esc(s.body)}</p>` : '') +
       (s.tags && s.tags.length ? `<ul class="sw-copy__tags">${s.tags.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '') +
       (s.cta ? `<div class="sw-copy__cta">${ctaBtns(s.cta)}</div>` : '');
+    c._links = c.querySelectorAll('a'); c._on = null;
     copylayer.appendChild(c); copies.push(c);
 
     const dot = el('button', 'sw-route__dot'); dot.style.setProperty('--sw-accent', s.accent || '');
-    dot.innerHTML = `<span class="sw-route__label">${esc(s.label || '')}</span><i></i>`;
+    dot.type = 'button'; dot.setAttribute('aria-label', s.label || ('Section ' + (i + 1)));
+    dot.innerHTML = `<span class="sw-route__label" aria-hidden="true">${esc(s.label || '')}</span><i></i>`;
     dot.addEventListener('click', () => jumpTo(i)); route.appendChild(dot); dots.push(dot);
 
     if (config.nav !== false) {
@@ -176,13 +192,24 @@ function mountLetsScroll(container, config) {
   // (where the copy peaks) and moves quicker near the seams. L=0 linear, L=1 full
   // mid-scene pause. f(0)=0, f(1)=1 always, so seam frames are untouched.
   const lingerEase = (x, L) => { L = clamp(L); const c = x - 0.5; return (1 - L) * x + L * (4 * c * c * c + 0.5); };
-  let vh = window.innerHeight, stageX = 0, totalW = 0, activeIndex = -1, ticking = false;
-  let laidOutW = window.innerWidth;   // width the current layout was computed at (see onResize)
+  let vh = VP0.h, stageX = 0, totalW = 0, activeIndex = -1, ticking = false;
+  let scrollYc = VP0.y;               // cached scroll position: read() never calls a layout-forcing getter
+  let laidOutW = VP0.w;               // width the current layout was computed at (see onResize)
 
-  function layout() {
-    vh = window.innerHeight;
-    laidOutW = window.innerWidth;
-    stageX = window.innerWidth > 860 ? 4 : 0;
+  // Network gates. Stills are tiny: open them shortly after `load`. Clips are MBs: open only
+  // on the first real interaction, so they never compete with LCP/first paint.
+  let stillsOpen = false, clipsOpen = false;
+  function openStills() { if (stillsOpen) return; stillsOpen = true; read(); }
+  function openClips() { if (clipsOpen) return; clipsOpen = true; stillsOpen = true; read(); }
+  function ensureStill(s) { if (s.imgSet || !s.poster) return; s.imgSet = true; s.img.src = s.poster; }
+
+  function layout(initial) {
+    if (initial !== true) {           // first call uses the values captured before DOM writes
+      vh = window.innerHeight;
+      laidOutW = window.innerWidth;
+      scrollYc = window.scrollY || window.pageYOffset || 0;
+    }
+    stageX = laidOutW > 860 ? 4 : 0;
     let off = 0;
     SEGMENTS.forEach(s => { s.start = off * vh; off += s.w; s.end = off * vh; });
     totalW = off;
@@ -198,16 +225,16 @@ function mountLetsScroll(container, config) {
   function loadClip(s) {
     // Under prefers-reduced-motion we never load the clips at all — the stills stay up
     // and simply cross-dissolve as you scroll. No scrubbed video motion, no decode cost.
-    if (reduce || s.loading || !s.clip) return;
+    if (reduce || lowData || s.loading || !s.clip) return;
     s.loading = true;
     // Serve the lighter mobile encode on phones when one was provided.
     const url = (isMobile() && s.clipM) ? s.clipM : s.clip;
-    fetch(url).then(r => r.ok ? r.blob() : Promise.reject(new Error('404')))
+    fetch(url, { priority: 'low' }).then(r => r.ok ? r.blob() : Promise.reject(new Error('404')))
       .then(blob => {
         const v = document.createElement('video');
         v.className = 'sw-scene__video';
         v.muted = true; v.playsInline = true; v.preload = 'auto';
-        v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+        v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true'); v.tabIndex = -1;
         v.src = URL.createObjectURL(blob);
         v.addEventListener('loadedmetadata', () => { s.ready = true; read(); });
         // Reveal the video (hide the still poster) only once a real frame has
@@ -220,14 +247,16 @@ function mountLetsScroll(container, config) {
   }
 
   function read() {
-    const y = window.scrollY || window.pageYOffset;
+    const y = scrollYc;
     const fade = CROSSFADE * vh;
     let ci = 0;
     for (let i = 0; i < NSEG; i++) if (y >= SEGMENTS[i].start) ci = i;
 
     for (let i = 0; i < NSEG; i++) {
       const s = SEGMENTS[i];
-      if (y > s.start - 1.6 * vh && y < s.end + 1.6 * vh) loadClip(s);
+      const ahead = s.start - y, behind = y - s.end;
+      if (stillsOpen && ahead < 1.6 * vh && behind < 1.6 * vh) ensureStill(s);
+      if (clipsOpen && ahead < 1.2 * vh && behind < 0.6 * vh) loadClip(s);
       const local = clamp((y - s.start) / (s.end - s.start), 0, 1);
       s.target = s.linger ? lingerEase(local, s.linger) : local;
       let outside = 0;
@@ -253,6 +282,8 @@ function mountLetsScroll(container, config) {
       c.style.opacity = cop;
       c.style.transform = reduce ? 'none' : `translateY(${(0.5 - pr) * 4}vh)`;
       c.style.pointerEvents = cop > 0.5 ? 'auto' : 'none';
+      const on = cop > 0.5;   // invisible CTAs must not be keyboard-focusable
+      if (c._on !== on) { c._on = on; for (let k = 0; k < c._links.length; k++) c._links[k].tabIndex = on ? 0 : -1; }
     }
 
     const cur = SEGMENTS[ci];
@@ -260,7 +291,10 @@ function mountLetsScroll(container, config) {
       : (((y - cur.start) / (cur.end - cur.start)) > 0.5 ? cur.si + 1 : cur.si), 0, N - 1);
     if (near !== activeIndex) {
       activeIndex = near;
-      dots.forEach((d, k) => d.classList.toggle('is-active', k === near));
+      dots.forEach((d, k) => {
+        d.classList.toggle('is-active', k === near);
+        if (k === near) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      });
       nav.querySelectorAll('.sw-nav__item').forEach((n, k) => n.classList.toggle('is-active', k === near));
       container.style.setProperty('--sw-accent', SECTIONS[near].accent || '');
     }
@@ -308,7 +342,14 @@ function mountLetsScroll(container, config) {
 
   // Particles are a per-frame cost we can't afford alongside video scrubbing on a phone.
   seedParticles(particles, reduce || coarse);
-  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(read); } }, { passive: true });
+  window.addEventListener('scroll', () => {
+    scrollYc = window.scrollY || window.pageYOffset || 0;
+    if (!ticking) { ticking = true; requestAnimationFrame(read); }
+  }, { passive: true });
+  ['pointerdown', 'touchstart', 'wheel', 'keydown', 'scroll'].forEach(t =>
+    window.addEventListener(t, openClips, { once: true, passive: true }));
+  if (document.readyState === 'complete') setTimeout(openStills, 2500);
+  else window.addEventListener('load', () => setTimeout(openStills, 2500), { once: true });
   // Mobile browsers fire `resize` every time the URL bar slides in/out. Re-running
   // layout() there rebuilds the track height and yanks the scroll position, so on
   // touch we ignore height-only changes and only relayout when the width actually
@@ -319,9 +360,9 @@ function mountLetsScroll(container, config) {
     layout();
   }
   window.addEventListener('resize', onResize);
-  window.addEventListener('orientationchange', layout);
-  window.addEventListener('load', layout);
-  layout();
+  window.addEventListener('orientationchange', () => layout());
+  window.addEventListener('load', () => requestAnimationFrame(() => layout()));
+  layout(true);
   requestAnimationFrame(raf);
 
   // ---- helpers ----
@@ -379,7 +420,7 @@ function injectCSS() {
   .sw-nav{display:flex;gap:4px;padding:5px;background:color-mix(in srgb,#fff 55%,transparent);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb,var(--sw-accent) 16%,transparent);border-radius:999px;}
   .sw-nav__item{font:inherit;font-size:.82rem;color:var(--sw-ink-soft);border:0;background:transparent;cursor:pointer;padding:7px 14px;border-radius:999px;transition:color .25s,background .25s;}
   .sw-nav__item:hover{color:var(--sw-ink);} .sw-nav__item.is-active{color:#fff;background:var(--sw-accent);}
-  .sw-topcta{text-decoration:none;font-weight:600;font-size:.9rem;color:#fff;background:var(--sw-ink);padding:10px 20px;border-radius:999px;white-space:nowrap;}
+  .sw-topcta{text-decoration:none;font-weight:600;font-size:.9rem;color:var(--sw-bg);background:var(--sw-ink);padding:10px 20px;border-radius:999px;white-space:nowrap;}
   .sw-stage{position:fixed;inset:0;z-index:10;pointer-events:none;}
   .sw-scene{position:absolute;inset:0;opacity:0;overflow:hidden;will-change:opacity;}
   .sw-scene__video,.sw-scene__still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;}
@@ -395,21 +436,26 @@ function injectCSS() {
   .sw-copy__tags li{font-size:.82rem;font-weight:600;color:color-mix(in srgb,var(--sw-accent) 70%,#000);padding:7px 14px;border-radius:999px;background:color-mix(in srgb,var(--sw-accent) 14%,#fff);border:1px solid color-mix(in srgb,var(--sw-accent) 30%,transparent);}
   .sw-copy__cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px;pointer-events:auto;}
   .sw-btn{text-decoration:none;font-weight:600;font-size:.95rem;padding:13px 24px;border-radius:999px;transition:transform .2s;}
-  .sw-btn--primary{color:#fff;background:var(--sw-ink);} .sw-btn--primary:hover{transform:translateY(-2px);}
+  .sw-btn--primary{color:var(--sw-bg);background:var(--sw-ink);} .sw-btn--primary:hover{transform:translateY(-2px);}
   .sw-btn--ghost{color:var(--sw-ink);border:1.5px solid color-mix(in srgb,var(--sw-ink) 25%,transparent);} .sw-btn--ghost:hover{transform:translateY(-2px);}
   .sw-route{position:fixed;right:clamp(14px,2.4vw,30px);top:50%;z-index:40;transform:translateY(-50%);display:flex;flex-direction:column;gap:22px;padding:18px 10px;}
   .sw-route::before{content:"";position:absolute;left:50%;top:22px;bottom:22px;width:2px;transform:translateX(-50%);background:var(--sw-accent);opacity:.28;}
   .sw-route__dot{position:relative;border:0;background:transparent;cursor:pointer;width:14px;height:14px;display:grid;place-items:center;}
-  .sw-route__dot i{width:9px;height:9px;border-radius:50%;background:color-mix(in srgb,var(--sw-accent) 40%,transparent);transition:transform .3s,background .3s,box-shadow .3s;}
-  .sw-route__dot:hover i{transform:scale(1.25);background:var(--sw-accent);}
-  .sw-route__dot.is-active i{background:var(--sw-accent);transform:scale(1.4);box-shadow:0 0 0 5px color-mix(in srgb,var(--sw-accent) 22%,transparent);}
+  /* only transform/opacity are animated (compositor-friendly); the ring is a pseudo-element
+     that fades/scales instead of animating box-shadow */
+  .sw-route__dot i{position:relative;width:9px;height:9px;border-radius:50%;background:var(--sw-accent);opacity:.4;transition:transform .3s,opacity .3s;}
+  .sw-route__dot i::after{content:"";position:absolute;inset:-5px;border-radius:50%;background:color-mix(in srgb,var(--sw-accent) 22%,transparent);opacity:0;transform:scale(.6);transition:transform .3s,opacity .3s;}
+  .sw-route__dot:hover i{transform:scale(1.25);opacity:1;}
+  .sw-route__dot.is-active i{opacity:1;transform:scale(1.4);}
+  .sw-route__dot.is-active i::after{opacity:1;transform:scale(1);}
   .sw-route__label{position:absolute;right:24px;top:50%;transform:translateY(-50%) translateX(6px);white-space:nowrap;font-size:.78rem;font-weight:600;color:var(--sw-ink);background:color-mix(in srgb,#fff 85%,transparent);backdrop-filter:blur(6px);padding:5px 11px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;border:1px solid color-mix(in srgb,var(--sw-accent) 14%,transparent);}
   .sw-route__dot:hover .sw-route__label,.sw-route__dot.is-active .sw-route__label{opacity:1;transform:translateY(-50%) translateX(0);}
   .sw-hint{position:fixed;left:50%;bottom:26px;z-index:30;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--sw-ink-soft);transition:opacity .3s;}
   .sw-hint i{width:22px;height:34px;border-radius:12px;border:2px solid color-mix(in srgb,var(--sw-ink) 28%,transparent);position:relative;}
-  .sw-hint i::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:7px;border-radius:2px;background:var(--sw-accent);transform:translateX(-50%);animation:sw-wheel 1.7s ease-in-out infinite;}
-  @keyframes sw-wheel{0%{opacity:0;top:6px}40%{opacity:1}100%{opacity:0;top:17px}}
+  .sw-hint i::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:7px;border-radius:2px;background:var(--sw-accent);transform:translate(-50%,0);animation:sw-wheel 1.7s ease-in-out infinite;}
+  @keyframes sw-wheel{0%{opacity:0;transform:translate(-50%,-1px)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,10px)}}
   .sw-track{position:relative;z-index:1;width:100%;pointer-events:none;}
+  .sw-brand:focus-visible,.sw-topcta:focus-visible,.sw-btn:focus-visible,.sw-nav__item:focus-visible,.sw-route__dot:focus-visible{outline:2px solid var(--sw-accent);outline-offset:3px;}
   @media (max-width:860px){
     .sw-nav{display:none;}
     .sw-copylayer::before{width:100%;height:60%;top:auto;bottom:0;background:linear-gradient(0deg,var(--sw-bg) 8%,color-mix(in srgb,var(--sw-bg) 70%,transparent) 46%,transparent 100%);}
