@@ -13,7 +13,6 @@ import {
 import { dark } from "@clerk/themes";
 import { Toaster } from "sonner";
 import ReactQueryProvider from "@/components/ReactQueryProvider";
-import PageTransition from "@/components/page-transition";
 import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] });
@@ -45,8 +44,7 @@ export default function RootLayout({ children }) {
               {/* header */}
               <Header />
               <main className="min-h-screen">
-                {/* PageTransition wraps children with AnimatePresence for smooth page exits */}
-                <PageTransition>{children}</PageTransition>
+                {children}
               </main>
               <Toaster richColors />
 
