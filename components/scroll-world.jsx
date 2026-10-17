@@ -357,6 +357,8 @@ export default function ScrollWorld() {
 
       if (topbar && brandEl && navEl) {
         const authGroup = document.createElement("div");
+        // Plain flex row — no wrapper pill/background so Sign In doesn't get
+        // a dark "nested box" look from the page bleeding through a glass container.
         authGroup.style.cssText =
           "display:flex;gap:4px;align-items:center;flex-shrink:0;" +
           "padding:5px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);" +
@@ -366,13 +368,13 @@ export default function ScrollWorld() {
         signIn.href = "/sign-in";
         signIn.textContent = "Sign In";
         signIn.className = "sw-btn sw-btn--ghost";
-        signIn.style.cssText = "padding:8px 18px;font-size:0.88rem;";
+        signIn.style.cssText = "padding:8px 20px;font-size:0.88rem;";
 
         const signUp = document.createElement("a");
         signUp.href = "/sign-up";
         signUp.textContent = "Sign Up";
         signUp.className = "sw-btn sw-btn--primary";
-        signUp.style.cssText = "padding:8px 18px;font-size:0.88rem;";
+        signUp.style.cssText = "padding:8px 20px;font-size:0.88rem;";
 
         authGroup.appendChild(signIn);
         authGroup.appendChild(signUp);
@@ -425,24 +427,20 @@ export default function ScrollWorld() {
         .sw-btn--primary {
           background: var(--sw-accent) !important;
           color: #fff !important;
-          transition: filter 0.2s ease, transform 0.18s ease !important;
+          transition: filter 0.2s ease !important;
         }
-        .sw-btn--primary:hover {
-          filter: brightness(1.18) !important;
-          transform: scale(1.04) !important;
-        }
-        .sw-btn--primary:active { transform: scale(0.97) !important; }
+        .sw-btn--primary:hover { filter: brightness(1.18) !important; }
+        .sw-btn--primary:active { filter: brightness(0.9) !important; }
         /* Ghost button */
         .sw-btn--ghost {
           color: var(--sw-ink) !important;
           border: 1.5px solid rgba(240,244,255,0.45) !important;
-          transition: background 0.2s ease, transform 0.18s ease !important;
+          transition: background 0.2s ease !important;
         }
-        .sw-btn--ghost:hover {
-          background: rgba(240,244,255,0.08) !important;
-          transform: scale(1.03) !important;
-        }
-        .sw-btn--ghost:active { transform: scale(0.97) !important; }
+        .sw-btn--ghost:hover { background: rgba(240,244,255,0.08) !important; }
+        .sw-btn--ghost:active { background: rgba(240,244,255,0.14) !important; }
+        /* Override engine's translateY(-2px) on ALL buttons — nothing moves */
+        .sw-btn:hover, .sw-btn:active { transform: none !important; }
         /* Nav */
         .sw-nav {
           background: rgba(255,255,255,0.08) !important;
