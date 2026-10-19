@@ -267,11 +267,6 @@ export default function VoiceInterviewForm({
                   <label className="flex items-center gap-2 text-sm font-medium text-white">
                     <Briefcase className="h-4 w-4 text-primary" />
                     Job Role <span className="text-red-400">*</span>
-                    {defaultRole && (
-                      <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                        pre-filled from your profile
-                      </span>
-                    )}
                   </label>
                   <input
                     id="voice-role"

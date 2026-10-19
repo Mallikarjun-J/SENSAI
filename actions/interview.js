@@ -8,6 +8,7 @@ import { z } from "zod";
 import { feedbackSchema } from "@/constants/interview";
 import { cachedQuery, invalidateCache, cacheKeys } from "@/lib/db-cache";
 import { formatPlainText } from "@/lib/utils";
+import { requireUser } from "@/lib/require-user"; // F-003, F-004, F-007
 
 import { AI_CONFIG } from "@/lib/ai-config";
 
@@ -237,6 +238,9 @@ export async function deleteVoiceInterview(interviewId) {
  * Generate interview questions via Gemini AI SDK (structured output).
  */
 export async function generateVoiceInterviewQuestions({ role, level, type, techstack, amount }) {
+  // F-007: auth check BEFORE the paid AI call — action is a public HTTP endpoint
+  await requireUser();
+
   const techContext =
     techstack?.length > 0 ? `The candidate works with: ${techstack.join(", ")}.` : "";
 
@@ -481,7 +485,25 @@ export async function getVoiceInterviewsByUserId() {
 /**
  * Score a transcript with Gemini and save as VoiceFeedback.
  */
-export async function createVoiceFeedback({ interviewId, userId, transcript, feedbackId }) {
+export async function createVoiceFeedback({ interviewId, transcript, feedbackId }) {
+  // F-003: auth check first — ignore any userId from the client
+  const user = await requireUser();
+
+  // F-003: verify the interview belongs to this user before running the AI model
+  if (typeof interviewId !== "string") throw new Error("Invalid interviewId");
+  const interview = await prisma.interview.findFirst({
+    where: { id: interviewId, userId: user.id },
+  });
+  if (!interview) throw new Error("Interview not found");
+
+  // F-003: if updating an existing feedback record, verify ownership
+  if (feedbackId) {
+    const existing = await prisma.voiceFeedback.findFirst({
+      where: { id: feedbackId, userId: user.id },
+    });
+    if (!existing) throw new Error("Feedback not found");
+  }
+
   try {
     const formattedTranscript = transcript
       .map((s) => `- ${s.role}: ${s.content}\n`)
@@ -584,7 +606,7 @@ export async function createVoiceFeedback({ interviewId, userId, transcript, fee
 
     const feedbackData = {
       interviewId,
-      userId,
+      userId: user.id, // F-003: always use session user — never trust client-supplied userId
       totalScore: object.totalScore,
       categoryScores,
       strengths: object.strengths,
@@ -611,10 +633,17 @@ export async function createVoiceFeedback({ interviewId, userId, transcript, fee
 /**
  * Fetch voice feedback for a specific interview + user combination.
  */
-export async function getVoiceFeedbackByInterviewId({ interviewId, userId }) {
+export async function getVoiceFeedbackByInterviewId({ interviewId }) {
+  // F-004: always resolve userId from session, never trust caller-supplied value
+  const user = await requireUser();
+
+  // F-004: reject non-string interviewId to block Prisma filter injection attacks
+  // (passing { not: "x" } instead of a string widens the query to all records)
+  if (typeof interviewId !== "string") throw new Error("Invalid interviewId");
+
   try {
     const feedback = await prisma.voiceFeedback.findFirst({
-      where: { interviewId, userId },
+      where: { interviewId, userId: user.id }, // userId always from session
     });
     if (!feedback) return null;
     return { ...feedback, categoryScores: feedback.categoryScores, createdAt: feedback.createdAt.toISOString() };

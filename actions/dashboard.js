@@ -68,10 +68,28 @@ export async function getIndustryInsights() {
   if (!user.industryInsight) {
     const insights = await generateAIInsights(user.industry);
 
+    // F-009: Destructure only the known schema fields — never spread the raw AI
+    // object into Prisma, as a prompt-injection attack could add arbitrary keys.
+    const {
+      salaryRanges,
+      growthRate,
+      demandLevel,
+      topSkills,
+      marketOutlook,
+      keyTrends,
+      recommendedSkills,
+    } = insights;
+
     const industryInsight = await prisma.industryInsight.create({
       data: {
         industry: user.industry,
-        ...insights,
+        salaryRanges,
+        growthRate,
+        demandLevel,
+        topSkills,
+        marketOutlook,
+        keyTrends,
+        recommendedSkills,
         nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });

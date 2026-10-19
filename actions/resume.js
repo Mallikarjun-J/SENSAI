@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import OpenAI from "openai";
+import { requireUser } from "@/lib/require-user"; // F-007
 
 import { AI_CONFIG } from "@/lib/ai-config";
 
@@ -130,6 +131,8 @@ export async function renameResume({ resumeId, title }) {
 // ─── AI Enhance actions ───────────────────────────────────────────────────────
 
 export async function enhanceSummary(text) {
+  // F-007: auth check BEFORE any AI call — prevents unauthenticated quota abuse
+  await requireUser();
   if (!text?.trim()) throw new Error("No text provided");
   const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
@@ -149,6 +152,8 @@ export async function enhanceSummary(text) {
 }
 
 export async function enhanceJobDescription({ description, position, company }) {
+  // F-007: auth check BEFORE any AI call
+  await requireUser();
   if (!description?.trim()) throw new Error("No description provided");
   const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
@@ -171,6 +176,8 @@ export async function enhanceJobDescription({ description, position, company }) 
 }
 
 export async function enhanceProjectDescription({ description, name, type }) {
+  // F-007: auth check BEFORE any AI call
+  await requireUser();
   if (!description?.trim()) throw new Error("No description provided");
   const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({
@@ -193,6 +200,8 @@ export async function enhanceProjectDescription({ description, name, type }) {
 }
 
 export async function enhanceCustomEntry({ sectionName, title, subtitle, description }) {
+  // F-007: auth check BEFORE any AI call
+  await requireUser();
   if (!description?.trim()) throw new Error("No description provided");
   const { client: ai, model } = getResumeBuilderClient();
   const res = await ai.chat.completions.create({

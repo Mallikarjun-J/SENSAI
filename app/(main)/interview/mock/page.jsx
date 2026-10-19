@@ -27,10 +27,8 @@ export default async function MockInterviewPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { clerkUserId },
-    select: { industry: true, skills: true },
+    select: { industry: true },
   });
-
-  const defaultTopic = industryToTopic(dbUser?.industry);
 
   return (
     <div className="w-full max-w-4xl lg:max-w-5xl mx-auto space-y-6">
@@ -50,7 +48,6 @@ export default async function MockInterviewPage() {
       </div>
 
       <MockQuizWrapper
-        defaultTopic={defaultTopic}
         defaultTopics={[]}
       />
     </div>

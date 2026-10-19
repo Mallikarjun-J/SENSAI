@@ -23,6 +23,39 @@ async function getDbUser() {
 export async function createResumeAnalysis({ companyName, jobTitle, jobDescription, resumeUrl, resumeKey }) {
   const user = await getDbUser();
 
+  // F-001 / F-012: validate that the resumeKey actually belongs to this user.
+  // Strategy: only accept keys that were stored via our UploadThing onUploadComplete
+  // callback (which sets userId). For builder analyses the key is a Resume.id — verify
+  // ownership directly against the Resume table.
+  //
+  // For uploaded PDFs: we cannot yet cross-reference without an Upload table (see
+  // security report F-001). As an interim measure, verify the resumeUrl is from our
+  // trusted UploadThing domain only — blocks SSRF to internal addresses (F-012).
+  if (resumeUrl && resumeUrl !== "builder") {
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(resumeUrl);
+    } catch {
+      throw new Error("Invalid resume URL");
+    }
+    const ALLOWED_HOSTS = ["utfs.io", "uploadthing.com", "ufs.sh"];
+    const isAllowed = ALLOWED_HOSTS.some(
+      (h) => parsedUrl.hostname === h || parsedUrl.hostname.endsWith("." + h)
+    );
+    if (!isAllowed) {
+      throw new Error("Resume URL host is not permitted");
+    }
+  }
+
+  // F-005: for builder analyses, verify the resume belongs to this user
+  if (resumeUrl === "builder" && resumeKey) {
+    const resume = await prisma.resume.findFirst({
+      where: { id: resumeKey, userId: user.id },
+      select: { id: true },
+    });
+    if (!resume) throw new Error("Resume not found");
+  }
+
   const analysis = await prisma.resumeAnalysis.create({
     data: {
       userId: user.id,
@@ -117,8 +150,10 @@ export async function getResumeAnalyses() {
 
       let resumeMap = {};
       if (builderResumeIds.length > 0) {
+        // F-005: scope resume lookup to the current user — prevents reading another
+        // user's resume metadata by guessing/leaking a Resume.id.
         const resumes = await prisma.resume.findMany({
-          where: { id: { in: builderResumeIds } },
+          where: { id: { in: builderResumeIds }, userId: user.id },
           select: { id: true, title: true, template: true },
         });
         resumeMap = Object.fromEntries(resumes.map((r) => [r.id, r]));

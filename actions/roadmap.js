@@ -317,8 +317,12 @@ Phase 2: Core Skills
 Generate roadmap for: ${career}`;
 
   const phasesResult = await getRoadmapModel().generateContent(phasesPrompt);
-  const phases = parsePhasesFromResponse(phasesResult.response.text());
+  let phases = parsePhasesFromResponse(phasesResult.response.text());
   if (!phases.length) throw new Error("Failed to parse AI response into phases");
+
+  // F-008: hard cap — AI prompt asks for 4–6 phases, but enforce server-side so
+  // an unexpected model response cannot produce an oversized roadmap.
+  if (phases.length > 6) phases = phases.slice(0, 6);
 
   const roadmapNodes = await buildRoadmapNodes(phases, projectName);
   return {
