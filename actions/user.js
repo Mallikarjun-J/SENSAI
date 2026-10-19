@@ -30,10 +30,28 @@ export async function updateUser(data) {
         if (!industryInsight) {
           const insights = await generateAIInsights(data.industry);
 
+          // F-009: Destructure only the known schema fields — never spread raw AI
+          // object into Prisma (prompt-injection defence).
+          const {
+            salaryRanges,
+            growthRate,
+            demandLevel,
+            topSkills,
+            marketOutlook,
+            keyTrends,
+            recommendedSkills,
+          } = insights;
+
           industryInsight = await prisma.industryInsight.create({
             data: {
               industry: data.industry,
-              ...insights,
+              salaryRanges,
+              growthRate,
+              demandLevel,
+              topSkills,
+              marketOutlook,
+              keyTrends,
+              recommendedSkills,
               nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
             },
           });
@@ -259,9 +277,15 @@ export async function deleteAccount() {
     const { UTApi } = await import("uploadthing/server");
     const analyses = await prisma.resumeAnalysis.findMany({
       where: { userId: user.id },
-      select: { resumeKey: true },
+      select: { resumeKey: true, resumeUrl: true },
     });
-    const keys = analyses.map((a) => a.resumeKey).filter(Boolean);
+    // F-006: only delete actual UploadThing keys — skip builder resume IDs
+    // (builder analyses have resumeUrl === "builder"; their resumeKey is a
+    //  Resume.id, not an UploadThing file key, so passing them to UTApi would
+    //  silently attempt to delete the wrong resource or fail).
+    const keys = analyses
+      .filter((a) => a.resumeUrl !== "builder" && a.resumeKey)
+      .map((a) => a.resumeKey);
     if (keys.length > 0) {
       const utapi = new UTApi();
       await utapi.deleteFiles(keys);

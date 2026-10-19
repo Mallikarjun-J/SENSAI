@@ -128,10 +128,6 @@ export default function CreateRoadmapForm({ suggestedCareer = "", userSkills = [
               </div>
             )}
           </div>
-
-          <p className="text-xs text-white/40">
-            Gemini will use your skills and experience to skip basics and focus on what you need to learn.
-          </p>
         </div>
       )}
 

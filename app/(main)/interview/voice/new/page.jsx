@@ -41,9 +41,7 @@ export default async function VoiceInterviewSetupPage() {
 
 
 
-  const defaultRole = industryToRole(dbUser?.industry);
   const defaultLevel = experienceToLevel(dbUser?.experience);
-  const defaultTechstack = dbUser?.skills ?? [];
 
   const resumes = dbUser
     ? await prisma.resume.findMany({
@@ -72,9 +70,7 @@ export default async function VoiceInterviewSetupPage() {
       <VoiceInterviewForm
         userId={clerkUser.id}
         userName={`${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim() || clerkUser.emailAddresses[0]?.emailAddress}
-        defaultRole={defaultRole}
         defaultLevel={defaultLevel}
-        defaultTechstack={defaultTechstack}
         resumes={resumes.map((r) => ({ id: r.id, title: r.title, updatedAt: r.updatedAt.toISOString() }))}
       />
     </div>

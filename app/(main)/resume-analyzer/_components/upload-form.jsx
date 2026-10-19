@@ -54,7 +54,7 @@ function StepPills({ step }) {
     <div className="flex items-center gap-2 mb-7">
       {[1, 2].map((s) => (
         <div key={s} className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold border transition-all duration-300 ${
+          <div className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold border transition-all duration-300 rounded-xl ${
             step > s
               ? "bg-white/10 border-white/20 text-white"
               : step === s

@@ -121,14 +121,14 @@ function mountLetsScroll(container, config) {
 
   const topbar = el('div', 'sw-topbar');
   if (config.brand) {
-    const brand = el('a', 'sw-brand'); brand.href = (config.brand.href || '#');
+    const brand = el('a', 'sw-brand'); brand.href = safeHref(config.brand.href || '#');
     brand.appendChild(el('span', 'sw-brand__mark'));
     const nm = el('span', 'sw-brand__name'); nm.textContent = config.brand.name || ''; brand.appendChild(nm);
     topbar.appendChild(brand);
   }
   const nav = el('nav', 'sw-nav'); nav.setAttribute('aria-label', 'Primary'); if (config.nav !== false) topbar.appendChild(nav);
   if (config.cta && config.cta.label) {
-    const c = el('a', 'sw-topcta'); c.href = config.cta.href || '#'; c.textContent = config.cta.label;
+    const c = el('a', 'sw-topcta'); c.href = safeHref(config.cta.href || '#'); c.textContent = config.cta.label;
     topbar.appendChild(c);
   }
 
@@ -369,10 +369,18 @@ function mountLetsScroll(container, config) {
   function el(tag, cls) { const n = document.createElement(tag); if (cls) n.className = cls; return n; }
   function pad(n) { return String(n).padStart(2, '0'); }
   function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  // F-002: Validate URL scheme so javascript: links in the config cannot XSS the host page.
+  function safeHref(url) {
+    if (!url) return '#';
+    try {
+      const u = new URL(String(url), location.href);
+      return ['http:', 'https:', 'mailto:', 'tel:'].includes(u.protocol) ? url : '#';
+    } catch { return '#'; }
+  }
   function ctaBtns(cta) {
     let h = '';
-    if (cta.primary) h += `<a class="sw-btn sw-btn--primary" href="${esc(cta.primary.href || '#')}">${esc(cta.primary.label)}</a>`;
-    if (cta.secondary) h += `<a class="sw-btn sw-btn--ghost" href="${esc(cta.secondary.href || '#')}">${esc(cta.secondary.label)}</a>`;
+    if (cta.primary) h += `<a class="sw-btn sw-btn--primary" href="${esc(safeHref(cta.primary.href || '#'))}">${esc(cta.primary.label)}</a>`;
+    if (cta.secondary) h += `<a class="sw-btn sw-btn--ghost" href="${esc(safeHref(cta.secondary.href || '#'))}">${esc(cta.secondary.label)}</a>`;
     return h;
   }
 }
