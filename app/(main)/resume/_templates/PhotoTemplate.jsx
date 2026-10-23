@@ -33,6 +33,7 @@ function MainLabel({ children }) {
 export function PhotoTemplate({ data }) {
   const pi    = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
+  const hidden = new Set(data.hiddenSections ?? []);
 
   // ── Sidebar contact items with clickable hrefs ──────────────────────────
   const contactItems = [];
@@ -203,7 +204,7 @@ export function PhotoTemplate({ data }) {
   });
 
   // Skills are in sidebar — exclude from main render
-  const mainOrder = order.filter((k) => k !== "skills");
+  const mainOrder = order.filter((k) => k !== "skills" && !hidden.has(k));
 
   return (
     /* -m-9 negates the 36px parent padding so sidebar bleeds to page edges */
@@ -267,7 +268,7 @@ export function PhotoTemplate({ data }) {
         )}
 
         {/* Skills */}
-        {has(data.skills) && (
+        {has(data.skills) && !hidden.has("skills") && (
           <div>
             <SideLabel>Skills</SideLabel>
             <div className="flex flex-col gap-2">

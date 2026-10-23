@@ -5,17 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 
 function getBadgeClass(score) {
-  if (score >= 80) return "bg-green-500/20 text-green-400 border-green-500/30";
-  if (score >= 60) return "bg-lime-500/20 text-lime-400 border-lime-500/30";
-  if (score >= 40) return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+  if (score >= 85) return "bg-green-500/20 text-green-400 border-green-500/30";
+  if (score >= 70) return "bg-lime-500/20 text-lime-400 border-lime-500/30";
+  if (score >= 50) return "bg-amber-500/20 text-amber-400 border-amber-500/30";
   return "bg-red-500/20 text-red-400 border-red-500/30";
 }
 
 function getBadgeLabel(score) {
-  if (score >= 80) return "Excellent";
-  if (score >= 60) return "Good";
-  if (score >= 40) return "Average";
-  return "Needs Work";
+  if (score >= 85) return "Excellent";
+  if (score >= 70) return "Good";
+  if (score >= 50) return "Average";
+  return "Poor";
 }
 
 export default function ResumeBreakdown({ categories }) {

@@ -49,7 +49,7 @@ function ScoreBadge({ score }) {
  * Needle: θ = 180° − score × 1.8°
  */
 function OverallGauge({ score }) {
-  const cx = 150, cy = 148, r = 108;
+  const cx = 165, cy = 145, r = 100;
   const T = Math.PI * r;
 
   const zones = [
@@ -61,27 +61,27 @@ function OverallGauge({ score }) {
 
   const arc = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
 
-  const θ = ((180 - score * 1.8) * Math.PI) / 180;
-  const nLen = 76;
+  const clampedScore = Math.min(100, Math.max(0, score ?? 0));
+  const θ = ((180 - clampedScore * 1.8) * Math.PI) / 180;
+  const nLen = 72;
   const nx = (cx + nLen * Math.cos(θ)).toFixed(1);
   const ny = (cy - nLen * Math.sin(θ)).toFixed(1);
 
-  // Label positions outside arc at r=126, zone midpoints
   const labels = [
-    { text: "Weak",      x: 50,  y: 76  },
-    { text: "Moderate",  x: 150, y: 25  },
-    { text: "Good",      x: 222, y: 49  },
-    { text: "Excellent", x: 267, y: 110 },
+    { text: "Weak",      x: 68,  y: 71,  anchor: "end"    },
+    { text: "Moderate",  x: 165, y: 22,  anchor: "middle" },
+    { text: "Good",      x: 237, y: 44,  anchor: "middle" },
+    { text: "Excellent", x: 275, y: 106, anchor: "start"  },
   ];
 
   return (
-    <svg viewBox="0 0 300 165" className="w-full">
-      <path d={arc} fill="none" stroke="#1a1d2e" strokeWidth="22" strokeLinecap="round" />
+    <svg viewBox="0 0 330 165" className="w-full">
+      <path d={arc} fill="none" stroke="#1a1d2e" strokeWidth="20" strokeLinecap="round" />
       {zones.map((z, i) => {
         const start = z.from * T;
         const len   = (z.to - z.from) * T;
         return (
-          <path key={i} d={arc} fill="none" stroke={z.color} strokeWidth="18"
+          <path key={i} d={arc} fill="none" stroke={z.color} strokeWidth="16"
             strokeLinecap="butt"
             strokeDasharray={`${len.toFixed(1)} ${(T - len + 2).toFixed(1)}`}
             strokeDashoffset={`${(-start).toFixed(1)}`}
@@ -89,7 +89,15 @@ function OverallGauge({ score }) {
         );
       })}
       {labels.map((l) => (
-        <text key={l.text} x={l.x} y={l.y} fontSize="9" fill="#6b7280" textAnchor="middle">
+        <text
+          key={l.text}
+          x={l.x}
+          y={l.y}
+          fontSize="9.5"
+          fontWeight="500"
+          fill="#9ca3af"
+          textAnchor={l.anchor}
+        >
           {l.text}
         </text>
       ))}

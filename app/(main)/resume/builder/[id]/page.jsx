@@ -27,6 +27,11 @@ export default async function BuilderPage({ params }) {
     sectionOrder: Array.isArray(resume.sectionOrder) && resume.sectionOrder.length
       ? resume.sectionOrder
       : ["summary", "experience", "education", "projects", "skills"],
+    hiddenSections: Array.isArray(resume.hiddenSections)
+      ? resume.hiddenSections
+      : Array.isArray(resume.personalInfo?._hiddenSections)
+      ? resume.personalInfo._hiddenSections
+      : [],
     customSections: Array.isArray(resume.customSections) ? resume.customSections : [],
   };
 

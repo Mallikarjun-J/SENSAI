@@ -24,23 +24,23 @@ export async function generateMetadata({ params }) {
 
 /* ─── Score helpers ──────────────────────────────────────────────────────── */
 function getBadgeClass(score) {
-  if (score >= 80) return "bg-green-500/20 text-green-400 border-green-500/30";
-  if (score >= 60) return "bg-lime-500/20 text-lime-400 border-lime-500/30";
-  if (score >= 40) return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+  if (score >= 85) return "bg-green-500/20 text-green-400 border-green-500/30";
+  if (score >= 70) return "bg-lime-500/20 text-lime-400 border-lime-500/30";
+  if (score >= 50) return "bg-amber-500/20 text-amber-400 border-amber-500/30";
   return "bg-red-500/20 text-red-400 border-red-500/30";
 }
 
 function getBadgeLabel(score) {
-  if (score >= 80) return "Excellent";
-  if (score >= 60) return "Good";
-  if (score >= 40) return "Average";
-  return "Needs Work";
+  if (score >= 85) return "Excellent";
+  if (score >= 70) return "Good";
+  if (score >= 50) return "Average";
+  return "Poor";
 }
 
 /* ─── Score bar (sidebar) ────────────────────────────────────────────────── */
 function ScoreBar({ label, score }) {
-  const barColor  = score >= 70 ? "#22c55e" : score >= 40 ? "#f59e0b" : "#ef4444";
-  const textColor = score >= 70 ? "#4ade80" : score >= 40 ? "#fbbf24" : "#f87171";
+  const barColor  = score >= 85 ? "#22c55e" : score >= 70 ? "#a3e635" : score >= 50 ? "#f59e0b" : "#ef4444";
+  const textColor = score >= 85 ? "#4ade80" : score >= 70 ? "#a3e635" : score >= 50 ? "#fbbf24" : "#f87171";
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5 text-xs">
@@ -61,37 +61,38 @@ function ScoreBar({ label, score }) {
 
 /* ─── Half-circle speedometer gauge ──────────────────────────────────────── */
 function OverallGauge({ score }) {
-  const cx = 150, cy = 148, r = 108;
+  const cx = 165, cy = 145, r = 100;
   const T = Math.PI * r;
 
   const zones = [
-    { color: "#ef4444", from: 0,     to: 0.395 },
-    { color: "#f97316", from: 0.395, to: 0.595 },
-    { color: "#a3e635", from: 0.595, to: 0.795 },
-    { color: "#22c55e", from: 0.795, to: 1.0   },
+    { color: "#ef4444", from: 0,     to: 0.495 },
+    { color: "#f97316", from: 0.495, to: 0.695 },
+    { color: "#a3e635", from: 0.695, to: 0.845 },
+    { color: "#22c55e", from: 0.845, to: 1.0   },
   ];
 
   const arc = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
-  const θ = ((180 - score * 1.8) * Math.PI) / 180;
-  const nLen = 76;
+  const clampedScore = Math.min(100, Math.max(0, score ?? 0));
+  const θ = ((180 - clampedScore * 1.8) * Math.PI) / 180;
+  const nLen = 72;
   const nx = (cx + nLen * Math.cos(θ)).toFixed(1);
   const ny = (cy - nLen * Math.sin(θ)).toFixed(1);
 
   const labels = [
-    { text: "Weak",      x: 50,  y: 76  },
-    { text: "Average",   x: 150, y: 25  },
-    { text: "Good",      x: 222, y: 49  },
-    { text: "Excellent", x: 267, y: 110 },
+    { text: "Poor",      x: 75,  y: 58,  anchor: "end"    },
+    { text: "Average",   x: 201, y: 25,  anchor: "middle" },
+    { text: "Good",      x: 256, y: 62,  anchor: "start"  },
+    { text: "Excellent", x: 276, y: 114, anchor: "start"  },
   ];
 
   return (
-    <svg viewBox="0 0 300 165" className="w-full">
-      <path d={arc} fill="none" stroke="#1a1d2e" strokeWidth="22" strokeLinecap="round" />
+    <svg viewBox="0 0 330 165" className="w-full">
+      <path d={arc} fill="none" stroke="#1a1d2e" strokeWidth="20" strokeLinecap="round" />
       {zones.map((z, i) => {
         const start = z.from * T;
         const len   = (z.to - z.from) * T;
         return (
-          <path key={i} d={arc} fill="none" stroke={z.color} strokeWidth="18"
+          <path key={i} d={arc} fill="none" stroke={z.color} strokeWidth="16"
             strokeLinecap="butt"
             strokeDasharray={`${len.toFixed(1)} ${(T - len + 2).toFixed(1)}`}
             strokeDashoffset={`${(-start).toFixed(1)}`}
@@ -99,7 +100,7 @@ function OverallGauge({ score }) {
         );
       })}
       {labels.map((l) => (
-        <text key={l.text} x={l.x} y={l.y} fontSize="9" fill="#6b7280" textAnchor="middle">
+        <text key={l.text} x={l.x} y={l.y} fontSize="9.5" fontWeight="500" fill="#9ca3af" textAnchor={l.anchor}>
           {l.text}
         </text>
       ))}

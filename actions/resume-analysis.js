@@ -236,6 +236,7 @@ export async function deleteResumeAnalysis(id) {
 
 function resumeJsonToText(resume) {
   const lines = [];
+  const hidden = new Set(resume.hiddenSections ?? resume.personalInfo?._hiddenSections ?? []);
 
   // Personal Info
   const p = resume.personalInfo ?? {};
@@ -249,19 +250,19 @@ function resumeJsonToText(resume) {
   }
 
   // Professional Summary
-  if (resume.professionalSummary) {
+  if (!hidden.has("summary") && resume.professionalSummary) {
     lines.push("\nPROFESSIONAL SUMMARY");
     lines.push(resume.professionalSummary);
   }
 
   // Skills
-  if (Array.isArray(resume.skills) && resume.skills.length > 0) {
+  if (!hidden.has("skills") && Array.isArray(resume.skills) && resume.skills.length > 0) {
     lines.push("\nSKILLS");
     resume.skills.forEach((s) => lines.push(s));
   }
 
   // Experience
-  if (Array.isArray(resume.experience) && resume.experience.length > 0) {
+  if (!hidden.has("experience") && Array.isArray(resume.experience) && resume.experience.length > 0) {
     lines.push("\nWORK EXPERIENCE");
     resume.experience.forEach((exp) => {
       lines.push(
@@ -272,7 +273,7 @@ function resumeJsonToText(resume) {
   }
 
   // Education
-  if (Array.isArray(resume.education) && resume.education.length > 0) {
+  if (!hidden.has("education") && Array.isArray(resume.education) && resume.education.length > 0) {
     lines.push("\nEDUCATION");
     resume.education.forEach((edu) => {
       lines.push(
@@ -283,7 +284,7 @@ function resumeJsonToText(resume) {
   }
 
   // Projects
-  if (Array.isArray(resume.projects) && resume.projects.length > 0) {
+  if (!hidden.has("projects") && Array.isArray(resume.projects) && resume.projects.length > 0) {
     lines.push("\nPROJECTS");
     resume.projects.forEach((proj) => {
       lines.push(`${proj.name || ""}${proj.type ? ` (${proj.type})` : ""}${proj.link ? ` [Link: ${proj.link}]` : ""}`);

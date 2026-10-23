@@ -21,6 +21,7 @@ function TechSection({ label, children }) {
 export function TechTemplate({ data }) {
   const pi = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
+  const hidden = new Set(data.hiddenSections ?? []);
 
   const customMap = {};
   (data.customSections ?? []).forEach((cs) => {
@@ -211,11 +212,11 @@ export function TechTemplate({ data }) {
       )}
 
       <div>
-        {order.map((key) =>
-          sections[key]
-            ? <Fragment key={key}>{sections[key]}</Fragment>
-            : null
-        )}
+        {order
+          .filter((key) => !hidden.has(key))
+          .map((key) =>
+            sections[key] ? <Fragment key={key}>{sections[key]}</Fragment> : null
+          )}
       </div>
     </div>
   );

@@ -4,16 +4,24 @@ import { useState } from "react";
 import ScoreCircle from "./score-circle";
 
 function scoreLabel(s) {
-  return s >= 70 ? "Good" : s >= 40 ? "Fair" : "Needs Work";
+  if (s >= 85) return "Excellent";
+  if (s >= 70) return "Good";
+  if (s >= 50) return "Average";
+  return "Poor";
 }
 
 function scoreColors(s) {
-  if (s >= 70) return {
+  if (s >= 85) return {
     bar: "#22c55e",
     badge: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
     score: "text-emerald-400",
   };
-  if (s >= 40) return {
+  if (s >= 70) return {
+    bar: "#a3e635",
+    badge: "bg-lime-500/10 border-lime-500/20 text-lime-400",
+    score: "text-lime-400",
+  };
+  if (s >= 50) return {
     bar: "#f59e0b",
     badge: "bg-amber-500/10 border-amber-500/20 text-amber-400",
     score: "text-amber-400",
@@ -68,7 +76,7 @@ export default function FeedbackSection({ title, score, tips, defaultOpen = fals
             {goodTips.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm font-semibold uppercase tracking-widest text-foreground mb-2">
-                  What's working
+                  What&apos;s working
                 </p>
                 {goodTips.map((tip, i) => (
                   <div

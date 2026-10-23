@@ -128,15 +128,17 @@ export default function RoadmapViewer({ roadmap }) {
       </div>
 
       {/* Skill review modal */}
-      <SkillReviewModal
-        open={modalOpen}
-        rawTitles={rawTitles}
-        onClose={() => setModalOpen(false)}
-        onSaved={() => {
-          setPendingSkills(new Map()); // clear queue after save
-          setModalOpen(false);
-        }}
-      />
+      {modalOpen && (
+        <SkillReviewModal
+          open={modalOpen}
+          rawTitles={rawTitles}
+          onClose={() => setModalOpen(false)}
+          onSaved={() => {
+            setPendingSkills(new Map()); // clear queue after save
+            setModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }
