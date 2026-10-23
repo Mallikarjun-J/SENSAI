@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import {
   Loader2,
   ALargeSmall,
   Eye,
+  EyeOff,
 } from "lucide-react";
 import { updateResume } from "@/actions/resume";
 import {
@@ -48,6 +49,14 @@ const STEPS = [
   "Custom Sections",
   "Section Order",
 ];
+
+const STEP_SECTION_KEYS = {
+  1: "summary",
+  2: "experience",
+  3: "education",
+  4: "projects",
+  5: "skills",
+};
 
 const MIN_WIDTH = 320;
 const DEFAULT_LEFT_PCT = 44;
@@ -134,10 +143,11 @@ function printResume(data) {
 
 
 export function BuilderClient({ resumeId, initial }) {
-  // Hydrate font from personalInfo._font (stored there since no DB column exists)
+  // Hydrate font and hiddenSections (with fallback to personalInfo)
   const [data, setData] = useState({
     ...initial,
     font: initial.personalInfo?._font ?? initial.font ?? "inter",
+    hiddenSections: initial.hiddenSections ?? initial.personalInfo?._hiddenSections ?? [],
   });
   const [step, setStep] = useState(0);
   const [leftPct, setLeftPct] = useState(DEFAULT_LEFT_PCT);
@@ -151,14 +161,15 @@ export function BuilderClient({ resumeId, initial }) {
 
   // ── Viewport size tracker (for conditional inline styles) ─────────────────
   // Start with true (desktop) to avoid hydration mismatch; corrects on mount
-  const [isLg, setIsLg] = useState(true);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    setIsLg(mq.matches);
-    const handler = (e) => setIsLg(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  const isLg = useSyncExternalStore(
+    (callback) => {
+      const mq = window.matchMedia("(min-width: 1024px)");
+      mq.addEventListener("change", callback);
+      return () => mq.removeEventListener("change", callback);
+    },
+    () => (typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : true),
+    () => true
+  );
 
   // ── Lock body scroll while builder is open (prevents underlying page scroll) ─
   useEffect(() => {
@@ -214,6 +225,27 @@ export function BuilderClient({ resumeId, initial }) {
   }, []);
 
   const update = (key, value) => setData((d) => ({ ...d, [key]: value }));
+
+  const currentSectionKey = STEP_SECTION_KEYS[step];
+  const isCurrentHidden = currentSectionKey
+    ? (data.hiddenSections ?? []).includes(currentSectionKey)
+    : false;
+
+  const toggleSectionHidden = (key) => {
+    const current = data.hiddenSections ?? [];
+    const next = current.includes(key)
+      ? current.filter((k) => k !== key)
+      : [...current, key];
+    update("hiddenSections", next);
+    // Background auto-save so toggling persists immediately across page refresh
+    updateResume({
+      resumeId,
+      data: {
+        ...data,
+        hiddenSections: next,
+      },
+    }).catch((err) => console.error("Auto-save hiddenSections failed:", err));
+  };
 
   const onMouseDown = useCallback(() => {
     isDragging.current = true;
@@ -276,6 +308,7 @@ export function BuilderClient({ resumeId, initial }) {
           projects: data.projects ?? [],
           education: data.education ?? [],
           sectionOrder: data.sectionOrder ?? DEFAULT_SECTION_ORDER,
+          hiddenSections: data.hiddenSections ?? [],
           customSections: data.customSections ?? [],
         },
       }),
@@ -553,7 +586,52 @@ export function BuilderClient({ resumeId, initial }) {
             className="flex-1 overflow-y-auto py-5 pr-4"
             style={{ paddingLeft: leftPad }}
           >
-            <h2 className="mb-4 text-lg font-semibold">{STEPS[step]}</h2>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">{STEPS[step]}</h2>
+              {currentSectionKey && (
+                <button
+                  type="button"
+                  onClick={() => toggleSectionHidden(currentSectionKey)}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium border transition-all ${
+                    isCurrentHidden
+                      ? "border-amber-500/30 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
+                      : "border-white/10 bg-white/5 text-muted-foreground hover:text-white hover:bg-white/10"
+                  }`}
+                  title={
+                    isCurrentHidden
+                      ? "Click to show this section on your resume"
+                      : "Click to hide this section from your resume"
+                  }
+                >
+                  {isCurrentHidden ? (
+                    <>
+                      <EyeOff className="h-3.5 w-3.5" />
+                      <span>Hidden from resume</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>Visible on resume</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+
+            {isCurrentHidden && (
+              <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-500/5 px-3.5 py-2.5 text-xs text-amber-300">
+                <span>
+                  This section is currently hidden and will not appear on your resume. Your inputs are safely preserved.
+                </span>
+                <button
+                  type="button"
+                  onClick={() => toggleSectionHidden(currentSectionKey)}
+                  className="ml-3 font-semibold underline hover:text-amber-200 shrink-0"
+                >
+                  Show section
+                </button>
+              </div>
+            )}
 
             {step === 0 && (
               <PersonalInfoForm
@@ -607,6 +685,17 @@ export function BuilderClient({ resumeId, initial }) {
                 value={data.sectionOrder ?? DEFAULT_SECTION_ORDER}
                 onChange={(v) => update("sectionOrder", v)}
                 customSections={data.customSections ?? []}
+                hiddenSections={data.hiddenSections ?? []}
+                onHiddenChange={(h) => {
+                  update("hiddenSections", h);
+                  updateResume({
+                    resumeId,
+                    data: {
+                      ...data,
+                      hiddenSections: h,
+                    },
+                  }).catch((err) => console.error("Auto-save hiddenSections failed:", err));
+                }}
               />
             )}
 

@@ -24,6 +24,7 @@ function MinSection({ label, children }) {
 export function MinimalTemplate({ data }) {
   const pi = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
+  const hidden = new Set(data.hiddenSections ?? []);
 
   const customMap = {};
   (data.customSections ?? []).forEach((cs) => {
@@ -219,11 +220,11 @@ export function MinimalTemplate({ data }) {
         </header>
       )}
 
-      {order.map((key) =>
-        sections[key]
-          ? <Fragment key={key}>{sections[key]}</Fragment>
-          : null
-      )}
+      {order
+        .filter((key) => !hidden.has(key))
+        .map((key) =>
+          sections[key] ? <Fragment key={key}>{sections[key]}</Fragment> : null
+        )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
 
 export const DEFAULT_SECTION_ORDER = [
   "summary",
@@ -18,8 +18,24 @@ const SECTION_LABELS = {
   skills: "Skills",
 };
 
-export function SectionOrderForm({ value, onChange, customSections = [] }) {
+export function SectionOrderForm({
+  value,
+  onChange,
+  customSections = [],
+  hiddenSections = [],
+  onHiddenChange,
+}) {
   const baseOrder = value?.length > 0 ? value : DEFAULT_SECTION_ORDER;
+  const hiddenSet = new Set(hiddenSections ?? []);
+
+  const toggleHide = (key) => {
+    if (!onHiddenChange) return;
+    const current = hiddenSections ?? [];
+    const next = current.includes(key)
+      ? current.filter((k) => k !== key)
+      : [...current, key];
+    onHiddenChange(next);
+  };
 
   // Auto-add any new custom section IDs that aren't in the order yet
   const customIds = (customSections ?? []).map((cs) => cs.id);
@@ -59,7 +75,7 @@ export function SectionOrderForm({ value, onChange, customSections = [] }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Use the arrows to change the order sections appear on your resume.
+        Use the arrows to change the order sections appear on your resume, or click the eye icon to hide/show sections without losing their content.
         The header (name &amp; contact) is always at the top.
       </p>
 
@@ -69,44 +85,81 @@ export function SectionOrderForm({ value, onChange, customSections = [] }) {
       </div>
 
       <div className="space-y-2">
-        {order.map((key, i) => (
-          <div
-            key={key}
-            className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3 shadow-sm transition-shadow hover:shadow"
-          >
-            <span className="text-muted-foreground text-sm font-mono w-5 text-center select-none">
-              {i + 1}
-            </span>
-            <span className="flex-1 text-sm font-medium flex items-center gap-2">
-              {getLabelForKey(key)}
-              {isCustom(key) && (
-                <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                  Custom
+        {order.map((key, i) => {
+          const isHidden = hiddenSet.has(key);
+          return (
+            <div
+              key={key}
+              className={`flex items-center gap-3 rounded-lg border px-4 py-3 shadow-sm transition-all ${
+                isHidden
+                  ? "border-white/5 bg-white/[0.02] opacity-60"
+                  : "border-white/10 bg-white/5 hover:shadow"
+              }`}
+            >
+              <span className="text-muted-foreground text-sm font-mono w-5 text-center select-none">
+                {i + 1}
+              </span>
+              <span className="flex-1 text-sm font-medium flex items-center gap-2">
+                <span className={isHidden ? "line-through text-muted-foreground" : ""}>
+                  {getLabelForKey(key)}
                 </span>
-              )}
-            </span>
-            <div className="flex gap-1">
-              <button
-                type="button"
-                disabled={i === 0}
-                onClick={() => move(i, -1)}
-                className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                title="Move up"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                disabled={i === order.length - 1}
-                onClick={() => move(i, 1)}
-                className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                title="Move down"
-              >
-                <ArrowDown className="h-4 w-4" />
-              </button>
+                {isCustom(key) && (
+                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    Custom
+                  </span>
+                )}
+                {isHidden && (
+                  <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                    Hidden
+                  </span>
+                )}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => toggleHide(key)}
+                  className={`h-7 px-2 rounded-md flex items-center gap-1.5 text-xs font-medium transition-colors ${
+                    isHidden
+                      ? "bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 border border-amber-500/30"
+                      : "hover:bg-white/10 text-muted-foreground hover:text-white"
+                  }`}
+                  title={isHidden ? "Show section on resume" : "Hide section from resume"}
+                >
+                  {isHidden ? (
+                    <>
+                      <EyeOff className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Hidden</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Visible</span>
+                    </>
+                  )}
+                </button>
+                <div className="h-4 w-[1px] bg-white/10 mx-1" />
+                <button
+                  type="button"
+                  disabled={i === 0}
+                  onClick={() => move(i, -1)}
+                  className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  title="Move up"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  disabled={i === order.length - 1}
+                  onClick={() => move(i, 1)}
+                  className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  title="Move down"
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {order.length === 0 && (

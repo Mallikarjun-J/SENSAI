@@ -18,9 +18,10 @@ function getInitials(name) {
 }
 
 function getScoreInfo(score) {
-  if (score >= 70) return { stripe: "from-emerald-500", dot: "#22c55e", text: "#4ade80", badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" };
-  if (score >= 40) return { stripe: "from-amber-500",   dot: "#f59e0b", text: "#fbbf24", badge: "bg-amber-500/10 text-amber-400 border-amber-500/20" };
-  return             { stripe: "from-red-500",     dot: "#ef4444", text: "#f87171", badge: "bg-red-500/10 text-red-400 border-red-500/20" };
+  if (score >= 85) return { stripe: "from-emerald-500", dot: "#22c55e", text: "#4ade80", badge: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", label: "Excellent" };
+  if (score >= 70) return { stripe: "from-lime-500",    dot: "#a3e635", text: "#a3e635", badge: "bg-lime-500/10 text-lime-400 border-lime-500/20",       label: "Good" };
+  if (score >= 50) return { stripe: "from-amber-500",   dot: "#f59e0b", text: "#fbbf24", badge: "bg-amber-500/10 text-amber-400 border-amber-500/20",     label: "Average" };
+  return             { stripe: "from-red-500",     dot: "#ef4444", text: "#f87171", badge: "bg-red-500/10 text-red-400 border-red-500/20",         label: "Poor" };
 }
 
 function ScoreArc({ score }) {
@@ -188,7 +189,7 @@ export default function AnalysisCard({ analysis }) {
           </div>
           {!isPending && !isError && (
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${info?.badge}`}>
-              {score}/100
+              {info?.label} · {score}/100
             </span>
           )}
         </div>

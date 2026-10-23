@@ -71,6 +71,7 @@ model Resume {
   projects        Json     @default("[]")
   education       Json     @default("[]")
   sectionOrder    Json     @default("[]")
+  hiddenSections  Json     @default("[]")
   customSections  Json     @default("[]")
 
   createdAt DateTime @default(now())

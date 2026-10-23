@@ -12,9 +12,11 @@ export default function ScoreCircle({ score, size = "md" }) {
   const clamped = Math.min(100, Math.max(0, score ?? 0));
   const offset  = circ - (clamped / 100) * circ;
 
-  const color = clamped >= 70
+  const color = clamped >= 85
     ? { stroke: "#22c55e", text: "#4ade80" }
-    : clamped >= 40
+    : clamped >= 70
+    ? { stroke: "#a3e635", text: "#a3e635" }
+    : clamped >= 50
     ? { stroke: "#f59e0b", text: "#fbbf24" }
     : { stroke: "#ef4444", text: "#f87171" };
 

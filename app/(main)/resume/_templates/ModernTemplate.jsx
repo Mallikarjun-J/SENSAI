@@ -13,6 +13,7 @@ function GpaLabel({ gpa }) {
 export function ModernTemplate({ data }) {
   const pi = data.personalInfo ?? {};
   const order = data.sectionOrder?.length ? data.sectionOrder : DEFAULT_SECTION_ORDER;
+  const hidden = new Set(data.hiddenSections ?? []);
 
   const sections = {
     summary: hasText(data.professionalSummary) ? (
@@ -154,7 +155,7 @@ export function ModernTemplate({ data }) {
           <div className="mt-2 text-[0.857em] opacity-90"><ContactLine pi={pi} /></div>
         </header>
       )}
-      {order.map((key) => sections[key] ?? null)}
+      {order.filter((key) => !hidden.has(key)).map((key) => sections[key] ?? null)}
     </div>
   );
 }

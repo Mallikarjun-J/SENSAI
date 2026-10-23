@@ -98,11 +98,12 @@ export async function updateResume({ resumeId, data }) {
       professionalSummary: data.professionalSummary,
       skills: data.skills ?? [],
       // Store font inside personalInfo JSON (no dedicated column in schema)
-      personalInfo: { ...(data.personalInfo ?? {}), _font: data.font ?? "inter" },
+      personalInfo: { ...(data.personalInfo ?? {}), _font: data.font ?? "inter", _hiddenSections: data.hiddenSections ?? [] },
       experience: data.experience ?? [],
       projects: data.projects ?? [],
       education: data.education ?? [],
       sectionOrder: data.sectionOrder ?? [],
+      hiddenSections: data.hiddenSections ?? [],
       customSections: data.customSections ?? [],
     },
   });

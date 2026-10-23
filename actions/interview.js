@@ -286,6 +286,7 @@ Standards:
  */
 function formatResumeToText(resume) {
   const parts = [];
+  const hidden = new Set(resume.hiddenSections ?? resume.personalInfo?._hiddenSections ?? []);
 
   if (resume.title) parts.push(`Resume Title: ${resume.title}`);
 
@@ -294,15 +295,15 @@ function formatResumeToText(resume) {
     parts.push(`Candidate: ${pi.fullName || ""} ${pi.profession ? `(${pi.profession})` : ""}`.trim());
   }
 
-  if (resume.professionalSummary) {
+  if (!hidden.has("summary") && resume.professionalSummary) {
     parts.push(`\n--- Professional Summary ---\n${resume.professionalSummary}`);
   }
 
-  if (Array.isArray(resume.skills) && resume.skills.length > 0) {
+  if (!hidden.has("skills") && Array.isArray(resume.skills) && resume.skills.length > 0) {
     parts.push(`\n--- Skills ---\n${resume.skills.join("\n")}`);
   }
 
-  if (Array.isArray(resume.experience) && resume.experience.length > 0) {
+  if (!hidden.has("experience") && Array.isArray(resume.experience) && resume.experience.length > 0) {
     const expText = resume.experience
       .map((e) => {
         const header = `${e.position || "Role"} at ${e.company || "Company"} (${e.startDate || ""} - ${e.isCurrent ? "Present" : e.endDate || ""})`;
@@ -313,7 +314,7 @@ function formatResumeToText(resume) {
     if (expText) parts.push(`\n--- Experience ---\n${expText}`);
   }
 
-  if (Array.isArray(resume.projects) && resume.projects.length > 0) {
+  if (!hidden.has("projects") && Array.isArray(resume.projects) && resume.projects.length > 0) {
     const projText = resume.projects
       .map((p) => `${p.name || "Project"} (${p.type || "Project"})\n${p.description || ""}`.trim())
       .filter(Boolean)
@@ -321,7 +322,7 @@ function formatResumeToText(resume) {
     if (projText) parts.push(`\n--- Projects ---\n${projText}`);
   }
 
-  if (Array.isArray(resume.education) && resume.education.length > 0) {
+  if (!hidden.has("education") && Array.isArray(resume.education) && resume.education.length > 0) {
     const eduText = resume.education
       .map((ed) => `${ed.degree || ""} in ${ed.field || ""} - ${ed.institution || ""} (${ed.graduationDate || ""})`.trim())
       .filter(Boolean)
