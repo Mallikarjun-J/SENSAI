@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SensAI — UML Sequence Diagrams (All 8 Features)</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { margin-bottom: 24px; }
+    .header h1 {
+      font-size: 22px; font-weight: 700; color: #0f172a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+      background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+    }
+    .header .subtitle { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+    /* Interactive Tab Navigation */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+    .tab-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+    }
+
+    .diagram-panel { display: none; }
+    .diagram-panel.active { display: block; }
+
+    .diagram-card {
+      border: 1px solid #cbd5e1; border-radius: 12px;
+      overflow: hidden; background: #ffffff; margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+    .diagram-card svg { display: block; width: 100%; height: auto; }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.blue { background: #0284c7; }
+    .card-dot.emerald { background: #059669; }
+    .card-dot.amber { background: #d97706; }
+    .card-dot.violet { background: #7c3aed; }
+    .card-dot.rose { background: #e11d48; }
+    .card h3 {
+      font-size: 12px; font-weight: 700; color: #0f172a;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .card ul { list-style: none; }
+    .card li { font-size: 11px; color: #334155; padding: 3px 0; line-height: 1.45; }
+    .card li strong { color: #0f172a; }
+    .footer { text-align: center; font-size: 11px; color: #94a3b8; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } body { padding: 20px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><span class="status-badge">UML SEQUENCE</span> SensAI — Chronological Interaction Model</h1>
+      <p class="subtitle">Complete technical sequence specifications across all 8 features: lifelines, activations, sync/async calls, error guards, and persistence</p>
+    </div>
+
+    <!-- Feature Tab Navigation -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(0)">01. Onboarding &amp; Auth</button>
+      <button class="tab-btn" onclick="switchTab(1)">02. Market Insights</button>
+      <button class="tab-btn" onclick="switchTab(2)">03. Resume Builder</button>
+      <button class="tab-btn" onclick="switchTab(3)">04. ATS Resume Analyzer</button>
+      <button class="tab-btn" onclick="switchTab(4)">05. Cover Letter</button>
+      <button class="tab-btn" onclick="switchTab(5)">06. Technical Quiz</button>
+      <button class="tab-btn" onclick="switchTab(6)">07. Real-Time Voice</button>
+      <button class="tab-btn" onclick="switchTab(7)">08. Roadmap &amp; Skill Sync</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB 1: USER ONBOARDING & AUTH FLOW                          -->
+    <!-- Lifelines: L1=120, L2=370, L3=620, L4=870, L5=1150          -->
+    <!-- Bays: B12=245, B23=495, B34=745, B45=1010                   -->
+    <!-- ============================================================ -->
+    <div id="panel-0" class="diagram-panel active">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="120" y1="90" x2="120" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="35" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="120" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="120" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Browser / Client UI</text>
+
+          <line x1="370" y1="90" x2="370" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="285" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.8"/>
+          <text x="370" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#e11d48">Auth Service</text>
+          <text x="370" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Identity Provider</text>
+
+          <line x1="620" y1="90" x2="620" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="535" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/>
+          <text x="620" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#ea580c">Edge Middleware</text>
+          <text x="620" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Route Guard</text>
+
+          <line x1="870" y1="90" x2="870" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="785" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="870" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="870" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">checkUser() / updateUser()</text>
+
+          <line x1="1150" y1="90" x2="1150" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1065" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1150" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1150" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">User Table</text>
+
+          <!-- Step 1: Sign In (L1 -> L2) -->
+          <line x1="120" y1="130" x2="360" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(145, 119)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. Authenticate credentials</text>
+          </g>
+
+          <line x1="360" y1="170" x2="130" y2="170" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-1)"/>
+          <g transform="translate(155, 159)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Set session JWT cookie</text>
+          </g>
+
+          <!-- Step 2: Navigate to Dashboard (L1 -> L3: Badge at B12=245) -->
+          <line x1="120" y1="210" x2="610" y2="210" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(155, 199)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">2. HTTP GET /dashboard</text>
+          </g>
+
+          <!-- Step 3: Edge verification -->
+          <rect x="615" y="215" width="10" height="40" fill="#ffedd5" stroke="#ea580c"/>
+          <line x1="625" y1="230" x2="700" y2="230" stroke="#ea580c" stroke-width="1.2"/>
+          <line x1="700" y1="230" x2="700" y2="250" stroke="#ea580c" stroke-width="1.2"/>
+          <line x1="700" y1="250" x2="625" y2="250" stroke="#ea580c" stroke-width="1.2" marker-end="url(#sarr-1)"/>
+          <text x="710" y="244" font-family="'JetBrains Mono', monospace" font-size="8" fill="#ea580c">Verify JWT claims</text>
+
+          <!-- Step 4: checkUser() Server Action (L3 -> L4: Badge at B34=745) -->
+          <line x1="620" y1="280" x2="860" y2="280" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(655, 269)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">3. Invoke checkUser()</text>
+          </g>
+
+          <!-- Step 5: Query PostgreSQL User (L4 -> L5: Badge at B45=1010) -->
+          <line x1="870" y1="320" x2="1140" y2="320" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(910, 309)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">4. findUnique(auth_user_id)</text>
+          </g>
+
+          <!-- Step 6: Return null (L5 -> L4) -->
+          <line x1="1140" y1="360" x2="880" y2="360" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-1)"/>
+          <g transform="translate(930, 349)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">User record not found</text>
+          </g>
+
+          <!-- Step 7: Create User record (L4 -> L5) -->
+          <line x1="870" y1="400" x2="1140" y2="400" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(920, 389)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">5. prisma.user.create()</text>
+          </g>
+
+          <!-- Step 8: Redirect to /onboarding (L4 -> L1: Badge at B23=495) -->
+          <line x1="860" y1="440" x2="130" y2="440" stroke="#ea580c" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(385, 429)">
+            <rect width="220" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="110" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ea580c">6. 307 Redirect to /onboarding</text>
+          </g>
+
+          <!-- Step 9: User fills industry and bio (L1 -> L4: Badge at B23=495) -->
+          <line x1="120" y1="490" x2="860" y2="490" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(370, 479)">
+            <rect width="250" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="125" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">7. updateUser({ industry, bio })</text>
+          </g>
+
+          <!-- Step 10: Persist onboarded status (L4 -> L5) -->
+          <line x1="870" y1="530" x2="1140" y2="530" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-1)"/>
+          <g transform="translate(920, 519)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">8. prisma.user.update()</text>
+          </g>
+
+          <line x1="1140" y1="570" x2="880" y2="570" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-1)"/>
+          <g transform="translate(935, 559)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Updated User Row</text>
+          </g>
+
+          <!-- Step 11: Route to Dashboard (L4 -> L1: Badge at B23=495) -->
+          <line x1="860" y1="620" x2="130" y2="620" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-1)"/>
+          <g transform="translate(370, 609)">
+            <rect width="250" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="125" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">9. RevalidatePath &amp; Load /dashboard</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Edge Interception</h3></div>
+          <ul>
+            <li>• <strong>Middleware Shield:</strong> Edge middleware interrogates every request for valid session claims before executing React server components.</li>
+            <li>• <strong>Zero Cold-Starts:</strong> Unauthenticated requests are immediately diverted to sign-in without server rendering overhead.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Idempotent Provisioning</h3></div>
+          <ul>
+            <li>• <strong>checkUser() Action:</strong> Automatically verifies if the authenticated user exists in PostgreSQL; provisions initial record if missing.</li>
+            <li>• <strong>State Guard:</strong> Redirects un-onboarded candidates to <code>/onboarding</code> until industry parameters are seeded.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot violet"></div><h3>Profile Linkage</h3></div>
+          <ul>
+            <li>• <strong>Prisma Transactions:</strong> <code>updateUser()</code> commits industry, sub-industry, experience years, and candidate bio in a single atomic write.</li>
+            <li>• <strong>Cache Invalidation:</strong> Calls <code>revalidatePath("/dashboard")</code> to purge stale user layout caches immediately.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 2: INDUSTRY INSIGHTS & MARKET INTELLIGENCE              -->
+    <!-- Lifelines: L1=120, L2=400, L3=680, L4=940, L5=1200          -->
+    <!-- Bays: B12=260, B23=540, B34=810, B45=1070                   -->
+    <!-- ============================================================ -->
+    <div id="panel-1" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="120" y1="90" x2="120" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="35" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="120" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="120" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Dashboard View</text>
+
+          <line x1="400" y1="90" x2="400" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="315" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="400" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="400" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">generateInsights()</text>
+
+          <line x1="680" y1="90" x2="680" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="595" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.8"/>
+          <text x="680" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#e11d48">Redis Cache</text>
+          <text x="680" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Key: insights:{industry}</text>
+
+          <line x1="940" y1="90" x2="940" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="855" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="940" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="940" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Market Trend Synthesis</text>
+
+          <line x1="1200" y1="90" x2="1200" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1115" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1200" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1200" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">IndustryInsight Table</text>
+
+          <!-- Step 1: Open Dashboard (L1 -> L2) -->
+          <line x1="120" y1="130" x2="390" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-2)"/>
+          <g transform="translate(180, 119)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. Load /dashboard</text>
+          </g>
+
+          <!-- Step 2: Check Redis Cache (L2 -> L3: Bay B23=540) -->
+          <line x1="400" y1="170" x2="670" y2="170" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-2)"/>
+          <g transform="translate(450, 159)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">2. GET insights:Tech</text>
+          </g>
+
+          <!-- Step 3: Cache Miss (L3 -> L2) -->
+          <line x1="670" y1="210" x2="410" y2="210" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-2)"/>
+          <g transform="translate(470, 199)">
+            <rect width="140" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="70" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Cache Miss (null)</text>
+          </g>
+
+          <!-- Step 4: Query Database (L2 -> L5: Badge at B34=810) -->
+          <line x1="400" y1="250" x2="1190" y2="250" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-2)"/>
+          <g transform="translate(710, 239)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">3. findUnique(industry="Tech")</text>
+          </g>
+
+          <!-- Step 5: DB Stale Check (L5 -> L2: Badge at B34=810) -->
+          <line x1="1190" y1="290" x2="410" y2="290" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-2)"/>
+          <g transform="translate(720, 279)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Row expired or missing</text>
+          </g>
+
+          <!-- Step 6: Generate via Gemini API (L2 -> L4: Badge at B23=540) -->
+          <line x1="400" y1="340" x2="930" y2="340" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-2)"/>
+          <g transform="translate(430, 329)">
+            <rect width="220" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="110" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">4. Prompt Gemini API (Salary, Skills)</text>
+          </g>
+
+          <!-- Step 7: Structured JSON (L4 -> L2: Badge at B23=540) -->
+          <line x1="930" y1="390" x2="410" y2="390" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-2)"/>
+          <g transform="translate(450, 379)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Structured Market JSON</text>
+          </g>
+
+          <!-- Step 8: Persist in PostgreSQL (L2 -> L5: Badge at B45=1070) -->
+          <line x1="400" y1="440" x2="1190" y2="440" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-2)"/>
+          <g transform="translate(970, 429)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">5. prisma.industryInsight.upsert()</text>
+          </g>
+
+          <!-- Step 9: Save to Redis Cache (L2 -> L3: Badge at B23=540) -->
+          <line x1="400" y1="490" x2="670" y2="490" stroke="#059669" stroke-width="1.5" marker-end="url(#sarr-2)"/>
+          <g transform="translate(440, 479)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#059669">6. SETEX insights:Tech (7d)</text>
+          </g>
+
+          <!-- Step 10: Render UI Charts (L2 -> L1: Badge at B12=260) -->
+          <line x1="390" y1="540" x2="130" y2="540" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-2)"/>
+          <g transform="translate(170, 529)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">7. Render Salary &amp; Radar</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot amber"></div><h3>Dual-Layer Caching</h3></div>
+          <ul>
+            <li>• <strong>Redis AI Cache:</strong> Caches industry trends for 7 days to eliminate redundant AI calls across candidate cohorts in the same sector.</li>
+            <li>• <strong>Database Baseline:</strong> Serves historical fallback data immediately if network latency threatens client dashboard render times.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Structured Extraction</h3></div>
+          <ul>
+            <li>• <strong>Schema Conformity:</strong> Gemini API returns salary percentiles (entry, median, senior), demand scores, and key technologies.</li>
+            <li>• <strong>Atomic Upsert:</strong> Replaces expired industry rows using composite unique industry keys.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Data Flow Efficiency</h3></div>
+          <ul>
+            <li>• <strong>Sub-100ms Responses:</strong> Cache hits return in ~35ms directly from memory without invoking Gemini API.</li>
+            <li>• <strong>Cron-Triggered Warmup:</strong> Weekly scheduler refreshes high-traffic industries ahead of peak Monday morning application windows.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 3: INTERACTIVE RESUME BUILDER                           -->
+    <!-- Lifelines: L1=120, L2=420, L3=740, L4=1020, L5=1240         -->
+    <!-- Bays: B12=270, B23=580, B34=880, B45=1130                   -->
+    <!-- ============================================================ -->
+    <div id="panel-2" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="120" y1="90" x2="120" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="35" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="120" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="120" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Resume Builder UI</text>
+
+          <line x1="420" y1="90" x2="420" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="335" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="420" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="420" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">saveResume() / polish()</text>
+
+          <line x1="740" y1="90" x2="740" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="655" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="740" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="740" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">AI Section Polisher</text>
+
+          <line x1="1020" y1="90" x2="1020" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="935" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1020" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1020" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Resume Table</text>
+
+          <line x1="1240" y1="90" x2="1240" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1155" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/>
+          <text x="1240" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#64748b">Print Engine</text>
+          <text x="1240" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Virtual A4 Node</text>
+
+          <!-- Step 1: Draft Experience (L1 -> L2: B12=270) -->
+          <line x1="120" y1="130" x2="410" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-3)"/>
+          <g transform="translate(195, 119)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. Input draft bullets</text>
+          </g>
+
+          <!-- Step 2: Request AI Polish (L1 -> L2: B12=270) -->
+          <line x1="120" y1="180" x2="410" y2="180" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-3)"/>
+          <g transform="translate(180, 169)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">2. improveWithAI(bullet)</text>
+          </g>
+
+          <!-- Step 3: Gemini API Prompt (L2 -> L3: B23=580) -->
+          <line x1="420" y1="220" x2="730" y2="220" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-3)"/>
+          <g transform="translate(490, 209)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">3. Prompt STAR Method</text>
+          </g>
+
+          <!-- Step 4: Return Polished text (L3 -> L2: B23=580) -->
+          <line x1="730" y1="260" x2="430" y2="260" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-3)"/>
+          <g transform="translate(500, 249)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Action-verb bullet</text>
+          </g>
+
+          <line x1="410" y1="290" x2="130" y2="290" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-3)"/>
+          <g transform="translate(190, 279)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Inject into Editor</text>
+          </g>
+
+          <!-- Step 5: Save Resume (L1 -> L2: B12=270) -->
+          <line x1="120" y1="340" x2="410" y2="340" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-3)"/>
+          <g transform="translate(195, 329)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">4. Click Save Draft</text>
+          </g>
+
+          <!-- Step 6: Persist in PostgreSQL (L2 -> L4: Badge at B34=880) -->
+          <line x1="420" y1="380" x2="1010" y2="380" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-3)"/>
+          <g transform="translate(790, 369)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">5. prisma.resume.upsert()</text>
+          </g>
+
+          <!-- Step 7: Acknowledge Save (L4 -> L1: Badge at B23=580) -->
+          <line x1="1010" y1="420" x2="130" y2="420" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-3)"/>
+          <g transform="translate(500, 409)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">Resume Saved (ID)</text>
+          </g>
+
+          <!-- Step 8: Trigger A4 Print (L1 -> L5: Badge at B23=580) -->
+          <line x1="120" y1="480" x2="1230" y2="480" stroke="#0284c7" stroke-width="1.5" marker-end="url(#sarr-3)"/>
+          <g transform="translate(490, 469)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0284c7">6. Select Template &amp; Print</text>
+          </g>
+
+          <!-- Step 9: Print Node Isolation -->
+          <rect x="1235" y="500" width="10" height="50" fill="#f1f5f9" stroke="#64748b"/>
+          <line x1="1245" y1="515" x2="1310" y2="515" stroke="#64748b" stroke-width="1.2"/>
+          <line x1="1310" y1="515" x2="1310" y2="535" stroke="#64748b" stroke-width="1.2"/>
+          <line x1="1310" y1="535" x2="1245" y2="535" stroke="#64748b" stroke-width="1.2" marker-end="url(#sarr-3)"/>
+          <text x="1255" y="555" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#64748b">Clone to Virtual A4</text>
+
+          <!-- Step 10: PDF Stream Out (L5 -> L1: Badge at B23=580) -->
+          <line x1="1230" y1="580" x2="130" y2="580" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-3)"/>
+          <g transform="translate(490, 569)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">7. Single-Page PDF Print</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Section-by-Section AI</h3></div>
+          <ul>
+            <li>• <strong>Granular Polishers:</strong> Candidate can request AI enhancement on individual bullet points, summary paragraphs, or skill lists.</li>
+            <li>• <strong>STAR Standard:</strong> Formats draft duties into measurable Situation-Task-Action-Result achievements.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot violet"></div><h3>Layout Staging</h3></div>
+          <ul>
+            <li>• <strong>5 Modern Templates:</strong> Supports Modern, Classic, Minimal, Creative, and Tech layouts tailored for FAANG ATS filters.</li>
+            <li>• <strong>Dynamic Reordering:</strong> Sections serialize into JSON arrays, allowing instant drag-and-drop hierarchy adjustments.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Single-Page A4 Precision</h3></div>
+          <ul>
+            <li>• <strong>Virtual Staging Node:</strong> Clones the preview subtree into an off-screen container with calibrated 10.5pt typography.</li>
+            <li>• <strong>Margin Calibration:</strong> Enforces 20mm printable boundaries to prevent multi-page accidental spillover during export.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 4: MULTIMODAL ATS RESUME ANALYZER                       -->
+    <!-- Lifelines: L1=110, L2=330, L3=560, L4=790, L5=1020, L6=1230 -->
+    <!-- Bays: B12=220, B23=445, B34=675, B45=905, B56=1125          -->
+    <!-- ============================================================ -->
+    <div id="panel-3" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="110" y1="90" x2="110" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="25" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="110" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="110" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">React 19 Client UI</text>
+
+          <line x1="330" y1="90" x2="330" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="245" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.8"/>
+          <text x="330" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#e11d48">Rate Limiter</text>
+          <text x="330" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">5 req / hr sliding window</text>
+
+          <line x1="560" y1="90" x2="560" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="475" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="560" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="560" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">analyzeResume()</text>
+
+          <line x1="790" y1="90" x2="790" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="705" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="790" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Redis AI Cache</text>
+          <text x="790" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">SHA-256 (24h TTL)</text>
+
+          <line x1="1020" y1="90" x2="1020" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="935" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="1020" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="1020" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Multimodal PDF Parser</text>
+
+          <line x1="1230" y1="90" x2="1230" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1145" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1230" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1230" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">ResumeAnalysis Table</text>
+
+          <!-- Step 1: Upload / Request (L1 -> L3: Badge at B12=220) -->
+          <line x1="110" y1="130" x2="550" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-4)"/>
+          <g transform="translate(130, 119)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. analyzeResume(pdfUrl)</text>
+          </g>
+
+          <!-- Step 2: Rate Limit check (L3 -> L2: Badge at B23=445) -->
+          <line x1="560" y1="170" x2="340" y2="170" stroke="#e11d48" stroke-width="1.5" marker-end="url(#sarr-4)"/>
+          <g transform="translate(385, 159)">
+            <rect width="120" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="60" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e11d48">2. limit(user_id)</text>
+          </g>
+
+          <!-- Step 3: Rate Limit Success (L2 -> L3: Badge at B23=445) -->
+          <line x1="340" y1="210" x2="550" y2="210" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-4)"/>
+          <g transform="translate(370, 199)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#059669">Allowed (4 remaining)</text>
+          </g>
+
+          <!-- Step 4: SSRF Check -->
+          <rect x="555" y="235" width="10" height="40" fill="#ecfdf5" stroke="#059669"/>
+          <line x1="565" y1="245" x2="630" y2="245" stroke="#059669" stroke-width="1.2"/>
+          <line x1="630" y1="245" x2="630" y2="265" stroke="#059669" stroke-width="1.2"/>
+          <line x1="630" y1="265" x2="565" y2="265" stroke="#059669" stroke-width="1.2" marker-end="url(#sarr-4)"/>
+          <text x="640" y="258" font-family="'JetBrains Mono', monospace" font-size="8" fill="#059669">Verify host is trusted CDN</text>
+
+          <!-- Step 5: Redis Cache check (L3 -> L4: Badge at B34=675) -->
+          <line x1="560" y1="295" x2="780" y2="295" stroke="#0284c7" stroke-width="1.5" marker-end="url(#sarr-4)"/>
+          <g transform="translate(605, 284)">
+            <rect width="140" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="70" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0284c7">3. GET sha256(pdf)</text>
+          </g>
+
+          <line x1="780" y1="335" x2="570" y2="335" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-4)"/>
+          <g transform="translate(615, 324)">
+            <rect width="120" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="60" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Cache Miss (null)</text>
+          </g>
+
+          <!-- Step 6: Gemini API Prompt (L3 -> L5: Badge at B34=675) -->
+          <line x1="560" y1="380" x2="1010" y2="380" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-4)"/>
+          <g transform="translate(585, 369)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">4. Stream Base64 Buffer</text>
+          </g>
+
+          <!-- Step 7: Structured JSON (L5 -> L3: Badge at B45=905) -->
+          <line x1="1010" y1="430" x2="570" y2="430" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-4)"/>
+          <g transform="translate(815, 419)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Strict 5-Pillar Rubric</text>
+          </g>
+
+          <!-- Step 8: Save to Redis Cache (L3 -> L4: Badge at B34=675) -->
+          <line x1="560" y1="480" x2="780" y2="480" stroke="#0284c7" stroke-width="1.5" marker-end="url(#sarr-4)"/>
+          <g transform="translate(605, 469)">
+            <rect width="140" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="70" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0284c7">5. SETEX sha256 (24h)</text>
+          </g>
+
+          <!-- Step 9: Save to PostgreSQL (L3 -> L6: Badge at B45=905) -->
+          <line x1="560" y1="530" x2="1220" y2="530" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#sarr-4)"/>
+          <g transform="translate(805, 519)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7c3aed">6. prisma.resumeAnalysis.create()</text>
+          </g>
+
+          <!-- Step 10: Return ATS Scorecard (L3 -> L1: Badge at B12=220) -->
+          <line x1="550" y1="580" x2="120" y2="580" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-4)"/>
+          <g transform="translate(130, 569)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">7. Render ATS Scorecard</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot rose"></div><h3>Burst Protection</h3></div>
+          <ul>
+            <li>• <strong>Sliding-Window Guard:</strong> Restricts analyses to 5 per hour per user across uploaded PDFs and in-app builder resumes.</li>
+            <li>• <strong>Immediate 429:</strong> Exhausted quotas return clear reset timestamps without queuing expensive AI worker threads.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Multimodal Ingestion</h3></div>
+          <ul>
+            <li>• <strong>Zero OCR Distortion:</strong> Passes raw PDF buffers straight to Gemini API for direct native layout inspection.</li>
+            <li>• <strong>SSRF Defense:</strong> Validates file download origins strictly against trusted CDN hostnames before buffer extraction.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>SHA-256 AI Caching</h3></div>
+          <ul>
+            <li>• <strong>Content Deduplication:</strong> Computes a deterministic SHA-256 hash over the binary buffer; cache hits return in 35ms.</li>
+            <li>• <strong>24-Hour TTL:</strong> Balances cost reduction with candidate iteration speed.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 5: AI COVER LETTER GENERATOR                            -->
+    <!-- Lifelines: L1=120, L2=380, L3=650, L4=930, L5=1200          -->
+    <!-- Bays: B12=250, B23=515, B34=790, B45=1065                   -->
+    <!-- ============================================================ -->
+    <div id="panel-4" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-5" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-5" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="120" y1="90" x2="120" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="35" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="120" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="120" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Cover Letter UI</text>
+
+          <line x1="380" y1="90" x2="380" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="295" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.8"/>
+          <text x="380" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#e11d48">Rate Limiter</text>
+          <text x="380" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">5 req / hr sliding window</text>
+
+          <line x1="650" y1="90" x2="650" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="565" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="650" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="650" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">generateCoverLetter()</text>
+
+          <line x1="930" y1="90" x2="930" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="845" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="930" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="930" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">JD Alignment Engine</text>
+
+          <line x1="1200" y1="90" x2="1200" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1115" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1200" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1200" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">CoverLetter Table</text>
+
+          <!-- Step 1: Submit Form (L1 -> L3: Badge at B12=250) -->
+          <line x1="120" y1="130" x2="640" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-5)"/>
+          <g transform="translate(150, 119)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. Submit JD &amp; Company</text>
+          </g>
+
+          <!-- Step 2: Rate Limit (L3 -> L2: Badge at B23=515) -->
+          <line x1="650" y1="170" x2="390" y2="170" stroke="#e11d48" stroke-width="1.5" marker-end="url(#sarr-5)"/>
+          <g transform="translate(455, 159)">
+            <rect width="120" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="60" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e11d48">2. limit(user_id)</text>
+          </g>
+
+          <line x1="390" y1="210" x2="640" y2="210" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-5)"/>
+          <g transform="translate(440, 199)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#059669">Allowed (5/hr quota)</text>
+          </g>
+
+          <!-- Step 3: Fetch Active Resume (L3 -> L5: Badge at B34=790) -->
+          <line x1="650" y1="260" x2="1190" y2="260" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-5)"/>
+          <g transform="translate(690, 249)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">3. findFirst(user_id, resume)</text>
+          </g>
+
+          <line x1="1190" y1="300" x2="660" y2="300" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-5)"/>
+          <g transform="translate(710, 289)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Candidate Resume JSON</text>
+          </g>
+
+          <!-- Step 4: Gemini API Prompt (L3 -> L4: Badge at B34=790) -->
+          <line x1="650" y1="350" x2="920" y2="350" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-5)"/>
+          <g transform="translate(700, 339)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">4. Prompt 400-Word Letter</text>
+          </g>
+
+          <line x1="920" y1="400" x2="660" y2="400" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-5)"/>
+          <g transform="translate(715, 389)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Generated Markdown</text>
+          </g>
+
+          <!-- Step 5: Save to DB (L3 -> L5: Badge at B45=1065) -->
+          <line x1="650" y1="450" x2="1190" y2="450" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#sarr-5)"/>
+          <g transform="translate(965, 439)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7c3aed">5. prisma.coverLetter.create()</text>
+          </g>
+
+          <!-- Step 6: Return to UI (L3 -> L1: Badge at B12=250) -->
+          <line x1="640" y1="500" x2="130" y2="500" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-5)"/>
+          <g transform="translate(150, 489)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">6. Display Letter &amp; Actions</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Context Fusion</h3></div>
+          <ul>
+            <li>• <strong>Dual-Source Synthesis:</strong> Merges candidate resume history with target job description requirements.</li>
+            <li>• <strong>400-Word Constraint:</strong> Prevents generic fluff; focuses directly on matching past achievements to role requirements.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot rose"></div><h3>Sliding-Window Quotas</h3></div>
+          <ul>
+            <li>• <strong>5 Letters / Hour:</strong> Guarded by Redis rate limiting to prevent automated scraping while giving users generous draft iteration.</li>
+            <li>• <strong>Atomic DB Writes:</strong> Generates unique records linked directly to the candidate's account for multi-job tracking.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Markdown Editing</h3></div>
+          <ul>
+            <li>• <strong>Real-Time Markdown:</strong> Allows instant in-browser refinement, custom tone edits, and one-click clipboard copying.</li>
+            <li>• <strong>PDF Staging:</strong> Uses unified styling matching the candidate's active resume design template.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 6: TECHNICAL MOCK ASSESSMENT ENGINE                     -->
+    <!-- Lifelines: L1=120, L2=450, L3=820, L4=1170                  -->
+    <!-- Bays: B12=285, B23=635, B34=995                             -->
+    <!-- ============================================================ -->
+    <div id="panel-5" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="120" y1="90" x2="120" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="35" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="120" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="120" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Quiz Client UI</text>
+
+          <line x1="450" y1="90" x2="450" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="365" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="450" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="450" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">generateQuiz() / save()</text>
+
+          <line x1="820" y1="90" x2="820" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="735" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="820" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="820" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">MCQ &amp; Tip Synthesis</text>
+
+          <line x1="1170" y1="90" x2="1170" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1085" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1170" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1170" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Assessment Table</text>
+
+          <!-- Step 1: Select Topic (L1 -> L2: B12=285) -->
+          <line x1="120" y1="130" x2="440" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-6)"/>
+          <g transform="translate(185, 119)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. generateQuiz(topic, 15)</text>
+          </g>
+
+          <!-- Step 2: Prompt Gemini API (L2 -> L3: B23=635) -->
+          <line x1="450" y1="180" x2="810" y2="180" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-6)"/>
+          <g transform="translate(545, 169)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">2. Prompt 15 MCQs &amp; Rubrics</text>
+          </g>
+
+          <!-- Step 3: Return MCQs (L3 -> L2: B23=635) -->
+          <line x1="810" y1="230" x2="460" y2="230" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-6)"/>
+          <g transform="translate(555, 219)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Structured Question Array</text>
+          </g>
+
+          <line x1="440" y1="270" x2="130" y2="270" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-6)"/>
+          <g transform="translate(205, 259)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Deliver Interactive Quiz</text>
+          </g>
+
+          <!-- Step 4: Complete and Submit (L1 -> L2: B12=285) -->
+          <line x1="120" y1="330" x2="440" y2="330" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-6)"/>
+          <g transform="translate(195, 319)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">3. Submit answers array</text>
+          </g>
+
+          <!-- Step 5: Server-side Grading -->
+          <rect x="445" y="345" width="10" height="40" fill="#ecfdf5" stroke="#059669"/>
+          <line x1="455" y1="355" x2="520" y2="355" stroke="#059669" stroke-width="1.2"/>
+          <line x1="520" y1="355" x2="520" y2="375" stroke="#059669" stroke-width="1.2"/>
+          <line x1="520" y1="375" x2="455" y2="375" stroke="#059669" stroke-width="1.2" marker-end="url(#sarr-6)"/>
+          <text x="530" y="368" font-family="'JetBrains Mono', monospace" font-size="8" fill="#059669">Grade answers &amp; isolate mistakes</text>
+
+          <!-- Step 6: Diagnostic Tip Synthesis (L2 -> L3: B23=635) -->
+          <line x1="450" y1="410" x2="810" y2="410" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-6)"/>
+          <g transform="translate(545, 399)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">4. Prompt 2-Sentence AI Tip</text>
+          </g>
+
+          <line x1="810" y1="460" x2="460" y2="460" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-6)"/>
+          <g transform="translate(565, 449)">
+            <rect width="140" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="70" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Actionable Study Tip</text>
+          </g>
+
+          <!-- Step 7: Persist Assessment (L2 -> L4: B34=995) -->
+          <line x1="450" y1="510" x2="1160" y2="510" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#sarr-6)"/>
+          <g transform="translate(895, 499)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7c3aed">5. prisma.assessment.create()</text>
+          </g>
+
+          <!-- Step 8: Return Diagnostic Report (L2 -> L1: B12=285) -->
+          <line x1="440" y1="560" x2="130" y2="560" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-6)"/>
+          <g transform="translate(185, 549)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">6. Score (0-100) &amp; Tip</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Dynamic Question Sets</h3></div>
+          <ul>
+            <li>• <strong>Topic Customization:</strong> Generates tailored sets of 10 to 25 questions across Technical, Conceptual, or Mixed categories.</li>
+            <li>• <strong>Difficulty Calibration:</strong> Tunes question complexity (Easy, Medium, Hard) to match candidate senior levels.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Server-Side Validation</h3></div>
+          <ul>
+            <li>• <strong>Tamper Prevention:</strong> Answer scoring occurs strictly on the server; client answers are evaluated against validated answer keys.</li>
+            <li>• <strong>Mistake Analysis:</strong> Automatically isolates incorrect choices and extracts exact knowledge gaps.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot amber"></div><h3>Remediation Feedback</h3></div>
+          <ul>
+            <li>• <strong>2-Sentence AI Tips:</strong> Gemini API synthesizes targeted remediation guidance focusing on the candidate's exact weaknesses.</li>
+            <li>• <strong>Historical Analytics:</strong> Tracks historical score progression on the user profile to visualize topic mastery over time.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 7: REAL-TIME AI VOICE MOCK INTERVIEW                   -->
+    <!-- Lifelines: L1=100, L2=320, L3=560, L4=810, L5=1050, L6=1250 -->
+    <!-- Bays: B12=210, B23=440, B34=685, B45=930, B56=1150          -->
+    <!-- ============================================================ -->
+    <div id="panel-6" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="100" y1="90" x2="100" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="15" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="100" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Candidate</text>
+          <text x="100" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">WebRTC Client Audio</text>
+
+          <line x1="320" y1="90" x2="320" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="235" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="320" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">App Server</text>
+          <text x="320" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Token Route &amp; End-Room</text>
+
+          <line x1="560" y1="90" x2="560" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="475" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="560" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Voice Cloud</text>
+          <text x="560" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">WebRTC SFU Room</text>
+
+          <line x1="810" y1="90" x2="810" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="725" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/>
+          <text x="810" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#ea580c">Voice Daemon</text>
+          <text x="810" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">VAD / STT / Agent Loop</text>
+
+          <line x1="1050" y1="90" x2="1050" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="965" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="1050" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="1050" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">5-Pillar Rubric Scoring</text>
+
+          <line x1="1250" y1="90" x2="1250" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1165" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1250" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1250" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">VoiceFeedback Table</text>
+
+          <!-- Step 1: Request Room Token (L1 -> L2: B12=210) -->
+          <line x1="100" y1="130" x2="310" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(130, 119)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. GET /api/livekit/token</text>
+          </g>
+
+          <line x1="310" y1="165" x2="110" y2="165" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-7)"/>
+          <g transform="translate(135, 154)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Pre-signed Room Token</text>
+          </g>
+
+          <!-- Step 2: Connect WebRTC (L1 -> L3: B12=210) -->
+          <line x1="100" y1="205" x2="550" y2="205" stroke="#0284c7" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(120, 194)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0284c7">2. Connect WebRTC Mesh</text>
+          </g>
+
+          <line x1="810" y1="205" x2="570" y2="205" stroke="#ea580c" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(605, 194)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#ea580c">Agent Daemon Joins Room</text>
+          </g>
+
+          <!-- Step 4: Turn Loop (Repeats for 5 questions) -->
+          <rect x="70" y="235" width="770" height="90" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+          <text x="85" y="252" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">LOOP: 5 Structured Interview Questions</text>
+
+          <line x1="810" y1="270" x2="110" y2="270" stroke="#0284c7" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(365, 259)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#0284c7">Agent TTS: Question N</text>
+          </g>
+
+          <line x1="100" y1="305" x2="800" y2="305" stroke="#059669" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(355, 294)">
+            <rect width="170" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="85" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#047857">Candidate Audio -> STT</text>
+          </g>
+
+          <!-- Step 5: Termination Phrase Detection -->
+          <rect x="805" y="340" width="10" height="40" fill="#ffedd5" stroke="#ea580c"/>
+          <line x1="815" y1="350" x2="880" y2="350" stroke="#ea580c" stroke-width="1.2"/>
+          <line x1="880" y1="350" x2="880" y2="370" stroke="#ea580c" stroke-width="1.2"/>
+          <line x1="880" y1="370" x2="815" y2="370" stroke="#ea580c" stroke-width="1.2" marker-end="url(#sarr-7)"/>
+          <text x="890" y="363" font-family="'JetBrains Mono', monospace" font-size="8" fill="#ea580c">Regex: "This concludes our interview"</text>
+
+          <!-- Step 6: Teardown Room (L4 -> L2: B23=440) -->
+          <line x1="810" y1="410" x2="330" y2="410" stroke="#e11d48" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(350, 399)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e11d48">3. POST /api/livekit/end-room</text>
+          </g>
+
+          <line x1="320" y1="445" x2="550" y2="445" stroke="#e11d48" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(365, 434)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e11d48">deleteRoom(room_name)</text>
+          </g>
+
+          <!-- Step 7: Grade Full Transcript (L2 -> L5: B34=685) -->
+          <line x1="320" y1="490" x2="1040" y2="490" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(595, 479)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">4. Grade Complete Transcript</text>
+          </g>
+
+          <line x1="1040" y1="535" x2="330" y2="535" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-7)"/>
+          <g transform="translate(605, 524)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">5-Pillar Score Rubric JSON</text>
+          </g>
+
+          <!-- Step 8: Save to PostgreSQL (L2 -> L6: B45=930) -->
+          <line x1="320" y1="580" x2="1240" y2="580" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#sarr-7)"/>
+          <g transform="translate(830, 569)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7c3aed">5. prisma.voiceFeedback.create()</text>
+          </g>
+
+          <!-- Step 9: Render Scorecard (L2 -> L1: B12=210) -->
+          <line x1="310" y1="625" x2="110" y2="625" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-7)"/>
+          <g transform="translate(130, 614)">
+            <rect width="160" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="80" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">6. Render Scorecard</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Real-Time WebRTC Loop</h3></div>
+          <ul>
+            <li>• <strong>Sub-Second Latency:</strong> Silero Voice Activity Detection (VAD) detects speaker pauses, streaming audio tokens in real time.</li>
+            <li>• <strong>Deterministic Flow:</strong> Python voice daemon asks exactly 5 role-specific questions sequentially without straying off topic.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot rose"></div><h3>Automated Teardown</h3></div>
+          <ul>
+            <li>• <strong>Regex Trigger:</strong> Detects <em>"This concludes our interview"</em> to trigger instant server-side room deletion.</li>
+            <li>• <strong>Strict Auth Validation:</strong> The <code>/api/livekit/end-room</code> endpoint verifies session ownership before terminating rooms.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot amber"></div><h3>5-Pillar Evaluation</h3></div>
+          <ul>
+            <li>• <strong>Post-Call Scoring:</strong> Gemini API evaluates full dialogue across Communication, Technical Accuracy, Problem Solving, Structure, and Confidence.</li>
+            <li>• <strong>Exact Dialogue Citations:</strong> Scorecard cites specific candidate quotes justifying areas for improvement.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- TAB 8: CAREER ROADMAP & SKILL SYNCHRONIZATION               -->
+    <!-- Lifelines: L1=120, L2=380, L3=640, L4=910, L5=1170          -->
+    <!-- Bays: B12=250, B23=510, B34=775, B45=1040                   -->
+    <!-- ============================================================ -->
+    <div id="panel-7" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 820">
+          <defs>
+            <marker id="sarr-8" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="sarr-ret-8" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+          </defs>
+          <rect width="1350" height="820" fill="#ffffff"/>
+
+          <!-- Lifelines -->
+          <line x1="120" y1="90" x2="120" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="35" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.8"/>
+          <text x="120" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">Job Seeker</text>
+          <text x="120" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Roadmap Canvas UI</text>
+
+          <line x1="380" y1="90" x2="380" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="295" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.8"/>
+          <text x="380" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#e11d48">Rate Limiter</text>
+          <text x="380" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">3 req / hr sliding window</text>
+
+          <line x1="640" y1="90" x2="640" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="555" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="640" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#059669">Server Actions</text>
+          <text x="640" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">generateRoadmap() / sync()</text>
+
+          <line x1="910" y1="90" x2="910" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="825" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="910" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#d97706">Gemini API</text>
+          <text x="910" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">DAG Graph &amp; Skill Filter</text>
+
+          <line x1="1170" y1="90" x2="1170" y2="740" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+          <rect x="1085" y="40" width="170" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/>
+          <text x="1170" y="60" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#7c3aed">PostgreSQL DB</text>
+          <text x="1170" y="74" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748b">Roadmap &amp; User Tables</text>
+
+          <!-- Step 1: Input Career Goal (L1 -> L3: B12=250) -->
+          <line x1="120" y1="130" x2="630" y2="130" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(160, 119)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">1. generateRoadmap(role)</text>
+          </g>
+
+          <!-- Step 2: Rate Limit (L3 -> L2: B23=510) -->
+          <line x1="640" y1="170" x2="390" y2="170" stroke="#e11d48" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(450, 159)">
+            <rect width="120" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="60" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#e11d48">2. limit(user_id)</text>
+          </g>
+
+          <line x1="390" y1="210" x2="630" y2="210" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-8)"/>
+          <g transform="translate(435, 199)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#059669">Allowed (3/hr quota)</text>
+          </g>
+
+          <!-- Step 3: Prompt Gemini API for DAG (L3 -> L4: B34=775) -->
+          <line x1="640" y1="260" x2="900" y2="260" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(685, 249)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">3. Prompt Milestone DAG</text>
+          </g>
+
+          <line x1="900" y1="300" x2="650" y2="300" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-8)"/>
+          <g transform="translate(700, 289)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Phases, Steps, Videos</text>
+          </g>
+
+          <!-- Step 4: Save Roadmap (L3 -> L5: B45=1040) -->
+          <line x1="640" y1="350" x2="1160" y2="350" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(950, 339)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7c3aed">4. prisma.roadmap.create()</text>
+          </g>
+
+          <line x1="630" y1="390" x2="130" y2="390" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-8)"/>
+          <g transform="translate(420, 379)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">5. Render DAG Canvas</text>
+          </g>
+
+          <!-- Step 5: Check off Milestone (L1 -> L3: B12=250) -->
+          <line x1="120" y1="450" x2="630" y2="450" stroke="#0f172a" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(150, 439)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#0f172a">6. toggleStepComplete(id)</text>
+          </g>
+
+          <!-- Step 6: Normalize Skills (L3 -> L4: B34=775) -->
+          <line x1="640" y1="490" x2="900" y2="490" stroke="#d97706" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(685, 479)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#d97706">7. Normalize Skill Titles</text>
+          </g>
+
+          <line x1="900" y1="530" x2="650" y2="530" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-8)"/>
+          <g transform="translate(700, 519)">
+            <rect width="150" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="75" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#64748b">Verified LinkedIn Skills</text>
+          </g>
+
+          <!-- Step 7: Sync to User.skills (L3 -> L5: B45=1040) -->
+          <line x1="640" y1="570" x2="1160" y2="570" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#sarr-8)"/>
+          <g transform="translate(940, 559)">
+            <rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+            <text x="100" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#7c3aed">8. prisma.user.update(skills)</text>
+          </g>
+
+          <line x1="630" y1="620" x2="130" y2="620" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#sarr-ret-8)"/>
+          <g transform="translate(420, 609)">
+            <rect width="180" height="22" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.2"/>
+            <text x="90" y="15" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">9. Profile Skills Updated</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Directed Acyclic Graphs (DAG)</h3></div>
+          <ul>
+            <li>• <strong>Prerequisite Enforcing:</strong> Structures career paths into chronological phases and milestone steps with dependency checks.</li>
+            <li>• <strong>Curated Video Search:</strong> Automatically links high-yield YouTube tutorial IDs for every technical topic.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot rose"></div><h3>Burst-Cost Mitigations</h3></div>
+          <ul>
+            <li>• <strong>3 Roadmaps / Hour:</strong> Protects against excessive token consumption caused by multi-stage DAG generation.</li>
+            <li>• <strong>DB Query Caching:</strong> Roadmap progress status is cached in Redis for 5 minutes and invalidated on step checkoffs.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Automatic Skill Normalization</h3></div>
+          <ul>
+            <li>• <strong>LinkedIn-Ready Taxonomy:</strong> Filters abstract milestone names (e.g. "Intro to Cloud") into concrete skills (e.g. "AWS S3", "Docker").</li>
+            <li>• <strong>Profile Synchronization:</strong> Automatically appends verified skills to <code>User.skills</code>, immediately improving the candidate's ATS resume scores.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      SensAI Architecture Reference · UML Sequence Model (All 8 Features) · Standalone Technical Documentation
+    </div>
+  </div>
+
+  <script>
+    function switchTab(index) {
+      const tabs = document.querySelectorAll('.tab-btn');
+      const panels = document.querySelectorAll('.diagram-panel');
+      tabs.forEach((tab, i) => {
+        if (i === index) {
+          tab.classList.add('active');
+          panels[i].classList.add('active');
+        } else {
+          tab.classList.remove('active');
+          panels[i].classList.remove('active');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

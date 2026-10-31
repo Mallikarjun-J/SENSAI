@@ -45,8 +45,21 @@ function BulletPoint({ title, detail, seenIn, variant }) {
 
 /* ─── Bullet section (improvements or strengths) ─────────────────────────── */
 function BulletSection({ title, items, variant }) {
-  if (!items?.length) return null;
   const isImprovement = variant === "improvement";
+  const validItems = (items ?? []).filter((item) => {
+    if (isImprovement) return true;
+    const combined = `${item?.title ?? ""} ${item?.detail ?? ""}`.toLowerCase();
+    return !(
+      combined.includes("no clear strength") ||
+      combined.includes("no strength") ||
+      combined.includes("none demonstrated") ||
+      combined.includes("not applicable") ||
+      combined.includes("no notable strength") ||
+      combined.trim() === "none"
+    );
+  });
+
+  if (!validItems.length) return null;
 
   return (
     <div className="space-y-4">
@@ -60,7 +73,7 @@ function BulletSection({ title, items, variant }) {
         </h4>
       </div>
       <div className="space-y-5 pl-6 border-l border-white/[0.07]">
-        {items.map((item, i) => (
+        {validItems.map((item, i) => (
           <BulletPoint key={i} {...item} variant={variant} />
         ))}
       </div>

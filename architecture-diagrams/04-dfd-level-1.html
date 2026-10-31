@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SensAI — Data Flow Diagram (DFD Level 1 · Feature-Wise)</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1420px; margin: 0 auto; }
+    .header { margin-bottom: 24px; }
+    .header h1 {
+      font-size: 22px; font-weight: 700; color: #0f172a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+      background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+    }
+    .header .subtitle { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+    /* Interactive Tab Navigation */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+    .tab-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+    }
+
+    .diagram-panel { display: none; }
+    .diagram-panel.active { display: block; }
+
+    .diagram-card {
+      border: 1px solid #cbd5e1; border-radius: 12px;
+      overflow-x: auto; background: #ffffff; margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+    .diagram-card svg { display: block; width: 100%; min-width: 1050px; height: auto; }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.blue { background: #0284c7; }
+    .card-dot.yellow { background: #facc15; }
+    .card-dot.emerald { background: #10b981; }
+    .card-dot.rose { background: #e11d48; }
+    .card h3 {
+      font-size: 12px; font-weight: 700; color: #0f172a;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .card ul { list-style: none; }
+    .card li { font-size: 11px; color: #334155; padding: 3px 0; line-height: 1.45; }
+    .card li strong { color: #0f172a; }
+    .footer { text-align: center; font-size: 11px; color: #94a3b8; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } body { padding: 20px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><span class="status-badge">DFD LEVEL 1</span> SensAI — Feature-Wise Subsystem Decomposition</h1>
+      <p class="subtitle">Clean, spacious, zero-collision data flow diagrams organized feature-by-feature: Yellow External Entities, Blue Circular Subsystems, and Open-Ended Data Stores</p>
+    </div>
+
+    <!-- Feature Tab Navigation -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(0)">00. Master Decomposition</button>
+      <button class="tab-btn" onclick="switchTab(1)">01. Auth &amp; Onboarding (1.0)</button>
+      <button class="tab-btn" onclick="switchTab(2)">02. Market Insights (2.0)</button>
+      <button class="tab-btn" onclick="switchTab(3)">03. Resume Builder (3.0)</button>
+      <button class="tab-btn" onclick="switchTab(4)">04. ATS Analyzer (4.0)</button>
+      <button class="tab-btn" onclick="switchTab(5)">05. Cover Letter (5.0)</button>
+      <button class="tab-btn" onclick="switchTab(6)">06. Technical Quiz (6.0)</button>
+      <button class="tab-btn" onclick="switchTab(7)">07. Voice Interview (7.0)</button>
+      <button class="tab-btn" onclick="switchTab(8)">08. Roadmap &amp; Skill Sync (8.0)</button>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 0: MASTER DECOMPOSITION MAP                                   -->
+    <!-- ================================================================= -->
+    <div id="panel-0" class="diagram-panel active">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 780">
+          <defs>
+            <marker id="dfd-arr-0" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="dfd-arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#059669"/></marker>
+          </defs>
+          <rect width="1350" height="780" fill="#ffffff"/>
+
+          <!-- Perimeter Entities -->
+          <!-- Entity: Job Seeker (W) -->
+          <rect x="50" y="240" width="180" height="300" rx="10" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="140" y="375" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#0f172a">Job Seeker</text>
+          <text x="140" y="395" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#713f12">(Primary Actor)</text>
+          <text x="140" y="415" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#713f12">Client Web UI</text>
+
+          <!-- Entity: Auth Service (NW) -->
+          <rect x="50" y="70" width="180" height="65" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="140" y="100" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#0f172a">Auth Service</text>
+          <text x="140" y="117" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#713f12">(Identity Provider)</text>
+
+          <!-- Entity: File Storage (SW) -->
+          <rect x="50" y="640" width="180" height="65" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="140" y="670" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#0f172a">File Storage</text>
+          <text x="140" y="687" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#713f12">(Upload CDN)</text>
+
+          <!-- Entity: Gemini API (NE) -->
+          <rect x="1120" y="70" width="180" height="240" rx="10" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1210" y="175" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#0f172a">Gemini API</text>
+          <text x="1210" y="195" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#713f12">(Common AI)</text>
+          <text x="1210" y="215" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#713f12">Shared Intelligence</text>
+
+          <!-- Entity: Voice Cloud (E) -->
+          <rect x="1120" y="380" width="180" height="70" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1210" y="412" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#0f172a">Voice Cloud</text>
+          <text x="1210" y="429" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#713f12">(WebRTC SFU)</text>
+
+          <!-- Entity: Video Search API (SE) -->
+          <rect x="1120" y="520" width="180" height="70" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1210" y="552" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11.5" font-weight="700" fill="#0f172a">Video Search API</text>
+          <text x="1210" y="569" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#713f12">(Tutorial Discovery)</text>
+
+          <!-- Subsystem Processes (4 Left, 4 Right in 2 clean columns) -->
+          <!-- Col A: Left Processes (x: 420) -->
+          <!-- 1.0 Auth & Onboarding -->
+          <circle cx="420" cy="110" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="375" y1="98" x2="465" y2="98" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="420" y="90" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">1.0</text>
+          <text x="420" y="115" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Auth &amp; Profile</text>
+
+          <!-- 3.0 Resume Builder -->
+          <circle cx="420" cy="280" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="375" y1="268" x2="465" y2="268" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="420" y="260" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">3.0</text>
+          <text x="420" y="285" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Resume Builder</text>
+
+          <!-- 5.0 Cover Letter -->
+          <circle cx="420" cy="460" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="375" y1="448" x2="465" y2="448" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="420" y="440" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">5.0</text>
+          <text x="420" y="465" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Cover Letter</text>
+
+          <!-- 7.0 Voice Interview -->
+          <circle cx="420" cy="640" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="375" y1="628" x2="465" y2="628" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="420" y="620" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">7.0</text>
+          <text x="420" y="645" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Voice Call</text>
+
+          <!-- Col B: Central Data Spine (x: 580 to 770) -->
+          <g transform="translate(580, 88)"><line x1="0" y1="0" x2="190" y2="0" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="38" x2="190" y2="38" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="0" x2="0" y2="38" stroke="#0f172a" stroke-width="3"/><line x1="35" y1="0" x2="35" y2="38" stroke="#0f172a" stroke-width="1"/><text x="17" y="23" text-anchor="middle" font-size="10" font-weight="700">D1</text><text x="110" y="23" text-anchor="middle" font-size="9.5" font-weight="600">User Profiles</text></g>
+
+          <g transform="translate(580, 218)"><line x1="0" y1="0" x2="190" y2="0" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="38" x2="190" y2="38" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="0" x2="0" y2="38" stroke="#0f172a" stroke-width="3"/><line x1="35" y1="0" x2="35" y2="38" stroke="#0f172a" stroke-width="1"/><text x="17" y="23" text-anchor="middle" font-size="10" font-weight="700">D3</text><text x="110" y="23" text-anchor="middle" font-size="9.5" font-weight="600">Resumes &amp; Drafts</text></g>
+
+          <g transform="translate(580, 348)"><line x1="0" y1="0" x2="190" y2="0" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="38" x2="190" y2="38" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="0" x2="0" y2="38" stroke="#0f172a" stroke-width="3"/><line x1="35" y1="0" x2="35" y2="38" stroke="#0f172a" stroke-width="1"/><text x="17" y="23" text-anchor="middle" font-size="10" font-weight="700">D5</text><text x="110" y="23" text-anchor="middle" font-size="9.5" font-weight="600">Cover Letters</text></g>
+
+          <g transform="translate(580, 478)"><line x1="0" y1="0" x2="190" y2="0" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="38" x2="190" y2="38" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="0" x2="0" y2="38" stroke="#0f172a" stroke-width="3"/><line x1="35" y1="0" x2="35" y2="38" stroke="#0f172a" stroke-width="1"/><text x="17" y="23" text-anchor="middle" font-size="10" font-weight="700">D7</text><text x="110" y="23" text-anchor="middle" font-size="9.5" font-weight="600">Mock Interviews</text></g>
+
+          <g transform="translate(580, 620)"><line x1="0" y1="0" x2="190" y2="0" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="38" x2="190" y2="38" stroke="#0f172a" stroke-width="1.6"/><line x1="0" y1="0" x2="0" y2="38" stroke="#0f172a" stroke-width="3"/><line x1="35" y1="0" x2="35" y2="38" stroke="#0f172a" stroke-width="1"/><text x="17" y="23" text-anchor="middle" font-size="10" font-weight="700">D9</text><text x="110" y="23" text-anchor="middle" font-size="9.5" font-weight="600">Redis Limits &amp; Cache</text></g>
+
+          <!-- Col C: Right Processes (x: 930) -->
+          <!-- 2.0 Market Insights -->
+          <circle cx="930" cy="110" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="885" y1="98" x2="975" y2="98" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="930" y="90" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">2.0</text>
+          <text x="930" y="115" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Market Insights</text>
+
+          <!-- 4.0 ATS Analyzer -->
+          <circle cx="930" cy="280" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="885" y1="268" x2="975" y2="268" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="930" y="260" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">4.0</text>
+          <text x="930" y="285" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">ATS Analyzer</text>
+
+          <!-- 6.0 Quiz Assessment -->
+          <circle cx="930" cy="460" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="885" y1="448" x2="975" y2="448" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="930" y="440" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">6.0</text>
+          <text x="930" y="465" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Technical Quiz</text>
+
+          <!-- 8.0 Career Roadmap -->
+          <circle cx="930" cy="640" r="48" fill="#93c5fd" stroke="#0f172a" stroke-width="2"/>
+          <line x1="885" y1="628" x2="975" y2="628" stroke="#0f172a" stroke-width="1.2"/>
+          <text x="930" y="620" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">8.0</text>
+          <text x="930" y="645" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#0f172a">Career Roadmap</text>
+
+          <!-- Straight Clean High-Level Connections -->
+          <line x1="230" y1="105" x2="370" y2="105" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="230" y1="280" x2="370" y2="280" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="230" y1="460" x2="370" y2="460" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="230" y1="640" x2="370" y2="640" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+
+          <!-- Col A into Stores -->
+          <line x1="468" y1="107" x2="578" y2="107" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="468" y1="237" x2="578" y2="237" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="468" y1="367" x2="578" y2="367" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="468" y1="497" x2="578" y2="497" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+
+          <!-- Col C into Stores -->
+          <line x1="882" y1="110" x2="772" y2="110" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="882" y1="240" x2="772" y2="240" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="882" y1="370" x2="772" y2="370" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="882" y1="500" x2="772" y2="500" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+
+          <!-- Col C into Cloud Services -->
+          <line x1="978" y1="110" x2="1118" y2="110" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="978" y1="280" x2="1118" y2="240" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="978" y1="415" x2="1118" y2="415" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+          <line x1="978" y1="555" x2="1118" y2="555" stroke="#0f172a" stroke-width="1.5" marker-end="url(#dfd-arr-0)"/>
+
+          <!-- Green Skill Auto-Sync Loop -->
+          <path d="M 930 688 L 930 730 L 710 730 L 710 128" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#dfd-arr-green)"/>
+          <g transform="translate(730, 718)"><rect width="180" height="20" rx="4" fill="#ffffff" stroke="#059669"/><text x="90" y="14" text-anchor="middle" font-size="8.5" font-weight="700" fill="#047857">Auto-Sync Skills (8.0 -> D1)</text></g>
+
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>Subsystems (1.0 - 8.0)</h3></div><ul><li>• Clear functional division between Candidate Creation, Diagnostic Testing, and Career Growth.</li><li>• Click each tab above to view the high-detail data flow for any specific feature.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>Central Data Stores (D1 - D9)</h3></div><ul><li>• D1 to D8 store user-scoped relational tables with foreign keys.</li><li>• D9 Redis provides sliding-window rate limit counters and SHA-256 AI response caching.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Skill Auto-Sync Loop</h3></div><ul><li>• When roadmaps are checked off in 8.0, mastered skills route directly back into D1 User Profiles.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: 01. AUTH & ONBOARDING (1.0)                                -->
+    <!-- ================================================================= -->
+    <div id="panel-1" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <!-- Entities (Left) -->
+          <rect x="70" y="160" width="220" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="180" y="195" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#0f172a">Auth Service</text>
+          <text x="180" y="214" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#713f12">(Identity Provider)</text>
+
+          <rect x="70" y="440" width="220" height="90" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="180" y="478" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="#0f172a">Job Seeker</text>
+          <text x="180" y="498" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="#713f12">(Candidate / Client UI)</text>
+
+          <!-- Center Process Circle -->
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="700" fill="#0f172a">1.0</text>
+          <text x="675" y="356" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">User Auth &amp;</text>
+          <text x="675" y="374" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a">Onboarding</text>
+
+          <!-- Data Store (Right) -->
+          <g transform="translate(1030, 325)">
+            <line x1="0" y1="0" x2="250" y2="0" stroke="#0f172a" stroke-width="1.8"/>
+            <line x1="0" y1="50" x2="250" y2="50" stroke="#0f172a" stroke-width="1.8"/>
+            <line x1="0" y1="0" x2="0" y2="50" stroke="#0f172a" stroke-width="3.5"/>
+            <line x1="45" y1="0" x2="45" y2="50" stroke="#0f172a" stroke-width="1.2"/>
+            <text x="22" y="31" text-anchor="middle" font-size="12" font-weight="700">D1</text>
+            <text x="145" y="31" text-anchor="middle" font-size="11.5" font-weight="600">User Profiles</text>
+          </g>
+
+          <!-- Data Flow Lines with Clean Badges -->
+          <!-- Auth Service -> 1.0 -->
+          <line x1="290" y1="200" x2="615" y2="310" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-1)"/>
+          <g transform="translate(370, 230)"><rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="90" y="15" text-anchor="middle" font-size="9" font-weight="600">Session JWT Token &amp; ID</text></g>
+
+          <!-- Job Seeker -> 1.0 -->
+          <line x1="290" y1="465" x2="615" y2="385" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-1)"/>
+          <g transform="translate(350, 440)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Industry, Experience &amp; Bio</text></g>
+
+          <!-- 1.0 -> Job Seeker (Confirmation) -->
+          <line x1="610" y1="410" x2="295" y2="500" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-1)"/>
+          <g transform="translate(350, 480)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Authenticated Dashboard State</text></g>
+
+          <!-- 1.0 -> D1 -->
+          <line x1="745" y1="350" x2="1025" y2="350" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-1)"/>
+          <g transform="translate(780, 320)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">Upsert User Profile Record</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>Identity Ingestion</h3></div><ul><li>• Subsystem 1.0 accepts Clerk session tokens, validating claims prior to any database mutation.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>D1 Relational Persistence</h3></div><ul><li>• Creates or updates the primary User table with industry preferences and biography.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Cache Invalidation</h3></div><ul><li>• User profile updates immediately invalidate user-specific Redis query caches.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: 02. MARKET INSIGHTS (2.0)                                  -->
+    <!-- ================================================================= -->
+    <div id="panel-2" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <!-- Job Seeker (Left) -->
+          <rect x="70" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Client UI)</text>
+
+          <!-- Gemini API (Right) -->
+          <rect x="1080" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Structured AI JSON)</text>
+
+          <!-- Process 2.0 (Center) -->
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">2.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">Market Insights</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">Engine</text>
+
+          <!-- Data Store Top: D1 User Profiles (Read) -->
+          <g transform="translate(560, 70)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D1</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">User Profiles (Read)</text>
+          </g>
+
+          <!-- Data Store Bottom: D2 Industry Trends (Write) -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D2</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Industry Trends</text>
+          </g>
+
+          <!-- Flow Lines -->
+          <line x1="270" y1="335" x2="605" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-2)"/>
+          <g transform="translate(320, 310)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Query Target Industry &amp; Role</text></g>
+
+          <line x1="605" y1="365" x2="275" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-2)"/>
+          <g transform="translate(320, 370)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Salary Radar &amp; Demand Cards</text></g>
+
+          <!-- Read D1 -->
+          <line x1="675" y1="120" x2="675" y2="275" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-2)"/>
+          <g transform="translate(700, 180)"><rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="90" y="15" text-anchor="middle" font-size="9" font-weight="600">Read Candidate Industry</text></g>
+
+          <!-- Write D2 -->
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-2)"/>
+          <g transform="translate(700, 480)"><rect width="180" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="90" y="15" text-anchor="middle" font-size="9" font-weight="600">Upsert Salary &amp; Top Skills</text></g>
+
+          <!-- Gemini Outbound & Inbound -->
+          <line x1="745" y1="335" x2="1075" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-2)"/>
+          <g transform="translate(780, 310)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Prompt: Salary Bands &amp; Skills</text></g>
+
+          <line x1="1080" y1="365" x2="750" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-2)"/>
+          <g transform="translate(780, 370)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Structured Insights JSON (24h)</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>24h Redis TTL</h3></div><ul><li>• Salary statistics change slowly, so Gemini outputs are stored in Redis for 24 hours.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>D2 Database Archive</h3></div><ul><li>• PostgreSQL stores industry trend snapshots to provide continuity even during cache evictions.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Structured Metrics</h3></div><ul><li>• Enforces strict schema: minSalary, medianSalary, maxSalary, topSkills, and demandIndex.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: 03. RESUME BUILDER & STAGING (3.0)                         -->
+    <!-- ================================================================= -->
+    <div id="panel-3" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <rect x="70" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Resume Editor UI)</text>
+
+          <rect x="1080" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(STAR Bullet Polish)</text>
+
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">3.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">Resume Builder</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">&amp; Staging</text>
+
+          <!-- Data Store Right-Bottom: D3 Resumes -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D3</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Resumes &amp; Drafts</text>
+          </g>
+
+          <!-- Flows -->
+          <line x1="270" y1="335" x2="605" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-3)"/>
+          <g transform="translate(320, 310)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Draft Experience &amp; Template</text></g>
+
+          <line x1="605" y1="365" x2="275" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-3)"/>
+          <g transform="translate(320, 370)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Live A4 SVG Preview &amp; PDF</text></g>
+
+          <line x1="745" y1="335" x2="1075" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-3)"/>
+          <g transform="translate(780, 310)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Request: Polish Bullet Point</text></g>
+
+          <line x1="1080" y1="365" x2="750" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-3)"/>
+          <g transform="translate(780, 370)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Polished STAR Bullet String</text></g>
+
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-3)"/>
+          <g transform="translate(700, 480)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">Save Staging Content JSON</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>5 Resume Templates</h3></div><ul><li>• Real-time staging across Classic, Modern, Minimal, Executive, and Tech formats.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>D3 JSON Storage</h3></div><ul><li>• Full content structure preserved in PostgreSQL Resume table with instant re-editability.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>STAR Methodology</h3></div><ul><li>• Transforms passive bullet descriptions into measurable impact statements using Gemini API.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 4: 04. ATS RESUME ANALYZER (4.0)                              -->
+    <!-- ================================================================= -->
+    <div id="panel-4" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <rect x="70" y="180" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="218" text-anchor="middle" font-size="12.5" font-weight="700">File Storage</text>
+          <text x="170" y="236" text-anchor="middle" font-size="8.5" fill="#713f12">(Pre-Signed Upload CDN)</text>
+
+          <rect x="70" y="440" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="478" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="496" text-anchor="middle" font-size="8.5" fill="#713f12">(Candidate / Client UI)</text>
+
+          <rect x="1080" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Multimodal 5-Pillar)</text>
+
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">4.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">ATS Resume</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">Analyzer</text>
+
+          <!-- Data Store Bottom: D4 Resume Analyses -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D4</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Resume Analyses</text>
+          </g>
+
+          <!-- Upload Flow: Candidate -> File Storage -->
+          <line x1="170" y1="435" x2="170" y2="265" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-4)"/>
+          <g transform="translate(45, 340)"><rect width="130" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="65" y="15" text-anchor="middle" font-size="8.5" font-weight="600">Upload PDF</text></g>
+
+          <!-- File Storage -> 4.0 -->
+          <line x1="270" y1="220" x2="615" y2="315" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-4)"/>
+          <g transform="translate(320, 230)"><rect width="220" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="110" y="15" text-anchor="middle" font-size="9" font-weight="600">Pre-Signed PDF Stream</text></g>
+
+          <!-- 4.0 -> Candidate (Report) -->
+          <line x1="610" y1="390" x2="275" y2="470" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-4)"/>
+          <g transform="translate(320, 450)"><rect width="220" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="110" y="15" text-anchor="middle" font-size="9" font-weight="600">ATS Score 0-100, Radar &amp; Gaps</text></g>
+
+          <!-- Gemini Outbound & Inbound -->
+          <line x1="745" y1="335" x2="1075" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-4)"/>
+          <g transform="translate(780, 310)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Multimodal Base64 Document</text></g>
+
+          <line x1="1080" y1="365" x2="750" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-4)"/>
+          <g transform="translate(780, 370)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">5-Pillar Breakdown &amp; Tips JSON</text></g>
+
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-4)"/>
+          <g transform="translate(700, 480)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">INSERT ResumeAnalysis</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>5/hr Rate Limit</h3></div><ul><li>• Sliding-window rate limit counters in Redis protect expensive multimodal AI inference.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>SSRF Protection</h3></div><ul><li>• PDF fetcher strictly verifies hosts against pre-approved storage CDNs (utfs.io, uploadthing.com, ufs.sh).</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>D4 Persisted Scoring</h3></div><ul><li>• ATS report persists in database to track score improvements over consecutive resume iterations.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 5: 05. COVER LETTER GENERATOR (5.0)                           -->
+    <!-- ================================================================= -->
+    <div id="panel-5" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-5" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <rect x="70" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Target Job Inputs)</text>
+
+          <rect x="1080" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(400-Word Generator)</text>
+
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">5.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">Cover Letter</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">Generator</text>
+
+          <!-- D1 Top (Read Candidate Bio) -->
+          <g transform="translate(560, 70)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D1</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">User Profiles (Read)</text>
+          </g>
+
+          <!-- D5 Bottom (Write) -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D5</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Cover Letters</text>
+          </g>
+
+          <line x1="270" y1="335" x2="605" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-5)"/>
+          <g transform="translate(320, 310)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Job Title &amp; Description</text></g>
+
+          <line x1="605" y1="365" x2="275" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-5)"/>
+          <g transform="translate(320, 370)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Markdown Letter &amp; Editor</text></g>
+
+          <line x1="675" y1="120" x2="675" y2="275" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-5)"/>
+          <g transform="translate(700, 180)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">Read Candidate Experiences</text></g>
+
+          <line x1="745" y1="335" x2="1075" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-5)"/>
+          <g transform="translate(780, 310)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Prompt: 400-Word Persuasive Match</text></g>
+
+          <line x1="1080" y1="365" x2="750" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-5)"/>
+          <g transform="translate(780, 370)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Generated Markdown Body</text></g>
+
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-5)"/>
+          <g transform="translate(700, 480)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">INSERT CoverLetter</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>5/hr Rate Limit</h3></div><ul><li>• Sliding-window rate limit protects token usage and prevents spam generations.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>D5 Letter History</h3></div><ul><li>• All generated letters are permanently saved in PostgreSQL with full markdown formatting.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Context Fusion</h3></div><ul><li>• Fuses candidate's actual profile achievements with recruiter requirements from job post.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 6: 06. TECHNICAL QUIZ ASSESSMENT (6.0)                        -->
+    <!-- ================================================================= -->
+    <div id="panel-6" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <rect x="70" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Quiz Candidate)</text>
+
+          <rect x="1080" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(MCQs &amp; Tips)</text>
+
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">6.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">Technical Quiz</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">Assessment</text>
+
+          <!-- D6 Bottom (Write) -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D6</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Quizzes &amp; Scores</text>
+          </g>
+
+          <line x1="270" y1="335" x2="605" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-6)"/>
+          <g transform="translate(320, 310)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Topic, Difficulty (10-25 MCQs)</text></g>
+
+          <line x1="605" y1="365" x2="275" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-6)"/>
+          <g transform="translate(320, 370)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Score, Review &amp; Improvement Tip</text></g>
+
+          <line x1="745" y1="335" x2="1075" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-6)"/>
+          <g transform="translate(780, 310)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Prompt: Adaptive MCQs &amp; Options</text></g>
+
+          <line x1="1080" y1="365" x2="750" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-6)"/>
+          <g transform="translate(780, 370)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Question Array + Explanations</text></g>
+
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-6)"/>
+          <g transform="translate(700, 480)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">INSERT Assessment Record</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>Custom Config Matrix</h3></div><ul><li>• Supports 10 to 25 questions, Easy/Medium/Hard tiers, and Technical/Conceptual filters.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>D6 Assessment Table</h3></div><ul><li>• Persists full question metadata, chosen answers, final score percentage, and diagnostic tips.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Actionable Tips</h3></div><ul><li>• Gemini analyzes incorrect responses to deliver hyper-specific study recommendations.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 7: 07. REAL-TIME VOICE INTERVIEW (7.0)                        -->
+    <!-- ================================================================= -->
+    <div id="panel-7" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs><marker id="dfd-arr-7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <rect x="70" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Candidate Mic Audio)</text>
+
+          <rect x="1080" y="180" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="218" text-anchor="middle" font-size="12.5" font-weight="700">Voice Cloud</text>
+          <text x="1180" y="236" text-anchor="middle" font-size="8.5" fill="#713f12">(WebRTC SFU &amp; Agent)</text>
+
+          <rect x="1080" y="440" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="478" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="496" text-anchor="middle" font-size="8.5" fill="#713f12">(6-Category Rubric)</text>
+
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">7.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">Voice Interview</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">Engine</text>
+
+          <!-- D7 Bottom (Write) -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D7</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Mock Interviews &amp; Rubrics</text>
+          </g>
+
+          <line x1="270" y1="335" x2="605" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-7)"/>
+          <g transform="translate(320, 310)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">WebRTC Audio Mic Stream</text></g>
+
+          <line x1="605" y1="365" x2="275" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-7)"/>
+          <g transform="translate(320, 370)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Live AI Voice &amp; Rubric Card</text></g>
+
+          <!-- Voice Cloud Connection -->
+          <line x1="745" y1="310" x2="1075" y2="235" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-7)"/>
+          <g transform="translate(780, 240)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Mint Room Token / Teardown</text></g>
+
+          <!-- Gemini Connection -->
+          <line x1="745" y1="380" x2="1075" y2="465" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-7)"/>
+          <g transform="translate(780, 440)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Transcript Rubric Evaluation</text></g>
+
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-7)"/>
+          <g transform="translate(700, 480)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">Save Room &amp; 6 Rubrics</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>WebRTC Pipeline</h3></div><ul><li>• Sub-second latency turn-taking using voice activity detection and audio streaming.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>Explicit Teardown API</h3></div><ul><li>• /api/livekit/end-room verifies session ownership and terminates room to prevent orphaned charges.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>D7 Rubrics</h3></div><ul><li>• Saves 6 core competencies: Accuracy, Communication, Structure, Problem-Solving, Confidence, and Role Fit.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 8: 08. CAREER ROADMAP & SKILL AUTO-SYNC (8.0)                 -->
+    <!-- ================================================================= -->
+    <div id="panel-8" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 720">
+          <defs>
+            <marker id="dfd-arr-8" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="dfd-arr-8-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#059669"/></marker>
+          </defs>
+          <rect width="1350" height="720" fill="#ffffff"/>
+
+          <rect x="70" y="310" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="170" y="348" text-anchor="middle" font-size="12.5" font-weight="700">Job Seeker</text>
+          <text x="170" y="366" text-anchor="middle" font-size="8.5" fill="#713f12">(Career Goals &amp; Steps)</text>
+
+          <rect x="1080" y="180" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="218" text-anchor="middle" font-size="12.5" font-weight="700">Gemini API</text>
+          <text x="1180" y="236" text-anchor="middle" font-size="8.5" fill="#713f12">(DAG Milestone Graph)</text>
+
+          <rect x="1080" y="440" width="200" height="80" rx="8" fill="#fde047" stroke="#0f172a" stroke-width="2"/>
+          <text x="1180" y="478" text-anchor="middle" font-size="12.5" font-weight="700">Video Search API</text>
+          <text x="1180" y="496" text-anchor="middle" font-size="8.5" fill="#713f12">(Tutorial Resource URLs)</text>
+
+          <circle cx="675" cy="350" r="70" fill="#93c5fd" stroke="#0f172a" stroke-width="2.5"/>
+          <line x1="610" y1="332" x2="740" y2="332" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="322" text-anchor="middle" font-size="15" font-weight="700">8.0</text>
+          <text x="675" y="356" text-anchor="middle" font-size="11" font-weight="700">Career Roadmap</text>
+          <text x="675" y="374" text-anchor="middle" font-size="11" font-weight="700">&amp; Skill Sync</text>
+
+          <!-- D1 Top (AUTO-SYNC DESTINATION) -->
+          <g transform="translate(560, 70)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#059669" stroke-width="2"/><line x1="0" y1="46" x2="230" y2="46" stroke="#059669" stroke-width="2"/><line x1="0" y1="0" x2="0" y2="46" stroke="#059669" stroke-width="3.5"/><line x1="40" y1="0" x2="40" y2="46" stroke="#059669" stroke-width="1.2"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">D1</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="#047857">User Profiles (Auto-Sync)</text>
+          </g>
+
+          <!-- D8 Bottom (Write) -->
+          <g transform="translate(560, 580)">
+            <line x1="0" y1="0" x2="230" y2="0" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="46" x2="230" y2="46" stroke="#0f172a" stroke-width="1.8"/><line x1="0" y1="0" x2="0" y2="46" stroke="#0f172a" stroke-width="3"/><line x1="40" y1="0" x2="40" y2="46" stroke="#0f172a" stroke-width="1"/><text x="20" y="28" text-anchor="middle" font-size="11" font-weight="700">D8</text><text x="135" y="28" text-anchor="middle" font-size="11" font-weight="600">Roadmaps &amp; Steps</text>
+          </g>
+
+          <line x1="270" y1="335" x2="605" y2="335" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-8)"/>
+          <g transform="translate(320, 310)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Target Role &amp; Timeline</text></g>
+
+          <line x1="605" y1="365" x2="275" y2="365" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-8)"/>
+          <g transform="translate(320, 370)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Interactive DAG &amp; Progress</text></g>
+
+          <!-- Milestone checkoff flow -->
+          <path d="M 270 380 L 350 380 L 350 430 L 610 410" fill="none" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-8)"/>
+          <g transform="translate(320, 420)"><rect width="210" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="105" y="15" text-anchor="middle" font-size="9" font-weight="600">Check Off Milestone (Completed)</text></g>
+
+          <!-- Gemini Connection -->
+          <line x1="745" y1="310" x2="1075" y2="235" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-8)"/>
+          <g transform="translate(780, 240)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">DAG Generation Request</text></g>
+
+          <!-- Video API Connection -->
+          <line x1="745" y1="380" x2="1075" y2="465" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-8)"/>
+          <g transform="translate(780, 440)"><rect width="240" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="120" y="15" text-anchor="middle" font-size="9" font-weight="600">Query Curated Tutorial Videos</text></g>
+
+          <!-- D8 Connection -->
+          <line x1="675" y1="422" x2="675" y2="575" stroke="#0f172a" stroke-width="1.6" marker-end="url(#dfd-arr-8)"/>
+          <g transform="translate(700, 490)"><rect width="200" height="22" rx="4" fill="#ffffff" stroke="#cbd5e1"/><text x="100" y="15" text-anchor="middle" font-size="9" font-weight="600">Save Roadmap Nodes JSON</text></g>
+
+          <!-- GREEN REAL-TIME SKILL AUTO-SYNC LOOP -->
+          <line x1="675" y1="278" x2="675" y2="125" stroke="#059669" stroke-width="2.5" marker-end="url(#dfd-arr-8-green)"/>
+          <g transform="translate(700, 180)"><rect width="210" height="26" rx="4" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/><text x="105" y="17" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Auto-Sync Mastered Skills</text></g>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Real-Time Skill Auto-Sync</h3></div><ul><li>• Completing a roadmap node automatically updates the candidate's User.skills array in PostgreSQL.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>3 Roadmaps / Hour Limit</h3></div><ul><li>• Sliding-window limiter in Redis mitigates multi-call Gemini DAG generation costs.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot yellow"></div><h3>Embedded Resources</h3></div><ul><li>• Attaches curated YouTube tutorial IDs and documentation links to each node for immediate learning.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      SensAI Architecture Reference · DFD Level 1 Subsystem Decomposition (All 8 Features) · Standalone Technical Documentation
+    </div>
+  </div>
+
+  <script>
+    function switchTab(index) {
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === index);
+      });
+      document.querySelectorAll('.diagram-panel').forEach((panel, idx) => {
+        panel.classList.toggle('active', idx === index);
+      });
+    }
+  </script>
+</body>
+</html>

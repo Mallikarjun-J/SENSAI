@@ -155,7 +155,20 @@ export default async function VoiceFeedbackPage({ params }) {
     return [str.trim()];
   }
 
-  const strengths    = parseBullets(feedback.strengths);
+  const rawStrengths = parseBullets(feedback.strengths);
+  // Filter out non-strengths or AI disclaimers (e.g. "No clear strengths were demonstrated")
+  const strengths = rawStrengths.filter((s) => {
+    const lower = s.toLowerCase().trim();
+    return !(
+      lower.includes("no clear strength") ||
+      lower.includes("no strength") ||
+      lower.includes("none demonstrated") ||
+      lower.includes("not applicable") ||
+      lower.includes("no notable strength") ||
+      lower === "n/a" ||
+      lower === "none"
+    );
+  });
   const improvements = parseBullets(feedback.areasForImprovement);
 
   const categories = Array.isArray(feedback.categoryScores) ? feedback.categoryScores : [];
@@ -219,7 +232,7 @@ export default async function VoiceFeedbackPage({ params }) {
 
       {/* ── Strengths & Improvements ────────────────────────────────────── */}
       {(strengths.length > 0 || improvements.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className={`grid gap-6 ${strengths.length > 0 && improvements.length > 0 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
           {strengths.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-base font-bold text-white">What You Are Doing Well</h3>

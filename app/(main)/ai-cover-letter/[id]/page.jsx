@@ -23,7 +23,7 @@ export default async function EditCoverLetterPage({ params }) {
         </h1>
       </div>
 
-      <CoverLetterPreview content={coverLetter?.content} />
+      <CoverLetterPreview content={coverLetter?.content} id={coverLetter?.id} />
     </div>
   );
 }

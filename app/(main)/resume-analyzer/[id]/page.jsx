@@ -366,7 +366,7 @@ export default async function AnalysisPage({ params }) {
             {atsTips.length > 0 && (
               <div className="space-y-3">
                 <h2 className="text-lg font-bold text-white">ATS Quick Tips</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${atsGood.length > 0 && atsImprove.length > 0 ? "sm:grid-cols-2" : "grid-cols-1"}`}>
                   {/* Good tips */}
                   {atsGood.length > 0 && (
                     <div className="space-y-2">

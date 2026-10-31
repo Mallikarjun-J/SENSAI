@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SensAI — UML Activity Diagrams (All 8 Features)</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { margin-bottom: 24px; }
+    .header h1 {
+      font-size: 22px; font-weight: 700; color: #0f172a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+      background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;
+    }
+    .header .subtitle { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+    /* Interactive Tab Navigation */
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+    .tab-btn.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
+    }
+
+    .diagram-panel { display: none; }
+    .diagram-panel.active { display: block; }
+
+    .diagram-card {
+      border: 1px solid #cbd5e1; border-radius: 12px;
+      overflow-x: auto; background: #ffffff; margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+    .diagram-card svg { display: block; width: 100%; min-width: 1100px; height: auto; }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.blue { background: #0284c7; }
+    .card-dot.emerald { background: #059669; }
+    .card-dot.amber { background: #d97706; }
+    .card-dot.violet { background: #7c3aed; }
+    .card-dot.rose { background: #e11d48; }
+    .card h3 {
+      font-size: 12px; font-weight: 700; color: #0f172a;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .card ul { list-style: none; }
+    .card li { font-size: 11px; color: #334155; padding: 3px 0; line-height: 1.45; }
+    .card li strong { color: #0f172a; }
+    .footer { text-align: center; font-size: 11px; color: #94a3b8; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } body { padding: 20px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><span class="status-badge">UML ACTIVITY</span> SensAI — Dynamic Workflow &amp; Swimlanes (All Features)</h1>
+      <p class="subtitle">Complete technical workflow partitioned into 5 architectural swimlanes across all 8 features: Client UI, Rate Limiter, Server Actions &amp; Redis Cache, Gemini API &amp; Cloud Services, and PostgreSQL Database</p>
+    </div>
+
+    <!-- Feature Tab Navigation -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab(0)">00. Master Overview</button>
+      <button class="tab-btn" onclick="switchTab(1)">01. Auth &amp; Onboarding</button>
+      <button class="tab-btn" onclick="switchTab(2)">02. Market Insights</button>
+      <button class="tab-btn" onclick="switchTab(3)">03. Resume Builder</button>
+      <button class="tab-btn" onclick="switchTab(4)">04. ATS Analyzer</button>
+      <button class="tab-btn" onclick="switchTab(5)">05. Cover Letter</button>
+      <button class="tab-btn" onclick="switchTab(6)">06. Technical Quiz</button>
+      <button class="tab-btn" onclick="switchTab(7)">07. Voice Interview</button>
+      <button class="tab-btn" onclick="switchTab(8)">08. Roadmap &amp; Skill Sync</button>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 0: MASTER SYSTEM OVERVIEW WORKFLOW                            -->
+    <!-- ================================================================= -->
+    <div id="panel-0" class="diagram-panel active">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 1280">
+          <defs>
+            <marker id="arr-m" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker>
+            <marker id="arr-m-red" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#e11d48"/></marker>
+            <marker id="arr-m-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#059669"/></marker>
+          </defs>
+          <rect width="1350" height="1280" fill="#ffffff"/>
+
+          <!-- 5 Swimlanes -->
+          <rect x="30" y="30" width="250" height="1220" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.2"/>
+          <rect x="280" y="30" width="260" height="1220" fill="#fafafa" stroke="#e2e8f0" stroke-width="1.2"/>
+          <rect x="540" y="30" width="270" height="1220" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.2"/>
+          <rect x="810" y="30" width="270" height="1220" fill="#fafafa" stroke="#e2e8f0" stroke-width="1.2"/>
+          <rect x="1080" y="30" width="240" height="1220" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.2"/>
+
+          <!-- Headers -->
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/>
+          <text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/>
+          <text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Rate Limiter &amp; Auth</text>
+
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/>
+          <text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/>
+          <text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API &amp; Cloud</text>
+
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/>
+          <text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <!-- Start Node -->
+          <circle cx="155" cy="100" r="12" fill="#0f172a"/>
+          <line x1="155" y1="112" x2="155" y2="135" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+
+          <!-- Step 1: Sign in -->
+          <rect x="55" y="135" width="200" height="42" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="160" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="600" fill="#0f172a">Sign In via Auth Service</text>
+
+          <!-- Step 2: Auth Check -->
+          <line x1="255" y1="156" x2="305" y2="156" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="305" y="135" width="210" height="42" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="410" y="160" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="600" fill="#047857">Verify Session &amp; Token</text>
+
+          <!-- Step 3: Query DB Profile -->
+          <line x1="515" y1="156" x2="1100" y2="156" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="1100" y="135" width="200" height="42" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="160" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="600" fill="#6d28d9">Fetch User Record</text>
+
+          <!-- Decision: Onboarded? -->
+          <path d="M 1200 177 L 1200 205 L 675 205 L 675 225" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <polygon points="675,225 720,245 675,265 630,245" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="249" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="600" fill="#0f172a">Onboarded?</text>
+
+          <!-- [No] -> Onboarding Page -->
+          <path d="M 630 245 L 155 245 L 155 275" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <g transform="translate(260, 233)"><rect width="180" height="20" rx="4" fill="#ffffff" stroke="#fecaca"/><text x="90" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#dc2626">[No] Complete Profile Bio</text></g>
+
+          <rect x="55" y="275" width="200" height="42" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="300" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="600" fill="#0f172a">Select Industry &amp; Skills</text>
+
+          <line x1="255" y1="296" x2="1100" y2="296" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="1100" y="275" width="200" height="42" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="300" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="600" fill="#6d28d9">Save User Profile</text>
+
+          <!-- [Yes] -> Active Dashboard -->
+          <path d="M 675 265 L 675 345 L 155 345 L 155 370" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <g transform="translate(300, 333)"><rect width="160" height="20" rx="4" fill="#ffffff" stroke="#a7f3d0"/><text x="80" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#059669">[Yes] Active Dashboard</text></g>
+
+          <rect x="55" y="370" width="200" height="45" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="392" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#0f172a">Dashboard &amp; Hub</text>
+          <text x="155" y="406" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">Salary Bands &amp; Feature Bar</text>
+
+          <!-- FORK SYNCHRONIZATION BAR -->
+          <line x1="155" y1="415" x2="155" y2="445" stroke="#0f172a" stroke-width="2" marker-end="url(#arr-m)"/>
+          <rect x="45" y="445" width="220" height="6" rx="3" fill="#0f172a"/>
+
+          <!-- BRANCH 1: ATS Resume Check -->
+          <path d="M 75 451 L 75 475" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="45" y="475" width="130" height="42" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="110" y="495" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">ATS Analysis</text>
+          <text x="110" y="508" text-anchor="middle" font-size="7.5" fill="#64748b">5/hr Rate Limit</text>
+
+          <line x1="175" y1="496" x2="305" y2="496" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="305" y="475" width="210" height="42" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="410" y="495" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">Sliding-Window Guard</text>
+          <text x="410" y="508" text-anchor="middle" font-size="7.5" fill="#64748b">5 requests / hour</text>
+
+          <line x1="515" y1="496" x2="565" y2="496" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="565" y="475" width="220" height="42" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="495" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Check SHA-256 Cache</text>
+          <text x="675" y="508" text-anchor="middle" font-size="7.5" fill="#64748b">24h TTL for PDF buffer</text>
+
+          <line x1="785" y1="496" x2="835" y2="496" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="835" y="475" width="220" height="42" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="495" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API Scoring</text>
+          <text x="945" y="508" text-anchor="middle" font-size="7.5" fill="#64748b">Multimodal 5-Pillar Eval</text>
+
+          <line x1="1055" y1="496" x2="1100" y2="496" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="1100" y="475" width="200" height="42" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="495" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">Save ResumeAnalysis</text>
+          <text x="1200" y="508" text-anchor="middle" font-size="7.5" fill="#64748b">Persist Score &amp; Report</text>
+
+          <!-- BRANCH 2: Voice Interview -->
+          <path d="M 155 451 L 155 570 L 110 570 L 110 590" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="45" y="590" width="130" height="42" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="110" y="610" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">Voice Interview</text>
+          <text x="110" y="623" text-anchor="middle" font-size="7.5" fill="#64748b">Mic Audio Stream</text>
+
+          <line x1="175" y1="611" x2="835" y2="611" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="835" y="590" width="220" height="42" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="610" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Voice Cloud (WebRTC)</text>
+          <text x="945" y="623" text-anchor="middle" font-size="7.5" fill="#64748b">VAD + STT / Gemini API / TTS</text>
+
+          <path d="M 945 632 L 945 670 L 155 670 L 155 690" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="45" y="690" width="220" height="42" rx="6" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="710" text-anchor="middle" font-size="9" font-weight="700" fill="#0284c7">Real-Time Voice Turns</text>
+          <text x="155" y="723" text-anchor="middle" font-size="7.5" fill="#334155">Regex termination signal</text>
+
+          <line x1="265" y1="711" x2="835" y2="711" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="835" y="690" width="220" height="42" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="710" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API Rubrics</text>
+          <text x="945" y="723" text-anchor="middle" font-size="7.5" fill="#64748b">6-Category Rubric Score</text>
+
+          <line x1="1055" y1="711" x2="1100" y2="711" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="1100" y="690" width="200" height="42" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="710" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">Save VoiceFeedback</text>
+          <text x="1200" y="723" text-anchor="middle" font-size="7.5" fill="#64748b">Store feedback &amp; teardown</text>
+
+          <!-- BRANCH 3: Career Roadmap & Auto-Sync -->
+          <path d="M 235 451 L 235 780 L 110 780 L 110 800" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="45" y="800" width="130" height="42" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="110" y="820" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">Career Roadmap</text>
+          <text x="110" y="833" text-anchor="middle" font-size="7.5" fill="#64748b">3/hr Rate Limit</text>
+
+          <line x1="175" y1="821" x2="305" y2="821" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="305" y="800" width="210" height="42" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="410" y="820" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">Sliding-Window Guard</text>
+          <text x="410" y="833" text-anchor="middle" font-size="7.5" fill="#64748b">3 requests / hour</text>
+
+          <line x1="515" y1="821" x2="835" y2="821" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="835" y="800" width="220" height="42" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="820" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API DAG Gen</text>
+          <text x="945" y="833" text-anchor="middle" font-size="7.5" fill="#64748b">Graph nodes &amp; video IDs</text>
+
+          <line x1="1055" y1="821" x2="1100" y2="821" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="1100" y="800" width="200" height="42" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="820" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">Save Roadmap &amp; Nodes</text>
+          <text x="1200" y="833" text-anchor="middle" font-size="7.5" fill="#64748b">Persist step hierarchy</text>
+
+          <!-- Interactive Milestone Checkoff & Feedback -->
+          <path d="M 1200 842 L 1200 880 L 155 880 L 155 905" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="45" y="905" width="220" height="42" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.8"/>
+          <text x="155" y="925" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Check Off Milestone</text>
+          <text x="155" y="938" text-anchor="middle" font-size="7.5" fill="#334155">Candidate masters node skill</text>
+
+          <!-- AUTO-SYNC LOOP BACK TO USER PROFILE -->
+          <path d="M 265 926 L 1100 926" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arr-m-green)"/>
+          <rect x="1100" y="905" width="200" height="42" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="1.8"/>
+          <text x="1200" y="925" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Auto-Sync to User</text>
+          <text x="1200" y="938" text-anchor="middle" font-size="7.5" fill="#047857">array_union(skills, nodeSkills)</text>
+
+          <!-- JOIN SYNCHRONIZATION BAR -->
+          <path d="M 1200 517 L 1200 980 L 785 980" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <path d="M 1200 732 L 1200 980" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <path d="M 1200 947 L 1200 980" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <line x1="565" y1="980" x2="785" y2="980" stroke="#0f172a" stroke-width="3"/>
+
+          <!-- Final Convergence Node -->
+          <line x1="675" y1="983" x2="675" y2="1030" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <rect x="565" y="1030" width="220" height="44" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="675" y="1052" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="700" fill="#0f172a">Continuous Growth Cycle</text>
+          <text x="675" y="1066" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">Profile, Resumes &amp; Scores Synced</text>
+
+          <!-- Final State Bullseye -->
+          <line x1="675" y1="1074" x2="675" y2="1120" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-m)"/>
+          <circle cx="675" cy="1135" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="675" cy="1135" r="8" fill="#0f172a"/>
+
+        </svg>
+      </div>
+
+      <!-- Technical Cards for Tab 0 -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-dot blue"></div><h3>Subsystem Orchestration</h3></div>
+          <ul>
+            <li>• <strong>Unified Lifecycle:</strong> Onboarding profile feeds directly into Market Insights, Resume Builder, and AI Roadmaps.</li>
+            <li>• <strong>Flywheel Synergy:</strong> As users practice quizzes or master roadmaps, skills automatically sync into User Profile.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot rose"></div><h3>Sliding-Window Protection</h3></div>
+          <ul>
+            <li>• <strong>ATS Resumes:</strong> 5 analyses / hour sliding window via Redis counter.</li>
+            <li>• <strong>Cover Letters:</strong> 5 generations / hour sliding window.</li>
+            <li>• <strong>Roadmaps:</strong> 3 generations / hour (protecting multi-node Gemini calls).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-dot emerald"></div><h3>Dual-Tier Caching</h3></div>
+          <ul>
+            <li>• <strong>AI Response Cache:</strong> SHA-256 prompt hashing caches Gemini outputs (24h for PDF analysis, 6h for letters).</li>
+            <li>• <strong>Query Cache:</strong> Read-heavy lists cache in Redis for 5 minutes and invalidate immediately on DB mutations.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: 01. AUTH & ONBOARDING WORKFLOW                             -->
+    <!-- ================================================================= -->
+    <div id="panel-1" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 900">
+          <defs><marker id="arr-1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="900" fill="#ffffff"/>
+
+          <!-- 5 Swimlanes -->
+          <rect x="30" y="30" width="250" height="840" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="840" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="840" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="840" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="840" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <!-- Headers -->
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Auth Service &amp; Gateway</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API (Unused)</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <!-- Start Node -->
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">User Sign-in / SSO</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Submit credentials</text>
+
+          <line x1="255" y1="172" x2="310" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <rect x="310" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="410" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Verify Session Token</text>
+          <text x="410" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Extract clerkUserId &amp; email</text>
+
+          <line x1="510" y1="172" x2="570" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <rect x="570" y="150" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">checkUser() Action</text>
+          <text x="675" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Query user by clerkUserId</text>
+
+          <line x1="780" y1="172" x2="1100" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <rect x="1100" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#6d28d9">SELECT * FROM User</text>
+          <text x="1200" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Match clerkUserId</text>
+
+          <!-- Decision: User exists? -->
+          <path d="M 1200 194 L 1200 230 L 675 230 L 675 255" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <polygon points="675,255 720,275 675,295 630,275" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="279" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">Exists?</text>
+
+          <!-- [No] -> Insert New User -->
+          <path d="M 720 275 L 1100 275" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <g transform="translate(850, 263)"><rect width="130" height="20" rx="4" fill="#ffffff" stroke="#fecaca"/><text x="65" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#dc2626">[No] First Login</text></g>
+          <rect x="1100" y="253" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="275" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT INTO User</text>
+          <text x="1200" y="289" text-anchor="middle" font-size="7.5" fill="#64748b">Create initial record</text>
+
+          <!-- Merge to Onboarding Check -->
+          <path d="M 1200 297 L 1200 340 L 675 340 L 675 365" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <path d="M 630 275 L 590 275 L 590 340 L 675 340" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <polygon points="675,365 720,385 675,405 630,385" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="389" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">Has Industry?</text>
+
+          <!-- [No] -> Onboarding Form -->
+          <path d="M 630 385 L 155 385 L 155 420" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <g transform="translate(250, 373)"><rect width="170" height="20" rx="4" fill="#ffffff" stroke="#fed7aa"/><text x="85" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#c2410c">[No] Navigate /onboarding</text></g>
+
+          <rect x="55" y="420" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="442" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">Enter Industry, Exp &amp; Bio</text>
+          <text x="155" y="456" text-anchor="middle" font-size="7.5" fill="#64748b">Submit onboarding form</text>
+
+          <line x1="255" y1="442" x2="570" y2="442" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <rect x="570" y="420" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="442" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">updateUser() Action</text>
+          <text x="675" y="456" text-anchor="middle" font-size="7.5" fill="#64748b">Sanitize inputs &amp; bio</text>
+
+          <line x1="780" y1="442" x2="1100" y2="442" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <rect x="1100" y="420" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="442" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">UPDATE User Profile</text>
+          <text x="1200" y="456" text-anchor="middle" font-size="7.5" fill="#64748b">Save industry, bio, exp</text>
+
+          <!-- Invalidate Redis DB Cache -->
+          <path d="M 1200 464 L 1200 510 L 780 510" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <rect x="570" y="490" width="210" height="40" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="515" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Evict Redis Cache (user:*)</text>
+
+          <!-- [Yes] Branch from Has Industry -->
+          <path d="M 675 405 L 675 580 L 155 580 L 155 610" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <g transform="translate(300, 568)"><rect width="180" height="20" rx="4" fill="#ffffff" stroke="#a7f3d0"/><text x="90" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#059669">[Yes] Profile Complete</text></g>
+          <path d="M 570 510 L 410 510 L 410 580" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+
+          <rect x="55" y="610" width="200" height="44" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="632" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Render Dashboard</text>
+          <text x="155" y="646" text-anchor="middle" font-size="7.5" fill="#64748b">Load career radar &amp; tools</text>
+
+          <!-- Final State -->
+          <line x1="155" y1="654" x2="155" y2="700" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-1)"/>
+          <circle cx="155" cy="715" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="715" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>Session Gatekeeper</h3></div><ul><li>• <strong>requireUser()</strong> verifies Clerk session token before executing any Server Action.</li><li>• Throws structured AuthError if unauthenticated.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Automatic DB Provisioning</h3></div><ul><li>• If User record does not exist upon sign-in, creates initial profile in single transactional insert.</li><li>• Avoids race conditions on concurrent logins.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot violet"></div><h3>State Invalidation</h3></div><ul><li>• Onboarding form update clears Redis user cache key immediately.</li><li>• Revalidates dashboard page route cache via revalidatePath('/dashboard').</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: 02. MARKET INSIGHTS WORKFLOW                               -->
+    <!-- ================================================================= -->
+    <div id="panel-2" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 920">
+          <defs><marker id="arr-2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="920" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="860" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="860" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="860" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="860" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="860" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Rate Limiter &amp; Auth</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API Engine</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Select / Change Industry</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Request salary &amp; hiring outlook</text>
+
+          <line x1="255" y1="172" x2="310" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <rect x="310" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="410" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Verify Active Session</text>
+          <text x="410" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Ensure authenticated caller</text>
+
+          <line x1="510" y1="172" x2="570" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <rect x="570" y="150" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">getIndustryInsights()</text>
+          <text x="675" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Check Redis Cache key</text>
+
+          <!-- Decision: Redis Cache Hit? -->
+          <line x1="675" y1="194" x2="675" y2="230" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <polygon points="675,230 720,250 675,270 630,250" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="254" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">Cache Hit?</text>
+
+          <!-- [Yes] -> Return Cached JSON -->
+          <path d="M 630 250 L 155 250 L 155 300" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <g transform="translate(250, 238)"><rect width="180" height="20" rx="4" fill="#ffffff" stroke="#a7f3d0"/><text x="90" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#059669">[Yes] Return Cache (&lt;5ms)</text></g>
+
+          <!-- [No] -> Query PostgreSQL Table -->
+          <path d="M 720 250 L 1100 250" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <g transform="translate(850, 238)"><rect width="140" height="20" rx="4" fill="#ffffff" stroke="#fed7aa"/><text x="70" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#c2410c">[No] Check DB Stale</text></g>
+          <rect x="1100" y="228" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="250" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">SELECT IndustryInsight</text>
+          <text x="1200" y="264" text-anchor="middle" font-size="7.5" fill="#64748b">Check if updated &lt; 7 days</text>
+
+          <!-- Decision: DB Data Fresh? -->
+          <line x1="1200" y1="272" x2="1200" y2="320" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <polygon points="1200,320 1245,340 1200,360 1155,340" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="1200" y="344" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">DB Fresh?</text>
+
+          <!-- [No / Stale] -> Call Gemini API -->
+          <path d="M 1155 340 L 945 340 L 945 390" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <g transform="translate(980, 328)"><rect width="130" height="20" rx="4" fill="#ffffff" stroke="#fecaca"/><text x="65" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#dc2626">[Stale] Regenerate</text></g>
+          <rect x="835" y="390" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="412" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API Call</text>
+          <text x="945" y="426" text-anchor="middle" font-size="7.5" fill="#64748b">Prompt salary, growth &amp; skills</text>
+
+          <!-- Upsert Fresh Data into PostgreSQL -->
+          <path d="M 945 434 L 945 480 L 1100 480" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <rect x="1100" y="458" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="480" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">UPSERT IndustryInsight</text>
+          <text x="1200" y="494" text-anchor="middle" font-size="7.5" fill="#64748b">Save JSON &amp; set updated timestamp</text>
+
+          <!-- Cache in Redis with 24h TTL -->
+          <path d="M 1200 502 L 1200 550 L 780 550" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <rect x="570" y="528" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="550" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Set Redis 24h Cache</text>
+          <text x="675" y="564" text-anchor="middle" font-size="7.5" fill="#64748b">Key: insights:{industry}</text>
+
+          <!-- Return to Client UI -->
+          <path d="M 570 550 L 155 550 L 155 600" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <path d="M 1200 360 L 1200 600 L 255 600" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+
+          <rect x="55" y="600" width="200" height="46" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="622" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Render Salary Radar &amp; Cards</text>
+          <text x="155" y="636" text-anchor="middle" font-size="7.5" fill="#64748b">Percentiles, top skills, growth rate</text>
+
+          <line x1="155" y1="646" x2="155" y2="700" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-2)"/>
+          <circle cx="155" cy="715" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="715" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>24-Hour Redis TTL</h3></div><ul><li>• Market intelligence trends change slowly, so outputs are cached for 24 hours in Redis.</li><li>• Subsequent calls by any user in the same industry resolve sub-5ms with zero Gemini cost.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot violet"></div><h3>Database Fallback</h3></div><ul><li>• PostgreSQL stores structured historical industry trends to guarantee continuity during Redis resets.</li><li>• Refreshes automatically every 7 days.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>Structured Gemini JSON</h3></div><ul><li>• Gemini API call generates schema-enforced JSON: minSalary, medianSalary, maxSalary, topSkills, and demandIndex.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: 03. RESUME BUILDER & AI POLISH WORKFLOW                    -->
+    <!-- ================================================================= -->
+    <div id="panel-3" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 940">
+          <defs><marker id="arr-3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="940" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="880" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="880" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="880" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="880" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="880" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Auth &amp; Session Guard</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API Engine</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Draft Resume Content</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Experience, Education, Skills</text>
+
+          <!-- Branch: Request AI Polish? -->
+          <line x1="155" y1="194" x2="155" y2="230" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <polygon points="155,230 195,250 155,270 115,250" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="155" y="254" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">AI Polish?</text>
+
+          <!-- [Yes] -> AI Polish Subflow -->
+          <line x1="195" y1="250" x2="570" y2="250" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <g transform="translate(320, 238)"><rect width="180" height="20" rx="4" fill="#ffffff" stroke="#bfdbfe"/><text x="90" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#1d4ed8">[Yes] improveWithAI()</text></g>
+
+          <rect x="570" y="228" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Check SHA-256 Prompt</text>
+          <text x="675" y="264" text-anchor="middle" font-size="7.5" fill="#64748b">cachedAICall(bulletHash)</text>
+
+          <line x1="780" y1="250" x2="835" y2="250" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <rect x="835" y="228" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini STAR Polish</text>
+          <text x="945" y="264" text-anchor="middle" font-size="7.5" fill="#64748b">Action verbs &amp; metrics</text>
+
+          <!-- Return polished text to editor -->
+          <path d="M 945 272 L 945 320 L 155 320 L 155 350" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <path d="M 115 250 L 70 250 L 70 320 L 155 320" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <g transform="translate(350, 308)"><rect width="180" height="20" rx="4" fill="#ffffff" stroke="#a7f3d0"/><text x="90" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#059669">Updated Bullets Rendered</text></g>
+
+          <rect x="55" y="350" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="372" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Select Resume Template</text>
+          <text x="155" y="386" text-anchor="middle" font-size="7.5" fill="#64748b">Classic, Modern, Tech, Exec</text>
+
+          <line x1="155" y1="394" x2="155" y2="440" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <rect x="55" y="440" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="462" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Live A4 Staging Preview</text>
+          <text x="155" y="476" text-anchor="middle" font-size="7.5" fill="#64748b">Real-time SVG / DOM render</text>
+
+          <!-- Save / Export Action -->
+          <line x1="255" y1="462" x2="570" y2="462" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <rect x="570" y="440" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="462" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">saveResume() Action</text>
+          <text x="675" y="476" text-anchor="middle" font-size="7.5" fill="#64748b">Serialize template &amp; sections</text>
+
+          <line x1="780" y1="462" x2="1100" y2="462" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <rect x="1100" y="440" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="462" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">UPSERT INTO Resume</text>
+          <text x="1200" y="476" text-anchor="middle" font-size="7.5" fill="#64748b">content JSON, template, userId</text>
+
+          <!-- Cache Invalidation -->
+          <path d="M 1200 484 L 1200 530 L 780 530" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <rect x="570" y="508" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="530" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Evict Redis Resumes Cache</text>
+          <text x="675" y="544" text-anchor="middle" font-size="7.5" fill="#64748b">invalidateCache(`resumes:${userId}`)</text>
+
+          <!-- PDF Export / Complete -->
+          <path d="M 570 530 L 155 530 L 155 580" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <rect x="55" y="580" width="200" height="44" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="602" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Client PDF Export Ready</text>
+          <text x="155" y="616" text-anchor="middle" font-size="7.5" fill="#64748b">Direct print / download</text>
+
+          <line x1="155" y1="624" x2="155" y2="670" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-3)"/>
+          <circle cx="155" cy="685" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="685" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>5 Modern Templates</h3></div><ul><li>• Classic, Modern, Minimal, Executive, and the new FAANG-optimized TechTemplate.</li><li>• Live React DOM to PDF generation without headless Chromium overhead.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>STAR AI Polishing</h3></div><ul><li>• Transforms plain statements into quantifiable STAR bullets (Situation, Task, Action, Result).</li><li>• Responses cached in Redis for fast re-use.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot violet"></div><h3>Direct In-App Analysis</h3></div><ul><li>• Resumes created in the builder can be analyzed directly via analyzeResumeFromBuilder without needing a PDF roundtrip.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 4: 04. ATS RESUME ANALYZER WORKFLOW                           -->
+    <!-- ================================================================= -->
+    <div id="panel-4" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 960">
+          <defs><marker id="arr-4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="960" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Rate Limiter &amp; SSRF Guard</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API Engine</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Upload Resume PDF</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">File Storage upload stream</text>
+
+          <!-- Rate Limit Check (5/hour) -->
+          <line x1="255" y1="172" x2="310" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <rect x="310" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="410" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">Sliding-Window Limiter</text>
+          <text x="410" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">resume-analysis:{userId} &lt;= 5</text>
+
+          <line x1="410" y1="194" x2="410" y2="230" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <polygon points="410,230 455,250 410,270 365,250" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="410" y="254" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">&lt;= 5 / hr?</text>
+
+          <!-- [No] -> 429 Quota Exceeded -->
+          <path d="M 365 250 L 155 250 L 155 285" fill="none" stroke="#e11d48" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <g transform="translate(190, 238)"><rect width="160" height="20" rx="4" fill="#ffffff" stroke="#fecaca"/><text x="80" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#dc2626">[No] Quota Exceeded</text></g>
+          <rect x="55" y="285" width="200" height="40" rx="6" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="155" y="310" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">HTTP 429 Error Toast</text>
+
+          <!-- [Yes] -> SSRF Domain Validation -->
+          <line x1="455" y1="250" x2="570" y2="250" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <g transform="translate(470, 238)"><rect width="80" height="20" rx="4" fill="#ffffff" stroke="#a7f3d0"/><text x="40" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#059669">[Yes] Allow</text></g>
+          <rect x="570" y="228" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="250" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">SSRF Defense Check</text>
+          <text x="675" y="264" text-anchor="middle" font-size="7.5" fill="#64748b">Whitelist utfs.io, uploadthing</text>
+
+          <!-- Buffer Conversion & Cache Check -->
+          <line x1="675" y1="272" x2="675" y2="330" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <rect x="570" y="330" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="352" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Compute SHA-256 Buffer</text>
+          <text x="675" y="366" text-anchor="middle" font-size="7.5" fill="#64748b">Query cachedAICall(pdfHash)</text>
+
+          <!-- Decision: Cache Hit? -->
+          <line x1="675" y1="374" x2="675" y2="410" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <polygon points="675,410 720,430 675,450 630,430" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+          <text x="675" y="434" text-anchor="middle" font-size="8.5" font-weight="600" fill="#0f172a">Cache Hit?</text>
+
+          <!-- [No] -> Gemini API Multimodal Call -->
+          <line x1="720" y1="430" x2="835" y2="430" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <g transform="translate(735, 418)"><rect width="90" height="20" rx="4" fill="#ffffff" stroke="#fed7aa"/><text x="45" y="14" text-anchor="middle" font-size="8.5" font-weight="600" fill="#c2410c">[No] AI Eval</text></g>
+          <rect x="835" y="408" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="430" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Multimodal Gemini API</text>
+          <text x="945" y="444" text-anchor="middle" font-size="7.5" fill="#64748b">Base64 PDF inline data scoring</text>
+
+          <!-- Database Persistence -->
+          <line x1="1055" y1="430" x2="1100" y2="430" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <rect x="1100" y="408" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="430" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT ResumeAnalysis</text>
+          <text x="1200" y="444" text-anchor="middle" font-size="7.5" fill="#64748b">atsScore, feedback, status: DONE</text>
+
+          <!-- [Yes] Cache Hit Convergence -->
+          <path d="M 630 430 L 590 430 L 590 520 L 1100 520" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+          <path d="M 1200 452 L 1200 520" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+
+          <!-- Invalidate Analysis List Cache -->
+          <path d="M 1100 520 L 780 520" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <rect x="570" y="498" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="520" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Evict Analysis Cache</text>
+          <text x="675" y="534" text-anchor="middle" font-size="7.5" fill="#64748b">invalidateCache(`analyses:${userId}`)</text>
+
+          <!-- Render to Client -->
+          <path d="M 570 520 L 155 520 L 155 580" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <rect x="55" y="580" width="200" height="46" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="602" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Render ATS Score Report</text>
+          <text x="155" y="616" text-anchor="middle" font-size="7.5" fill="#64748b">Score 0-100, Radar &amp; Gaps</text>
+
+          <line x1="155" y1="626" x2="155" y2="680" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-4)"/>
+          <circle cx="155" cy="695" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="695" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>Rate Limiting &amp; SSRF</h3></div><ul><li>• Upstash sliding-window limiter blocks abuse beyond 5 requests/hour.</li><li>• SSRF guard strictly whitelists utfs.io, uploadthing.com, and ufs.sh hosts.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>24h Binary Hash Cache</h3></div><ul><li>• Computes SHA-256 hash of PDF binary buffer. Duplicate uploads return instantly from Redis cache.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>Multimodal Analysis</h3></div><ul><li>• Sends binary document directly to Gemini API for simultaneous layout and semantic ATS evaluation.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 5: 05. COVER LETTER GENERATOR WORKFLOW                        -->
+    <!-- ================================================================= -->
+    <div id="panel-5" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 920">
+          <defs><marker id="arr-5" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="920" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="860" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="860" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="860" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="860" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="860" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Rate Limiter &amp; Auth</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API Engine</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Input Job Description</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Company name &amp; target title</text>
+
+          <!-- Rate Limit (5/hr) -->
+          <line x1="255" y1="172" x2="310" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="310" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="410" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">Sliding-Window Limiter</text>
+          <text x="410" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">cover-letter:{userId} &lt;= 5/hr</text>
+
+          <!-- Fetch Profile Background -->
+          <line x1="510" y1="172" x2="1100" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="1100" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">Fetch User Profile</text>
+          <text x="1200" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Skills, experience, bio</text>
+
+          <!-- Check 6h Redis Cache -->
+          <path d="M 1200 194 L 1200 240 L 780 240" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="570" y="218" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="240" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Check SHA-256 Prompt</text>
+          <text x="675" y="254" text-anchor="middle" font-size="7.5" fill="#64748b">6h TTL for identical job desc</text>
+
+          <line x1="780" y1="240" x2="835" y2="240" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="835" y="218" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="240" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API Generation</text>
+          <text x="945" y="254" text-anchor="middle" font-size="7.5" fill="#64748b">Role-tailored 400-word letter</text>
+
+          <line x1="1055" y1="240" x2="1100" y2="240" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="1100" y="218" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="240" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT CoverLetter</text>
+          <text x="1200" y="254" text-anchor="middle" font-size="7.5" fill="#64748b">content, company, status: DONE</text>
+
+          <path d="M 1200 262 L 1200 310 L 780 310" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="570" y="288" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="310" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Evict Letters Cache</text>
+          <text x="675" y="324" text-anchor="middle" font-size="7.5" fill="#64748b">invalidateCache(`letters:${userId}`)</text>
+
+          <path d="M 570 310 L 155 310 L 155 360" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <rect x="55" y="360" width="200" height="46" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="382" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Markdown Canvas Editor</text>
+          <text x="155" y="396" text-anchor="middle" font-size="7.5" fill="#64748b">Live preview, edit &amp; copy</text>
+
+          <line x1="155" y1="406" x2="155" y2="460" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-5)"/>
+          <circle cx="155" cy="475" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="475" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>5 Letters / Hour Limit</h3></div><ul><li>• Sliding-window limiter in Redis restricts high-volume prompt spamming.</li><li>• Rejections return friendly HTTP 429 toast with remaining window time.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Profile Augmentation</h3></div><ul><li>• Automatically merges candidate's target skills and experiences into Gemini prompt context.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>400-Word Sweet Spot</h3></div><ul><li>• Enforces concise 3-paragraph persuasive length proven to maximize recruiter engagement.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 6: 06. TECHNICAL QUIZ ASSESSMENT WORKFLOW                     -->
+    <!-- ================================================================= -->
+    <div id="panel-6" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 960">
+          <defs><marker id="arr-6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="960" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Session &amp; Anti-Spam</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini API Engine</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">Select Topic &amp; Difficulty</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">10-25 MCQs (Tech / Mixed)</text>
+
+          <line x1="255" y1="172" x2="570" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="570" y="150" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">generateQuiz() Action</text>
+          <text x="675" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Check cached questions</text>
+
+          <line x1="780" y1="172" x2="835" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="835" y="150" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API MCQs</text>
+          <text x="945" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Generate questions + 4 options</text>
+
+          <!-- Return to Client for Interactive Answering -->
+          <path d="M 945 194 L 945 240 L 155 240 L 155 270" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="55" y="270" width="200" height="44" rx="6" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="292" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0284c7">Interactive MCQ Session</text>
+          <text x="155" y="306" text-anchor="middle" font-size="7.5" fill="#334155">Timed answer selection</text>
+
+          <!-- Submit Answers -->
+          <line x1="155" y1="314" x2="155" y2="360" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="55" y="360" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="382" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">Submit Answer Array</text>
+          <text x="155" y="396" text-anchor="middle" font-size="7.5" fill="#64748b">Send selected indexes</text>
+
+          <line x1="255" y1="382" x2="570" y2="382" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="570" y="360" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="382" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">saveQuizResult()</text>
+          <text x="675" y="396" text-anchor="middle" font-size="7.5" fill="#64748b">Compute score &amp; incorrect set</text>
+
+          <line x1="780" y1="382" x2="835" y2="382" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="835" y="360" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="382" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini Diagnostic Tip</text>
+          <text x="945" y="396" text-anchor="middle" font-size="7.5" fill="#64748b">Actionable advice on mistakes</text>
+
+          <line x1="1055" y1="382" x2="1100" y2="382" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="1100" y="360" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="382" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT Assessment</text>
+          <text x="1200" y="396" text-anchor="middle" font-size="7.5" fill="#64748b">score, questions, tip, userId</text>
+
+          <path d="M 1200 404 L 1200 450 L 780 450" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="570" y="428" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="450" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Evict Assessments Cache</text>
+          <text x="675" y="464" text-anchor="middle" font-size="7.5" fill="#64748b">invalidateCache(`assessments:${userId}`)</text>
+
+          <path d="M 570 450 L 155 450 L 155 500" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <rect x="55" y="500" width="200" height="46" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="522" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Score Review &amp; Curve</text>
+          <text x="155" y="536" text-anchor="middle" font-size="7.5" fill="#64748b">Detailed explanations &amp; tip</text>
+
+          <line x1="155" y1="546" x2="155" y2="600" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-6)"/>
+          <circle cx="155" cy="615" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="615" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>Custom Difficulty &amp; Type</h3></div><ul><li>• Supports 10 to 25 questions, Easy/Medium/Hard tiers, and Technical/Conceptual filters.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Per-Option Explanations</h3></div><ul><li>• Every question returns thorough explanations for why each option is correct or incorrect.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>Historical Progress Tracking</h3></div><ul><li>• Stores all historical attempts in Assessment table to render improvement curves over time.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 7: 07. REAL-TIME VOICE INTERVIEW WORKFLOW                     -->
+    <!-- ================================================================= -->
+    <div id="panel-7" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 960">
+          <defs><marker id="arr-7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="960" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Room Teardown &amp; Auth</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Voice Cloud &amp; Gemini</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#0f172a">Select Role &amp; Topic</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Grant microphone access</text>
+
+          <!-- Generate Questions -->
+          <line x1="255" y1="172" x2="835" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="835" y="150" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API Questions</text>
+          <text x="945" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Tailor 5 role-specific prompts</text>
+
+          <!-- Store Interview Session in DB -->
+          <line x1="1055" y1="172" x2="1100" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="1100" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="172" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT Interview</text>
+          <text x="1200" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">role, topic, questions, userId</text>
+
+          <!-- Provision WebRTC Token -->
+          <path d="M 1200 194 L 1200 240 L 510 240" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="310" y="218" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="410" y="240" text-anchor="middle" font-size="9" font-weight="700" fill="#0284c7">Mint WebRTC Token</text>
+          <text x="410" y="254" text-anchor="middle" font-size="7.5" fill="#64748b">Generate room grants &amp; claim</text>
+
+          <!-- Bi-directional Voice Loop -->
+          <path d="M 310 240 L 155 240 L 155 290" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="55" y="290" width="200" height="50" rx="6" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="312" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0284c7">Real-Time Audio Loop</text>
+          <text x="155" y="328" text-anchor="middle" font-size="7.5" fill="#334155">WebRTC mic stream to Voice Cloud</text>
+
+          <line x1="255" y1="315" x2="835" y2="315" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="835" y="290" width="220" height="50" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="312" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Voice Cloud (SFU)</text>
+          <text x="945" y="328" text-anchor="middle" font-size="7.5" fill="#64748b">Deepgram STT &lt;-&gt; Cartesia TTS</text>
+
+          <!-- Concluding Signal Detection -->
+          <line x1="945" y1="340" x2="945" y2="390" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="835" y="390" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="412" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Regex Teardown Trigger</text>
+          <text x="945" y="426" text-anchor="middle" font-size="7.5" fill="#64748b">Match concluding interview phrases</text>
+
+          <!-- Teardown WebRTC Room via API -->
+          <line x1="835" y1="412" x2="510" y2="412" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="310" y="390" width="200" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="410" y="412" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">/api/livekit/end-room</text>
+          <text x="410" y="426" text-anchor="middle" font-size="7.5" fill="#64748b">Verify ownership &amp; kill room</text>
+
+          <!-- Gemini Evaluates Full Transcript -->
+          <path d="M 410 434 L 410 490 L 835 490" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="835" y="468" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="490" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini Rubric Evaluation</text>
+          <text x="945" y="504" text-anchor="middle" font-size="7.5" fill="#64748b">6 categories + citations &amp; tips</text>
+
+          <!-- Save VoiceFeedback in Database -->
+          <line x1="1055" y1="490" x2="1100" y2="490" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="1100" y="468" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="490" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT VoiceFeedback</text>
+          <text x="1200" y="504" text-anchor="middle" font-size="7.5" fill="#64748b">overallScore, rubric, strengths</text>
+
+          <!-- Render to Candidate -->
+          <path d="M 1200 512 L 1200 570 L 155 570 L 155 600" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <rect x="55" y="600" width="200" height="46" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="622" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Post-Interview Evaluation</text>
+          <text x="155" y="636" text-anchor="middle" font-size="7.5" fill="#64748b">6-pillar score card &amp; quote analysis</text>
+
+          <line x1="155" y1="646" x2="155" y2="700" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-7)"/>
+          <circle cx="155" cy="715" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="715" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot blue"></div><h3>Zero-Latency WebRTC</h3></div><ul><li>• Bidirectional audio stream powered by WebRTC SFU with voice activity detection (VAD).</li><li>• Direct conversational pipeline with sub-second turnaround.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>Explicit Room Teardown</h3></div><ul><li>• End-room API validates candidate identity before deleting active room to prevent resource leaks.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>6-Category Diagnostic</h3></div><ul><li>• Evaluates Technical Accuracy, Communication, Structure, Problem-Solving, Confidence, and Role Fit.</li></ul></div>
+      </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- TAB 8: 08. CAREER ROADMAP & SKILL AUTO-SYNC WORKFLOW              -->
+    <!-- ================================================================= -->
+    <div id="panel-8" class="diagram-panel">
+      <div class="diagram-card">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 960">
+          <defs><marker id="arr-8" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#0f172a"/></marker></defs>
+          <rect width="1350" height="960" fill="#ffffff"/>
+
+          <rect x="30" y="30" width="250" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="280" y="30" width="260" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="540" y="30" width="270" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+          <rect x="810" y="30" width="270" height="900" fill="#fafafa" stroke="#e2e8f0"/>
+          <rect x="1080" y="30" width="240" height="900" fill="#ffffff" stroke="#e2e8f0"/>
+
+          <rect x="30" y="30" width="250" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="155" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Job Seeker / Client UI</text>
+          <rect x="280" y="30" width="260" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="410" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Rate Limiter &amp; Auth</text>
+          <rect x="540" y="30" width="270" height="38" fill="#f8fafc" stroke="#cbd5e1"/><text x="675" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">Server Actions &amp; Redis</text>
+          <rect x="810" y="30" width="270" height="38" fill="#fef3c7" stroke="#cbd5e1"/><text x="945" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">Gemini &amp; Video API</text>
+          <rect x="1080" y="30" width="240" height="38" fill="#f5f3ff" stroke="#cbd5e1"/><text x="1200" y="54" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#6d28d9">PostgreSQL Database</text>
+
+          <circle cx="155" cy="110" r="12" fill="#0f172a"/>
+          <line x1="155" y1="122" x2="155" y2="150" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+
+          <rect x="55" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="172" text-anchor="middle" font-size="9.5" font-weight="600" fill="#0f172a">Enter Target Career Goal</text>
+          <text x="155" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">e.g. Senior AI Systems Engineer</text>
+
+          <!-- Rate Limiting (3/hour) -->
+          <line x1="255" y1="172" x2="310" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="310" y="150" width="200" height="44" rx="6" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+          <text x="410" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#e11d48">Sliding-Window Limiter</text>
+          <text x="410" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">roadmap:{userId} &lt;= 3/hr</text>
+
+          <line x1="510" y1="172" x2="835" y2="172" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="835" y="150" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="172" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Gemini API DAG Gen</text>
+          <text x="945" y="186" text-anchor="middle" font-size="7.5" fill="#64748b">Generate milestones, nodes &amp; edges</text>
+
+          <line x1="945" y1="194" x2="945" y2="240" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="835" y="240" width="220" height="44" rx="6" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+          <text x="945" y="262" text-anchor="middle" font-size="9" font-weight="700" fill="#b45309">Video Search API</text>
+          <text x="945" y="276" text-anchor="middle" font-size="7.5" fill="#64748b">Curated video tutorial links</text>
+
+          <line x1="1055" y1="262" x2="1100" y2="262" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="1100" y="240" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="262" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">INSERT Roadmap</text>
+          <text x="1200" y="276" text-anchor="middle" font-size="7.5" fill="#64748b">nodes JSON, edges JSON, userId</text>
+
+          <!-- Interactive Roadmap Flowchart -->
+          <path d="M 1200 284 L 1200 340 L 155 340 L 155 370" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="55" y="370" width="200" height="46" rx="6" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="155" y="392" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0284c7">Interactive DAG Flowchart</text>
+          <text x="155" y="406" text-anchor="middle" font-size="7.5" fill="#334155">Explore nodes &amp; watch videos</text>
+
+          <!-- Milestone Completion -->
+          <line x1="155" y1="416" x2="155" y2="470" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="55" y="470" width="200" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="155" y="492" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">Check Off Milestone</text>
+          <text x="155" y="506" text-anchor="middle" font-size="7.5" fill="#64748b">Mark node as COMPLETED</text>
+
+          <line x1="255" y1="492" x2="570" y2="492" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="570" y="470" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="492" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">updateMilestoneStatus()</text>
+          <text x="675" y="506" text-anchor="middle" font-size="7.5" fill="#64748b">Extract mastered skills array</text>
+
+          <line x1="780" y1="492" x2="1100" y2="492" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="1100" y="470" width="200" height="44" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+          <text x="1200" y="492" text-anchor="middle" font-size="9" font-weight="600" fill="#6d28d9">UPDATE Roadmap Node</text>
+          <text x="1200" y="506" text-anchor="middle" font-size="7.5" fill="#64748b">Set completed: true</text>
+
+          <!-- REAL-TIME AUTO-SYNC TO USER TABLE -->
+          <line x1="1200" y1="514" x2="1200" y2="560" stroke="#059669" stroke-width="2" marker-end="url(#arr-8)"/>
+          <rect x="1100" y="560" width="200" height="46" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+          <text x="1200" y="582" text-anchor="middle" font-size="9" font-weight="700" fill="#047857">UPDATE User SET skills</text>
+          <text x="1200" y="596" text-anchor="middle" font-size="7.5" fill="#047857">array_union(skills, newSkills)</text>
+
+          <!-- Invalidate User Cache & Confirm -->
+          <path d="M 1100 583 L 780 583" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="570" y="561" width="210" height="44" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5"/>
+          <text x="675" y="583" text-anchor="middle" font-size="9" font-weight="600" fill="#047857">Evict User &amp; Roadmap Cache</text>
+          <text x="675" y="597" text-anchor="middle" font-size="7.5" fill="#64748b">Immediate UI revalidation</text>
+
+          <path d="M 570 583 L 155 583 L 155 640" fill="none" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <rect x="55" y="640" width="200" height="44" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          <text x="155" y="662" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">Profile Skills Synced!</text>
+          <text x="155" y="676" text-anchor="middle" font-size="7.5" fill="#64748b">Verified in profile badge list</text>
+
+          <line x1="155" y1="684" x2="155" y2="730" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arr-8)"/>
+          <circle cx="155" cy="745" r="14" fill="none" stroke="#0f172a" stroke-width="2"/>
+          <circle cx="155" cy="745" r="8" fill="#0f172a"/>
+        </svg>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card"><div class="card-header"><div class="card-dot rose"></div><h3>3 Roadmaps / Hour Limit</h3></div><ul><li>• Sliding-window limiter in Redis restricts high-cost multi-node DAG generations to 3/hour.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot emerald"></div><h3>Automatic Skill Sync</h3></div><ul><li>• Marking roadmap nodes as completed invokes array_union on the User table, updating candidate profile skills in real time.</li></ul></div>
+        <div class="card"><div class="card-header"><div class="card-dot amber"></div><h3>Embedded Video Discovery</h3></div><ul><li>• Each roadmap milestone automatically queries curated YouTube tutorial IDs for immediate learning.</li></ul></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      SensAI Architecture Reference · UML Activity &amp; Swimlanes Specification (All 8 Features) · Standalone Technical Documentation
+    </div>
+  </div>
+
+  <script>
+    function switchTab(index) {
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === index);
+      });
+      document.querySelectorAll('.diagram-panel').forEach((panel, idx) => {
+        panel.classList.toggle('active', idx === index);
+      });
+    }
+  </script>
+</body>
+</html>
