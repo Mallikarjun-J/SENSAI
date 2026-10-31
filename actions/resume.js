@@ -403,3 +403,148 @@ export async function parseResumeFromPdf({ title, pdfUrl }) {
   revalidatePath("/resume");
   return { resumeId: resume.id };
 }
+
+// ─── Profile Skills Categorizer ─────────────────────────────────────────────
+
+const SKILL_CATEGORIES = [
+  {
+    name: "Languages",
+    matches: [
+      "javascript", "typescript", "python", "java", "c++", "cpp", "c#", "c",
+      "sql", "golang", "go", "rust", "ruby", "php", "swift", "kotlin",
+      "r", "scala", "dart", "shell", "bash", "powershell",
+    ],
+  },
+  {
+    name: "Web Technologies",
+    matches: [
+      "html", "html5", "css", "css3", "sass", "scss", "less", "tailwind",
+      "tailwindcss", "bootstrap", "xml", "json", "responsive design",
+      "dom", "flexbox", "grid", "material ui", "mui", "shadcn", "webtech",
+    ],
+  },
+  {
+    name: "Frameworks",
+    matches: [
+      "react", "react.js", "reactjs", "next.js", "nextjs", "next", "node.js",
+      "nodejs", "node", "express", "express.js", "expressjs", "spring boot",
+      "spring", "django", "flask", "fastapi", "vue", "vue.js", "vuejs",
+      "angular", "svelte", "laravel", "asp.net", "ruby on rails", "nestjs",
+      "spring security", "spring framework",
+    ],
+  },
+  {
+    name: "Databases & ORM",
+    matches: [
+      "postgresql", "postgres", "mongodb", "mongo", "mysql", "sqlite",
+      "redis", "prisma", "prisma orm", "mongoose", "dynamodb", "supabase",
+      "firebase", "cassandra", "mariadb", "elasticsearch", "hibernate",
+      "jdbc", "jpa", "spring data jpa",
+    ],
+  },
+  {
+    name: "AI / ML",
+    matches: [
+      "generative ai", "genai", "rag", "voice ai", "vector embeddings",
+      "llm", "llms", "machine learning", "deep learning", "pytorch",
+      "tensorflow", "keras", "scikit-learn", "nlp", "computer vision",
+      "langchain", "llamaindex", "hugging face", "opencv",
+    ],
+  },
+  {
+    name: "Core Concepts",
+    matches: [
+      "data structures & algorithms", "data structures and algorithms", "dsa",
+      "data structures", "algorithms", "oop", "object-oriented programming",
+      "system design", "microservices", "design patterns", "multithreading",
+      "concurrency", "clean architecture",
+    ],
+  },
+  {
+    name: "APIs & Technologies",
+    matches: [
+      "rest api", "rest apis", "restful apis", "graphql", "webrtc", "livekit",
+      "livekit webrtc", "websockets", "grpc", "oauth", "jwt", "socket.io",
+      "google gemini api", "gemini api", "openai api", "stripe api",
+      "kafka", "apache kafka", "rabbitmq", "pub/sub",
+    ],
+  },
+  {
+    name: "Cloud & DevOps",
+    matches: [
+      "docker", "kubernetes", "aws", "amazon web services", "gcp",
+      "google cloud", "azure", "ci/cd", "github actions", "terraform",
+      "linux", "nginx", "vercel", "netlify",
+    ],
+  },
+  {
+    name: "Tools & Platforms",
+    matches: [
+      "git", "github", "gitlab", "vs code", "vscode", "intellij idea",
+      "intellij", "postman", "jira", "figma", "android studio", "xcode",
+      "npm", "pnpm", "yarn", "vite", "webpack",
+    ],
+  },
+];
+
+function formatSkillsIntoCategories(skills = []) {
+  if (!Array.isArray(skills) || skills.length === 0) return [];
+
+  const categorized = new Map();
+  SKILL_CATEGORIES.forEach((cat) => categorized.set(cat.name, []));
+  const other = [];
+  const seen = new Set();
+
+  for (const rawSkill of skills) {
+    if (!rawSkill || typeof rawSkill !== "string") continue;
+    const trimmed = rawSkill.trim();
+    if (!trimmed) continue;
+    const lower = trimmed.toLowerCase();
+    if (seen.has(lower)) continue;
+    seen.add(lower);
+
+    let matched = false;
+    for (const cat of SKILL_CATEGORIES) {
+      if (cat.matches.some((m) => lower === m || lower.split(/[^a-z0-9+#]/).includes(m))) {
+        categorized.get(cat.name).push(trimmed);
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      other.push(trimmed);
+    }
+  }
+
+  const lines = [];
+  for (const cat of SKILL_CATEGORIES) {
+    const list = categorized.get(cat.name);
+    if (list && list.length > 0) {
+      lines.push(`${cat.name}: ${list.join(", ")}`);
+    }
+  }
+
+  if (other.length > 0) {
+    lines.push(`Other Skills: ${other.join(", ")}`);
+  }
+
+  return lines;
+}
+
+export async function getProfileSkillsFormatted() {
+  const user = await getDbUser();
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { skills: true },
+  });
+
+  const skills = dbUser?.skills ?? [];
+  if (!skills.length) {
+    return { success: false, message: "No skills found in your profile", lines: [] };
+  }
+
+  const lines = formatSkillsIntoCategories(skills);
+  return { success: true, lines, count: skills.length };
+}
+

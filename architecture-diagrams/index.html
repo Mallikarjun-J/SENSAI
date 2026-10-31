@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SensAI — Software Architecture &amp; UML Design Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    header {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      font-size: 13px;
+      color: #64748b;
+      max-width: 850px;
+      line-height: 1.5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 24px;
+      background: #ffffff;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.02);
+    }
+    .card:hover {
+      border-color: #94a3b8;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      transform: translateY(-2px);
+    }
+    .card-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 11.5px;
+      color: #475569;
+      margin-bottom: 18px;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .btn-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 10px 16px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .btn-open:hover {
+      background: #1e293b;
+    }
+    footer {
+      margin-top: 60px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 24px;
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">Architecture &amp; UML Design Suite</div>
+      <h1>SensAI — Software Architecture &amp; UML Engineering Diagrams</h1>
+      <p class="subtitle">Complete technical diagrams built following the official Architecture Diagram Skill with JetBrains Mono typography, clean white background, semantic color coding, exhaustive component details, and implementation summary cards.</p>
+    </header>
+
+    <div class="grid">
+      <!-- 01: System Architecture -->
+      <div class="card">
+        <div>
+          <div class="card-num">01 / SYSTEM ARCHITECTURE</div>
+          <div class="card-title">End-to-End System Architecture</div>
+          <div class="card-desc">Subsystem decomposition covering Client Presentation (Next.js 16 / React 19), Edge Gateway &amp; Rate Limiter (5/h, 3/h), Application Server Actions, Redis Cache (AI &amp; DB), PostgreSQL Database, and Gemini API.</div>
+          <div class="card-tags">
+            <span class="tag">Next.js 16</span>
+            <span class="tag">Rate Limiter</span>
+            <span class="tag">Redis Cache</span>
+            <span class="tag">Gemini API</span>
+            <span class="tag">PostgreSQL DB</span>
+          </div>
+        </div>
+        <a href="01-system-architecture.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 02: Database Design -->
+      <div class="card">
+        <div>
+          <div class="card-num">02 / DATABASE DESIGN</div>
+          <div class="card-title">Entity Relationship Diagram (ERD)</div>
+          <div class="card-desc">Complete schema mapping all 9 relational models without shortcuts: User, Assessment, Resume, CoverLetter, Interview, VoiceFeedback, Roadmap, ResumeAnalysis, and IndustryInsight, with exact types and foreign keys.</div>
+          <div class="card-tags">
+            <span class="tag">Prisma ORM</span>
+            <span class="tag">9 Models</span>
+            <span class="tag">Cascades</span>
+            <span class="tag">JSONB Columns</span>
+            <span class="tag">Indexes</span>
+          </div>
+        </div>
+        <a href="02-database-design.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 03: DFD Level 0 -->
+      <div class="card">
+        <div>
+          <div class="card-num">03 / DATA FLOW DIAGRAM</div>
+          <div class="card-title">DFD Level 0 — System Context Diagram</div>
+          <div class="card-desc">High-level boundary model showing Candidate interactions with the central SensAI System (Process 0.0), Auth Service, Gemini API, Voice Cloud, PostgreSQL Database, Redis Cache, and File Storage.</div>
+          <div class="card-tags">
+            <span class="tag">Process 0.0</span>
+            <span class="tag">System Boundary</span>
+            <span class="tag">Data Packets</span>
+            <span class="tag">External Entities</span>
+          </div>
+        </div>
+        <a href="03-dfd-level-0.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 04: DFD Level 1 -->
+      <div class="card">
+        <div>
+          <div class="card-num">04 / DATA FLOW DIAGRAM</div>
+          <div class="card-title">DFD Level 1 — Feature-Wise Decomposition</div>
+          <div class="card-desc">Interactive tabbed subsystem decomposition covering all 8 features individually plus a master overview: mapping directional data exchanges across data stores D1–D8 (PostgreSQL tables), D9 (Redis cache &amp; rate limit), and external Gemini API, Voice Cloud, and Video Search pipelines with zero visual collision.</div>
+          <div class="card-tags">
+            <span class="tag">All 8 Features</span>
+            <span class="tag">Interactive Tabs</span>
+            <span class="tag">Zero Collision</span>
+            <span class="tag">Stores D1-D9</span>
+            <span class="tag">Skill Auto-Sync</span>
+          </div>
+        </div>
+        <a href="04-dfd-level-1.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 05: Use Case Diagram -->
+      <div class="card">
+        <div>
+          <div class="card-num">05 / UML USE CASE</div>
+          <div class="card-title">UML Use Case Diagram</div>
+          <div class="card-desc">Functional interaction model mapping actors (Job Seeker, Auth Service, Gemini API, Voice Agent, Scheduler) to use cases UC-1 to UC-10 with &lt;&lt;include&gt;&gt; and &lt;&lt;extend&gt;&gt; relationships.</div>
+          <div class="card-tags">
+            <span class="tag">Actors</span>
+            <span class="tag">UC1 to UC10</span>
+            <span class="tag">&lt;&lt;include&gt;&gt;</span>
+            <span class="tag">&lt;&lt;extend&gt;&gt;</span>
+          </div>
+        </div>
+        <a href="05-use-case-diagram.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 06: Activity Diagram -->
+      <div class="card">
+        <div>
+          <div class="card-num">06 / UML ACTIVITY</div>
+          <div class="card-title">UML Activity Diagrams (All 8 Features)</div>
+          <div class="card-desc">Interactive tabbed activity workflows partitioned into 5 swimlanes across all 8 features plus a master orchestration overview: Client UI, Rate Limiter, Server Actions &amp; Redis Cache, Gemini API &amp; Cloud Services, and PostgreSQL Database.</div>
+          <div class="card-tags">
+            <span class="tag">All 8 Features</span>
+            <span class="tag">5 Swimlanes</span>
+            <span class="tag">Interactive Tabs</span>
+            <span class="tag">Rate Limit Guards</span>
+            <span class="tag">Skill Auto-Sync</span>
+          </div>
+        </div>
+        <a href="06-activity-diagram.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 07: Sequence Diagram -->
+      <div class="card">
+        <div>
+          <div class="card-num">07 / UML SEQUENCE</div>
+          <div class="card-title">UML Sequence Diagrams (All 8 Features)</div>
+          <div class="card-desc">Interactive tabbed chronological sequence models for all 8 core features: (1) Onboarding &amp; Auth, (2) Market Insights, (3) Resume Builder, (4) ATS Resume Analyzer, (5) Cover Letter, (6) Technical Quiz, (7) Real-Time Voice Interview, and (8) Roadmap &amp; Skill Sync.</div>
+          <div class="card-tags">
+            <span class="tag">All 8 Features</span>
+            <span class="tag">Interactive Tabs</span>
+            <span class="tag">Lifelines &amp; Activations</span>
+            <span class="tag">Rate Limit Guards</span>
+            <span class="tag">AI Caching</span>
+          </div>
+        </div>
+        <a href="07-sequence-diagram.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 08: State Transition Diagram -->
+      <div class="card">
+        <div>
+          <div class="card-num">08 / UML STATE TRANSITION</div>
+          <div class="card-title">UML State Transition Diagram</div>
+          <div class="card-desc">State machine specifications for: (1) Resume Analysis lifecycle (PENDING → PROCESSING → DONE / ERROR → PURGED); (2) Real-Time Voice Mock Interview turns and regex teardown; and (3) Progressive Skill Synchronization.</div>
+          <div class="card-tags">
+            <span class="tag">Statecharts</span>
+            <span class="tag">Composite States</span>
+            <span class="tag">Regex Teardown</span>
+            <span class="tag">Skill Sync</span>
+          </div>
+        </div>
+        <a href="08-state-transition-diagram.html" class="btn-open">View Diagram →</a>
+      </div>
+
+      <!-- 09: Chapter 7 System Testing Report -->
+      <div class="card" style="border-color: #0284c7; background: #f0fdf4;">
+        <div>
+          <div class="card-num" style="color: #059669;">PROJECT REPORT / CHAPTER 7</div>
+          <div class="card-title">Chapter 7: System Testing (Full Documentation)</div>
+          <div class="card-desc">Complete academic project report chapter covering 7.1 Unit Testing, 7.2 Functional Testing, 7.3 Integration Testing, 7.4 Acceptance Testing (UAT), Justification for all phases, test case tables, and Requirements Traceability Matrix.</div>
+          <div class="card-tags">
+            <span class="tag" style="background: #ffffff;">7.1 Unit Testing</span>
+            <span class="tag" style="background: #ffffff;">7.2 Functional Testing</span>
+            <span class="tag" style="background: #ffffff;">7.3 Integration Testing</span>
+            <span class="tag" style="background: #ffffff;">7.4 Acceptance Testing</span>
+            <span class="tag" style="background: #ffffff;">Traceability Matrix</span>
+          </div>
+        </div>
+        <a href="chapter-07-system-testing.html" class="btn-open" style="background: #047857;">Open Chapter 7 Report →</a>
+      </div>
+    </div>
+
+    <footer>
+      SensAI Architecture Reference Suite • Built following Architecture Diagram Skill Specification
+    </footer>
+  </div>
+</body>
+</html>

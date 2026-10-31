@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SensAI — UML State Transition Diagram</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1350px; margin: 0 auto; }
+    .header { margin-bottom: 28px; }
+    .header h1 {
+      font-size: 22px; font-weight: 700; color: #0f172a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+      background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8;
+    }
+    .header .subtitle { font-size: 12px; color: #64748b; margin-top: 6px; }
+    .diagram-card {
+      border: 1px solid #cbd5e1; border-radius: 12px;
+      overflow: hidden; background: #ffffff; margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+    .diagram-card svg { display: block; width: 100%; height: auto; }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.rose { background: #e11d48; }
+    .card-dot.emerald { background: #059669; }
+    .card-dot.amber { background: #d97706; }
+    .card h3 {
+      font-size: 12px; font-weight: 700; color: #0f172a;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .card ul { list-style: none; }
+    .card li { font-size: 11.5px; color: #334155; padding: 4px 0; line-height: 1.45; }
+    .card li strong { color: #0f172a; }
+    .footer { text-align: center; font-size: 11px; color: #94a3b8; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } body { padding: 20px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><span class="status-badge">STATE TRANSITION</span> SensAI — UML Statechart Models</h1>
+      <p class="subtitle">Complete technical state machine specifications for Resume Analysis, Real-Time Voice Sessions, and Progressive Skill Normalization</p>
+    </div>
+
+    <div class="diagram-card">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 1200">
+        <defs>
+          <pattern id="light-grid8" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f1f5f9" stroke-width="0.8"/>
+          </pattern>
+          <marker id="tarr" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" fill="#475569"/>
+          </marker>
+          <marker id="tarr-blue" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" fill="#0284c7"/>
+          </marker>
+          <marker id="tarr-emerald" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" fill="#059669"/>
+          </marker>
+          <marker id="tarr-red" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" fill="#e11d48"/>
+          </marker>
+          <marker id="tarr-amber" markerWidth="9" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 9 3, 0 6" fill="#d97706"/>
+          </marker>
+        </defs>
+
+        <rect width="1350" height="1200" fill="#ffffff"/>
+        <rect width="1350" height="1200" fill="url(#light-grid8)"/>
+
+        <!-- ================= SECTION 1: RESUME ANALYSIS STATE MACHINE ================= -->
+        <rect x="30" y="30" width="1290" height="320" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+        <text x="50" y="58" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="1px">STATE MACHINE 1: RESUME ANALYSIS LIFECYCLE (ResumeAnalysisStatus Enum)</text>
+
+        <!-- Initial State (Circle) -->
+        <circle cx="70" cy="165" r="12" fill="#0f172a"/>
+        <path d="M 82 165 L 125 165" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#tarr)"/>
+        <text x="103" y="156" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">create</text>
+
+        <!-- State: PENDING -->
+        <rect x="125" y="130" width="180" height="70" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.5"/>
+        <line x1="125" y1="156" x2="305" y2="156" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="215" y="149" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">PENDING</text>
+        <text x="135" y="174" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">entry / Validate Storage URL</text>
+        <text x="135" y="188" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">do / Check resume ownership</text>
+
+        <!-- Transition to PROCESSING -->
+        <path d="M 305 165 L 415 165" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#tarr-blue)"/>
+        <rect x="320" y="142" width="80" height="18" rx="3" fill="#ffffff" stroke="#bfdbfe"/>
+        <text x="360" y="154" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#0284c7">analyzeAction()</text>
+
+        <!-- State: PROCESSING -->
+        <rect x="415" y="120" width="250" height="90" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+        <line x1="415" y1="148" x2="665" y2="148" stroke="#bfdbfe" stroke-width="1"/>
+        <text x="540" y="141" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0284c7">PROCESSING</text>
+        <text x="428" y="166" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Enforce 5/hr Rate Limit</text>
+        <text x="428" y="180" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / Query Redis SHA-256 AI Cache</text>
+        <text x="428" y="194" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / Stream Base64 to Gemini API</text>
+
+        <!-- Transition to DONE (Success) -->
+        <path d="M 665 150 L 820 150" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#tarr-emerald)"/>
+        <rect x="685" y="128" width="115" height="18" rx="3" fill="#ffffff" stroke="#a7f3d0"/>
+        <text x="742" y="140" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#047857">[Valid Gemini Rubric]</text>
+
+        <!-- State: DONE -->
+        <rect x="820" y="120" width="250" height="90" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+        <line x1="820" y1="148" x2="1070" y2="148" stroke="#a7f3d0" stroke-width="1"/>
+        <text x="945" y="141" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#047857">DONE</text>
+        <text x="833" y="166" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Persist score &amp; feedback</text>
+        <text x="833" y="180" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Set Redis Cache (24h TTL)</text>
+        <text x="833" y="194" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">exit / Invalidate DB query lists</text>
+
+        <!-- Transition to ERROR -->
+        <path d="M 540 210 L 540 270 L 820 270" fill="none" stroke="#e11d48" stroke-width="1.8" marker-end="url(#tarr-red)"/>
+        <rect x="620" y="255" width="120" height="18" rx="3" fill="#ffffff" stroke="#fecaca"/>
+        <text x="680" y="267" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#e11d48">[API Error / Timeout]</text>
+
+        <!-- State: ERROR -->
+        <rect x="820" y="240" width="250" height="60" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+        <line x1="820" y1="265" x2="1070" y2="265" stroke="#fecaca" stroke-width="1"/>
+        <text x="945" y="258" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#e11d48">ERROR</text>
+        <text x="833" y="284" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">do / Log error, allow candidate retry</text>
+
+        <!-- Retry Transition -->
+        <path d="M 945 300 L 945 325 L 600 325 L 600 210" fill="none" stroke="#e11d48" stroke-dasharray="4,4" stroke-width="1.5" marker-end="url(#tarr-red)"/>
+        <g transform="translate(630, 314)">
+          <rect width="260" height="20" rx="4" fill="#ffffff" stroke="#fecaca" stroke-width="1"/>
+          <text x="130" y="14" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#e11d48">retryAction() [Backoff &amp; Rate Limit Check]</text>
+        </g>
+
+        <!-- Transition to PURGED -->
+        <path d="M 1070 165 L 1190 165" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#tarr)"/>
+        <rect x="1090" y="142" width="80" height="18" rx="3" fill="#ffffff" stroke="#e2e8f0"/>
+        <text x="1130" y="154" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">deleteAnalysis()</text>
+
+        <circle cx="1215" cy="165" r="14" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+        <circle cx="1215" cy="165" r="8" fill="#0f172a"/>
+        <text x="1215" y="195" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#0f172a">PURGED</text>
+
+        <!-- ================= SECTION 2: VOICE INTERVIEW STATE MACHINE ================= -->
+        <rect x="30" y="380" width="1290" height="420" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+        <text x="50" y="408" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="1px">STATE MACHINE 2: REAL-TIME VOICE MOCK INTERVIEW SESSION (LiveKit WebRTC &amp; agent.py)</text>
+
+        <!-- Initial State -->
+        <circle cx="70" cy="500" r="12" fill="#0f172a"/>
+        <path d="M 82 500 L 125 500" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#tarr)"/>
+
+        <!-- State 1: CONFIGURING -->
+        <rect x="125" y="465" width="180" height="70" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.5"/>
+        <line x1="125" y1="492" x2="305" y2="492" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="215" y="485" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">CONFIGURING</text>
+        <text x="135" y="510" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">do / Select Role, Level &amp; Tech</text>
+        <text x="135" y="524" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">do / Cross-reference Resume with JD</text>
+
+        <!-- Transition to INITIALIZED -->
+        <path d="M 305 500 L 380 500" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#tarr-amber)"/>
+        <g transform="translate(305, 489)">
+          <rect width="75" height="18" rx="3" fill="#ffffff" stroke="#fde68a" stroke-width="1"/>
+          <text x="37" y="13" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#b45309">generateQs()</text>
+        </g>
+
+        <!-- State 2: INITIALIZED -->
+        <rect x="380" y="465" width="180" height="70" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="1.8"/>
+        <line x1="380" y1="492" x2="560" y2="492" stroke="#fde68a" stroke-width="1"/>
+        <text x="470" y="485" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">INITIALIZED</text>
+        <text x="390" y="510" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Gemini API builds 5 Qs</text>
+        <text x="390" y="524" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Save Interview row in DB</text>
+
+        <!-- Transition to CONNECTING -->
+        <path d="M 560 500 L 635 500" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#tarr-blue)"/>
+        <g transform="translate(560, 489)">
+          <rect width="75" height="18" rx="3" fill="#ffffff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="37" y="13" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#0284c7">tokenRoute()</text>
+        </g>
+
+        <!-- State 3: CONNECTING -->
+        <rect x="635" y="465" width="180" height="70" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+        <line x1="635" y1="492" x2="815" y2="492" stroke="#bfdbfe" stroke-width="1"/>
+        <text x="725" y="485" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0284c7">CONNECTING</text>
+        <text x="645" y="510" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">entry / Provision room &amp; token</text>
+        <text x="645" y="524" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">do / Dispatch agent.py daemon</text>
+
+        <!-- Transition to IN_CALL -->
+        <path d="M 815 500 L 890 500" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#tarr-blue)"/>
+        <g transform="translate(815, 489)">
+          <rect width="75" height="18" rx="3" fill="#ffffff" stroke="#bfdbfe" stroke-width="1"/>
+          <text x="37" y="13" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#0284c7">connected()</text>
+        </g>
+
+        <!-- State 4: COMPOSITE STATE - IN_CALL -->
+        <rect x="890" y="440" width="410" height="150" rx="10" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+        <text x="910" y="462" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0284c7">IN_CALL (Active Audio Session)</text>
+
+        <rect x="910" y="475" width="170" height="50" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.2"/>
+        <text x="995" y="495" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="700" fill="#0284c7">Agent Speaking</text>
+        <text x="995" y="510" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#64748b">TTS audio stream</text>
+
+        <rect x="1110" y="475" width="170" height="50" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.2"/>
+        <text x="1195" y="495" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="700" fill="#047857">Candidate Speaking</text>
+        <text x="1195" y="510" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#64748b">STT transcription</text>
+
+        <!-- Substate Transitions -->
+        <path d="M 1080 490 L 1110 490" fill="none" stroke="#059669" stroke-width="1.2" marker-end="url(#tarr-emerald)"/>
+        <path d="M 1110 515 L 1080 515" fill="none" stroke="#0284c7" stroke-width="1.2" marker-end="url(#tarr-blue)"/>
+
+        <text x="1095" y="555" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">Deterministic loop: asks exactly 5 questions one by one</text>
+        <text x="1095" y="570" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">Strict policy: evaluator only, never provides answers or hints</text>
+
+        <!-- Transition to CONCLUDING (Regex) -->
+        <path d="M 1095 590 L 1095 650 L 560 650" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#tarr-blue)"/>
+        <rect x="700" y="638" width="280" height="18" rx="3" fill="#ffffff" stroke="#bfdbfe"/>
+        <text x="840" y="650" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#0284c7">Regex: "This concludes our interview" (session-ended)</text>
+
+        <!-- State 5: CONCLUDING -->
+        <rect x="360" y="625" width="200" height="60" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.5"/>
+        <line x1="360" y1="650" x2="560" y2="650" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="460" y="643" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#0f172a">CONCLUDING</text>
+        <text x="370" y="668" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">entry / Emit WebRTC data packet</text>
+        <text x="370" y="678" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">do / Disconnect &amp; deleteRoom()</text>
+
+        <!-- Transition to EVALUATING -->
+        <path d="M 360 655 L 260 655" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#tarr-amber)"/>
+        <g transform="translate(280, 644)">
+          <rect width="60" height="18" rx="3" fill="#ffffff" stroke="#fde68a" stroke-width="1"/>
+          <text x="30" y="13" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#b45309">submit()</text>
+        </g>
+
+        <!-- State 6: EVALUATING -->
+        <rect x="50" y="625" width="210" height="70" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+        <line x1="50" y1="650" x2="260" y2="650" stroke="#fde68a" stroke-width="1"/>
+        <text x="155" y="643" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#b45309">EVALUATING</text>
+        <text x="60" y="668" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Gemini API grades dialog</text>
+        <text x="60" y="680" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / 5 categories &amp; citations</text>
+
+        <!-- Transition to FINALIZED -->
+        <path d="M 155 695 L 155 750 L 360 750" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#tarr-emerald)"/>
+
+        <!-- State 7: FINALIZED -->
+        <rect x="360" y="725" width="200" height="55" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+        <line x1="360" y1="748" x2="560" y2="748" stroke="#a7f3d0" stroke-width="1"/>
+        <text x="460" y="742" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#047857">FINALIZED</text>
+        <text x="370" y="768" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / Render Executive Scorecard</text>
+
+        <!-- Voice Bullseye -->
+        <path d="M 560 750 L 630 750" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#tarr)"/>
+        <circle cx="650" cy="750" r="14" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>
+        <circle cx="650" cy="750" r="8" fill="#0f172a"/>
+        <text x="650" y="776" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#0f172a">COMPLETED</text>
+
+        <!-- ================= SECTION 3: ONBOARDING & SKILL SYNC STATE MACHINE ================= -->
+        <rect x="30" y="830" width="1290" height="340" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+        <text x="50" y="858" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#0f172a" letter-spacing="1px">STATE MACHINE 3: CANDIDATE ONBOARDING &amp; PROGRESSIVE SKILL SYNCHRONIZATION</text>
+
+        <!-- Initial State -->
+        <circle cx="70" cy="960" r="12" fill="#0f172a"/>
+        <path d="M 82 960 L 125 960" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#tarr)"/>
+        <text x="103" y="951" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">authenticate()</text>
+
+        <!-- State 1: UNONBOARDED -->
+        <rect x="125" y="925" width="180" height="70" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+        <line x1="125" y1="952" x2="305" y2="952" stroke="#fecaca" stroke-width="1"/>
+        <text x="215" y="945" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10.5" font-weight="700" fill="#e11d48">UNONBOARDED</text>
+        <text x="135" y="970" font-family="'JetBrains Mono', monospace" font-size="8" fill="#475569">entry / User created in DB</text>
+        <text x="135" y="984" font-family="'JetBrains Mono', monospace" font-size="8" fill="#e11d48">guard / industry == null</text>
+
+        <!-- Transition to ACTIVE_CANDIDATE -->
+        <path d="M 305 960 L 400 960" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#tarr-emerald)"/>
+        <rect x="315" y="938" width="75" height="18" rx="3" fill="#ffffff" stroke="#a7f3d0"/>
+        <text x="352" y="950" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#047857">updateUser()</text>
+
+        <!-- State 2: ACTIVE_CANDIDATE -->
+        <rect x="400" y="920" width="240" height="85" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2"/>
+        <line x1="400" y1="948" x2="640" y2="948" stroke="#a7f3d0" stroke-width="1"/>
+        <text x="520" y="941" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#047857">ACTIVE_CANDIDATE</text>
+        <text x="412" y="966" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Industry linked, dashboard active</text>
+        <text x="412" y="980" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / Access Resumes, Quizzes &amp; Roadmaps</text>
+        <text x="412" y="994" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748b">User.skills initially empty / onboarded</text>
+
+        <!-- Transition to SKILL_NORMALIZATION -->
+        <path d="M 640 960 L 750 960" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#tarr-amber)"/>
+        <rect x="650" y="938" width="90" height="18" rx="3" fill="#ffffff" stroke="#fde68a"/>
+        <text x="695" y="950" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#b45309">completeNode()</text>
+
+        <!-- State 3: SKILL_NORMALIZATION -->
+        <rect x="750" y="920" width="270" height="85" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+        <line x1="750" y1="948" x2="1020" y2="948" stroke="#fde68a" stroke-width="1"/>
+        <text x="885" y="941" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#b45309">SKILL_NORMALIZATION</text>
+        <text x="762" y="966" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">entry / Pass step titles to Gemini API</text>
+        <text x="762" y="980" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / Filter abstractions, extract tools</text>
+        <text x="762" y="994" font-family="'JetBrains Mono', monospace" font-size="8" fill="#334155">do / Deduplicate against User.skills</text>
+
+        <!-- Loop back to ACTIVE_CANDIDATE -->
+        <path d="M 885 1005 L 885 1045 L 520 1045 L 520 1005" fill="none" stroke="#059669" stroke-width="1.8" marker-end="url(#tarr-emerald)"/>
+        <g transform="translate(470, 1034)">
+          <rect width="460" height="20" rx="4" fill="#ffffff" stroke="#a7f3d0" stroke-width="1"/>
+          <text x="230" y="14" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#047857">saveSkillsToProfile() [User.skills updated in DB &amp; synced to Resume]</text>
+        </g>
+
+        <!-- Wipe Transition -->
+        <path d="M 640 930 L 1100 930" fill="none" stroke="#e11d48" stroke-width="1.8" marker-end="url(#tarr-red)"/>
+        <rect x="850" y="912" width="100" height="18" rx="3" fill="#ffffff" stroke="#fecaca"/>
+        <text x="900" y="924" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="600" fill="#e11d48">deleteAccount()</text>
+
+        <!-- State 4: PURGING_ALL -->
+        <rect x="1100" y="910" width="170" height="75" rx="8" fill="#ffffff" stroke="#e11d48" stroke-width="1.5"/>
+        <line x1="1100" y1="935" x2="1270" y2="935" stroke="#fecaca" stroke-width="1"/>
+        <text x="1185" y="928" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#e11d48">PURGING_ALL</text>
+        <text x="1110" y="952" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#475569">1. Purge CDN PDFs</text>
+        <text x="1110" y="964" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#475569">2. DB cascades 7 tables</text>
+        <text x="1110" y="976" font-family="'JetBrains Mono', monospace" font-size="7.5" fill="#475569">3. Revoke Auth identity</text>
+
+        <!-- Final State Bullseye -->
+        <path d="M 1270 950 L 1300 950" fill="none" stroke="#e11d48" stroke-width="1.8" marker-end="url(#tarr-red)"/>
+        <circle cx="1310" cy="950" r="10" fill="#ffffff" stroke="#e11d48" stroke-width="2"/>
+        <circle cx="1310" cy="950" r="5" fill="#e11d48"/>
+      </svg>
+    </div>
+
+    <!-- Technical Summary Cards (Matching Skill Guidelines) -->
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>Resume Analysis States</h3>
+        </div>
+        <ul>
+          <li>• <strong>PENDING:</strong> Validates file upload domain and verifies document ownership.</li>
+          <li>• <strong>PROCESSING:</strong> Enforces 5/hr rate limit and checks SHA-256 Redis AI cache before calling Gemini API.</li>
+          <li>• <strong>DONE / ERROR:</strong> Persists score (0-100) or enters recoverable error state with backoff.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot blue"></div>
+          <h3>Voice Interview Session</h3>
+        </div>
+        <ul>
+          <li>• <strong>IN_CALL Loop:</strong> VAD speech detection, streaming STT, and streaming TTS alternate turns deterministically.</li>
+          <li>• <strong>Strict Policy:</strong> Agent asks exactly 5 questions and never acts as a tutor or hints at correctness.</li>
+          <li>• <strong>Closing Regex:</strong> Recognizing concluding remarks emits <code>session-ended</code> and terminates the room before scoring.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>Progressive Skill Sync</h3>
+        </div>
+        <ul>
+          <li>• <strong>Milestone Completion:</strong> Checking off roadmap nodes triggers AI normalization.</li>
+          <li>• <strong>Filtering Fluff:</strong> Gemini API filters out abstract study concepts, isolating concrete, verifiable tools (e.g. <code>["Docker"]</code>).</li>
+          <li>• <strong>Atomic DB Merge:</strong> Unique skills merge into <code>User.skills</code> in PostgreSQL and immediately sync to the Resume Builder.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      SensAI Architecture Reference · UML Statechart Specification · Standalone Technical Documentation
+    </div>
+  </div>
+</body>
+</html>

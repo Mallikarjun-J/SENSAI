@@ -54,7 +54,7 @@ export default function ResumeBreakdown({ categories }) {
                 </Badge>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-5">
+              <div className={`grid gap-5 ${goodTips.length > 0 && improveTips.length > 0 ? "sm:grid-cols-2" : "grid-cols-1"}`}>
                 {/* What's Working */}
                 {goodTips.length > 0 && (
                   <div className="space-y-3">

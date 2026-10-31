@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SensAI — Database Design (PostgreSQL ERD)</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff;
+      color: #0f172a;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1350px; margin: 0 auto; }
+    .header { margin-bottom: 28px; }
+    .header h1 {
+      font-size: 22px; font-weight: 700; color: #0f172a;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .status-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+      background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe;
+    }
+    .header .subtitle { font-size: 12px; color: #64748b; margin-top: 6px; }
+    .diagram-card {
+      border: 1px solid #cbd5e1; border-radius: 12px;
+      overflow: hidden; background: #ffffff; margin-bottom: 28px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+    .diagram-card svg { display: block; width: 100%; height: auto; }
+    .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.violet { background: #7c3aed; }
+    .card-dot.emerald { background: #059669; }
+    .card-dot.amber { background: #d97706; }
+    .card h3 {
+      font-size: 12px; font-weight: 700; color: #0f172a;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .card ul { list-style: none; }
+    .card li { font-size: 11.5px; color: #334155; padding: 4px 0; line-height: 1.45; }
+    .card li strong { color: #0f172a; }
+    .footer { text-align: center; font-size: 11px; color: #94a3b8; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    @media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } body { padding: 20px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><span class="status-badge">SCHEMA</span> SensAI — Entity Relationship Diagram (PostgreSQL / Prisma ORM)</h1>
+      <p class="subtitle">Complete technical schema mapping all 9 relational models, primary/foreign keys, exact types, cascade rules, and indexes</p>
+    </div>
+
+    <div class="diagram-card">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 980">
+        <defs>
+          <pattern id="light-grid2" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f1f5f9" stroke-width="0.8"/>
+          </pattern>
+          <marker id="crow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 M 8 1 L 8 9" fill="none" stroke="#7c3aed" stroke-width="1.2"/>
+          </marker>
+          <marker id="one" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <line x1="2" y1="1" x2="2" y2="9" stroke="#7c3aed" stroke-width="1.5"/>
+          </marker>
+        </defs>
+
+        <rect width="1350" height="980" fill="#ffffff"/>
+        <rect width="1350" height="980" fill="url(#light-grid2)"/>
+
+        <!-- ================= RELATIONSHIP CONNECTIONS (Drawn first) ================= -->
+        <!-- User to IndustryInsight (N:1) -->
+        <path d="M 675 320 L 675 220" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#crow)" marker-end="url(#one)"/>
+
+        <!-- User to Resume (1:N) -->
+        <path d="M 520 400 L 370 400 L 370 200 L 320 200" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- User to CoverLetter (1:N) -->
+        <path d="M 520 500 L 320 500" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- User to Roadmap (1:N) -->
+        <path d="M 520 600 L 390 600 L 390 750 L 320 750" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- User to Interview (1:N) -->
+        <path d="M 600 680 L 600 740" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- Interview to VoiceFeedback (1:N) -->
+        <path d="M 720 830 L 780 830" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- User to VoiceFeedback (1:N Direct Cascade) -->
+        <path d="M 760 680 L 760 710 L 890 710 L 890 740" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- User to Assessment (1:N) -->
+        <path d="M 830 500 L 1030 500" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- User to ResumeAnalysis (1:N) -->
+        <path d="M 830 400 L 960 400 L 960 220 L 1030 220" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+
+        <!-- ================= MODEL 1: USER (CENTRAL ENTITY) ================= -->
+        <!-- X: 520, Y: 320, W: 310, H: 360 -->
+        <rect x="520" y="320" width="310" height="360" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+        <rect x="520" y="320" width="310" height="36" rx="8" fill="#f5f3ff"/>
+        <text x="535" y="343" font-size="12" font-weight="700" fill="#6d28d9">model User</text>
+        <text x="755" y="343" font-size="9" font-weight="600" fill="#7c3aed">[Central Root]</text>
+
+        <g font-size="9.5" fill="#334155" transform="translate(535, 375)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (UUID)</text>
+          <text y="20"><tspan font-weight="700" fill="#0284c7">UQ</tspan> clerkUserId : String</text>
+          <text y="40"><tspan font-weight="700" fill="#0284c7">UQ</tspan> email : String</text>
+          <text y="60">   name : String?</text>
+          <text y="80">   imageUrl : String?</text>
+          <text y="100"><tspan font-weight="700" fill="#d97706">FK</tspan> industry : String? (ref IndustryInsight)</text>
+          <text y="120">   bio : String?</text>
+          <text y="140">   experience : Int? (Years)</text>
+          <text y="160">   skills : String[] (Verified array)</text>
+          <text y="180">   createdAt : DateTime (now)</text>
+          <text y="200">   updatedAt : DateTime (updatedAt)</text>
+          <line x1="0" y1="215" x2="280" y2="215" stroke="#e2e8f0" stroke-width="1"/>
+          <text y="235" font-size="8.5" fill="#64748b">• 1:N with Resumes (Cascade)</text>
+          <text y="250" font-size="8.5" fill="#64748b">• 1:N with Interviews &amp; Feedbacks (Cascade)</text>
+          <text y="265" font-size="8.5" fill="#64748b">• 1:N with Roadmaps &amp; Analyses (Cascade)</text>
+          <text y="280" font-size="8.5" fill="#64748b">• N:1 with IndustryInsight</text>
+        </g>
+
+        <!-- ================= MODEL 2: INDUSTRY INSIGHT ================= -->
+        <!-- X: 520, Y: 40, W: 310, H: 180 -->
+        <rect x="520" y="40" width="310" height="180" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="520" y="40" width="310" height="30" rx="8" fill="#f8fafc"/>
+        <text x="535" y="60" font-size="11" font-weight="700" fill="#0f172a">model IndustryInsight</text>
+        <g font-size="9" fill="#334155" transform="translate(535, 88)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (CUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#0284c7">UQ</tspan> industry : String (e.g. tech-software-dev)</text>
+          <text y="32">   salaryRanges : Json[] (min, median, max)</text>
+          <text y="48">   growthRate : Float • demandLevel : String</text>
+          <text y="64">   topSkills : String[] • keyTrends : String[]</text>
+          <text y="80">   recommendedSkills : String[]</text>
+          <text y="96">   lastUpdated : DateTime • nextUpdate : DateTime</text>
+        </g>
+
+        <!-- ================= MODEL 3: RESUME ================= -->
+        <!-- X: 40, Y: 40, W: 280, H: 340 -->
+        <rect x="40" y="40" width="280" height="340" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="40" y="40" width="280" height="30" rx="8" fill="#f8fafc"/>
+        <text x="55" y="60" font-size="11" font-weight="700" fill="#0f172a">model Resume</text>
+        <g font-size="9" fill="#334155" transform="translate(55, 88)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (CUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id, Cascade)</text>
+          <text y="32">   title : String ("Untitled Resume")</text>
+          <text y="48">   template : String ("classic","tech"...)</text>
+          <text y="64">   ascentColor : String ("#a78bfa")</text>
+          <text y="80">   fontScale : Float (10.5pt default)</text>
+          <text y="96">   professionalSummary : String</text>
+          <text y="112">   skills : Json ("[]")</text>
+          <text y="128">   personalInfo : Json ("{}")</text>
+          <text y="144">   experience : Json ("[]")</text>
+          <text y="160">   projects : Json ("[]")</text>
+          <text y="176">   education : Json ("[]")</text>
+          <text y="192">   sectionOrder : Json ("[]")</text>
+          <text y="208">   hiddenSections : Json ("[]")</text>
+          <text y="224">   customSections : Json ("[]")</text>
+          <text y="240">   createdAt : DateTime • updatedAt : DateTime</text>
+          <text y="260" fill="#7c3aed" font-weight="600">Index: @@index([userId])</text>
+        </g>
+
+        <!-- ================= MODEL 4: COVER LETTER ================= -->
+        <!-- X: 40, Y: 420, W: 280, H: 200 -->
+        <rect x="40" y="420" width="280" height="200" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="40" y="420" width="280" height="30" rx="8" fill="#f8fafc"/>
+        <text x="55" y="440" font-size="11" font-weight="700" fill="#0f172a">model CoverLetter</text>
+        <g font-size="9" fill="#334155" transform="translate(55, 468)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (CUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id)</text>
+          <text y="32">   content : String (400-word Markdown)</text>
+          <text y="48">   jobDescription : String?</text>
+          <text y="64">   companyName : String • jobTitle : String</text>
+          <text y="80">   status : String ("draft","completed")</text>
+          <text y="96">   createdAt : DateTime • updatedAt : DateTime</text>
+          <text y="116" fill="#7c3aed" font-weight="600">Index: @@index([userId])</text>
+        </g>
+
+        <!-- ================= MODEL 5: ROADMAP ================= -->
+        <!-- X: 40, Y: 660, W: 280, H: 220 -->
+        <rect x="40" y="660" width="280" height="220" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="40" y="660" width="280" height="30" rx="8" fill="#f8fafc"/>
+        <text x="55" y="680" font-size="11" font-weight="700" fill="#0f172a">model Roadmap (roadmaps)</text>
+        <g font-size="9" fill="#334155" transform="translate(55, 708)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (UUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id, Cascade)</text>
+          <text y="32">   title : String (Target Career Goal)</text>
+          <text y="48">   phases : Json ("[]" - 4-6 Stages)</text>
+          <text y="64">   roadmapNodes : Json ("[]" - DAG coords)</text>
+          <text y="80">   completedSteps : Json ("[]" - Checked IDs)</text>
+          <text y="96">   createdAt : DateTime • updatedAt : DateTime</text>
+          <text y="116" fill="#7c3aed" font-weight="600">Index: @@index([userId])</text>
+        </g>
+
+        <!-- ================= MODEL 6: INTERVIEW ================= -->
+        <!-- X: 460, Y: 740, W: 270, H: 210 -->
+        <rect x="460" y="740" width="270" height="210" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="460" y="740" width="270" height="30" rx="8" fill="#f8fafc"/>
+        <text x="475" y="760" font-size="11" font-weight="700" fill="#0f172a">model Interview (interviews)</text>
+        <g font-size="9" fill="#334155" transform="translate(475, 788)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (UUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id, Cascade)</text>
+          <text y="32">   role : String • level : String</text>
+          <text y="48">   type : String • techstack : String[]</text>
+          <text y="64">   questions : String[] (Generated Qs)</text>
+          <text y="80">   finalized : Boolean (default false)</text>
+          <text y="96">   createdAt : DateTime</text>
+          <text y="116" fill="#7c3aed" font-weight="600">Index: @@index([userId])</text>
+        </g>
+
+        <!-- ================= MODEL 7: VOICE FEEDBACK ================= -->
+        <!-- X: 780, Y: 740, W: 280, H: 210 -->
+        <rect x="780" y="740" width="280" height="210" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="780" y="740" width="280" height="30" rx="8" fill="#f8fafc"/>
+        <text x="795" y="760" font-size="11" font-weight="700" fill="#0f172a">model VoiceFeedback</text>
+        <g font-size="9" fill="#334155" transform="translate(795, 788)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (UUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> interviewId : String (Interview.id, Cascade)</text>
+          <text y="32"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id, Cascade)</text>
+          <text y="48">   totalScore : Int (0-100 overall)</text>
+          <text y="64">   categoryScores : Json (5 rubric pillars)</text>
+          <text y="80">   strengths : String • areasForImprovement : String</text>
+          <text y="96">   finalAssessment : String</text>
+          <text y="116" fill="#7c3aed" font-weight="600">Index: @@index([interviewId])</text>
+        </g>
+
+        <!-- ================= MODEL 8: ASSESSMENT (QUIZ) ================= -->
+        <!-- X: 1030, Y: 420, W: 280, H: 200 -->
+        <rect x="1030" y="420" width="280" height="200" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="1030" y="420" width="280" height="30" rx="8" fill="#f8fafc"/>
+        <text x="1045" y="440" font-size="11" font-weight="700" fill="#0f172a">model Assessment (Quiz)</text>
+        <g font-size="9" fill="#334155" transform="translate(1045, 468)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (CUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id)</text>
+          <text y="32">   quizScore : Float • category : String</text>
+          <text y="48">   questions : Json[] (q, ans, userAns, isCorrect)</text>
+          <text y="64">   improvementTip : String? (Targeted AI tip)</text>
+          <text y="80">   createdAt : DateTime • updatedAt : DateTime</text>
+          <text y="100" fill="#7c3aed" font-weight="600">Index: @@index([userId])</text>
+        </g>
+
+        <!-- ================= MODEL 9: RESUME ANALYSIS ================= -->
+        <!-- X: 1030, Y: 40, W: 280, H: 340 -->
+        <rect x="1030" y="40" width="280" height="340" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="1030" y="40" width="280" height="30" rx="8" fill="#f8fafc"/>
+        <text x="1045" y="60" font-size="11" font-weight="700" fill="#0f172a">model ResumeAnalysis</text>
+        <g font-size="9" fill="#334155" transform="translate(1045, 88)">
+          <text y="0"><tspan font-weight="700" fill="#0f172a">PK</tspan> id : String (CUID)</text>
+          <text y="16"><tspan font-weight="700" fill="#d97706">FK</tspan> userId : String (User.id, Cascade)</text>
+          <text y="32">   companyName : String • jobTitle : String</text>
+          <text y="48">   jobDescription : String (Text)</text>
+          <text y="64">   resumeUrl : String • resumeKey : String</text>
+          <text y="80">   status : Enum (PENDING, PROCESSING,</text>
+          <text y="94" fill="#64748b">                 DONE, ERROR)</text>
+          <text y="110">   overallScore : Int? (0-100)</text>
+          <text y="126">   feedback : Json? (ATS 5-pillar rubric)</text>
+          <text y="142">   createdAt : DateTime • updatedAt : DateTime</text>
+          <text y="162" fill="#7c3aed" font-weight="600">Index: @@index([userId])</text>
+        </g>
+
+        <!-- ================= LEGEND ================= -->
+        <g transform="translate(40, 930)">
+          <text x="0" y="10" font-size="10" font-weight="700" fill="#0f172a">LEGEND:</text>
+          <text x="70" y="10" font-size="9" fill="#0f172a"><tspan font-weight="700">PK</tspan> Primary Key</text>
+          <text x="190" y="10" font-size="9" fill="#0284c7"><tspan font-weight="700">UQ</tspan> Unique Constraint</text>
+          <text x="330" y="10" font-size="9" fill="#d97706"><tspan font-weight="700">FK</tspan> Foreign Key (Cascade)</text>
+          <text x="490" y="10" font-size="9" fill="#7c3aed"><tspan font-weight="700">@@index</tspan> B-Tree Query Index</text>
+          <line x1="680" y1="6" x2="710" y2="6" stroke="#7c3aed" stroke-width="1.5" marker-start="url(#one)" marker-end="url(#crow)"/>
+          <text x="720" y="10" font-size="9" fill="#475569">1:N Relationship</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Technical Summary Cards (Matching Skill Guidelines) -->
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>Relational Integrity &amp; Cascades</h3>
+        </div>
+        <ul>
+          <li>• <strong>Central Identity:</strong> <code>User</code> table roots all user-owned assets via foreign keys.</li>
+          <li>• <strong>Cascade Deletion:</strong> Deleting a candidate user cleanly purges linked <code>Resume</code>, <code>Interview</code>, <code>VoiceFeedback</code>, <code>Roadmap</code>, and <code>ResumeAnalysis</code> rows.</li>
+          <li>• <strong>Account Wipe Action:</strong> In <code>actions/user.js</code>, user deletion systematically cleans storage CDN files before database cascade execution.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>JSONB Structured Payloads</h3>
+        </div>
+        <ul>
+          <li>• <strong>Builder Flexibility:</strong> <code>Resume</code> sections (skills, experience, projects) serialize directly into PostgreSQL JSONB trees.</li>
+          <li>• <strong>DAG Canvas State:</strong> <code>Roadmap</code> retains coordinates and checked states in JSONB without over-normalizing node rows.</li>
+          <li>• <strong>5-Pillar Voice Rubric:</strong> Detailed rubric comments, citations, and scores persist natively in <code>VoiceFeedback.categoryScores</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>Indexes &amp; Cache Invalidation</h3>
+        </div>
+        <ul>
+          <li>• <strong>Targeted B-Tree Indexes:</strong> Foreign keys feature <code>@@index([userId])</code> to accelerate tenant-scoped queries.</li>
+          <li>• <strong>Unique Slugs:</strong> <code>IndustryInsight.industry</code> uses a unique constraint for atomic upserting.</li>
+          <li>• <strong>Dual-Layer Invalidation:</strong> Mutations in Server Actions automatically invoke <code>invalidateCache()</code> to purge stale Redis query lists.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      SensAI Architecture Reference · Database Design (ERD) · Standalone Technical Specification
+    </div>
+  </div>
+</body>
+</html>

@@ -554,7 +554,7 @@ export async function createVoiceFeedback({ interviewId, transcript, feedbackId 
 
         For each of the 5 categories, produce:
         - improvements (2–3 items): specific, named areas to fix within that category
-        - strengths (1–3 items): specific things done well — only if genuinely demonstrated, not as padding
+        - strengths (0–3 items): specific things done well — only if genuinely demonstrated. If no strengths were demonstrated in this area, return an empty list. Never put negative critique or disclaimers here.
 
         Each bullet item must have:
         - "title": 5–8 words, imperative or noun phrase — e.g. "Quantify system design trade-offs" or "Structured STAR delivery"
@@ -567,7 +567,7 @@ export async function createVoiceFeedback({ interviewId, transcript, feedbackId 
         - Write in second person throughout
         - Do NOT copy-paste from the category comment
 
-        For strengths (global): 4–5 standout positives separated by ||| — short, skill-labelled, second person. Only list genuine strengths — do not pad.
+        For strengths (global): 3–5 standout positives separated by ||| — short, skill-labelled, second person. Only list genuine strengths that were actually demonstrated. If the interview was so brief or weak that no clear strengths were shown, return an empty string "" or "none". NEVER write disclaimers or negative critique such as "No clear strengths were demonstrated" into this field — all gaps and critiques belong exclusively in areasForImprovement.
         For areasForImprovement (global): 4–5 gaps separated by ||| — short, named precisely, second person. These are the things a hiring manager would note as concerns.
         For finalAssessment: 3–5 sentences. Give an honest verdict — would this candidate likely pass a real interview at a competitive company at this level? What is the single most important thing to fix before the next interview?
 
